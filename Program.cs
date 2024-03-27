@@ -62,7 +62,7 @@ namespace ynac
 		{
 			_budgetQueryService = budgetQueryService;
 		}
-		public Task RunAsync()
+		public async Task RunAsync()
 		{
 			var budgets = _budgetQueryService.GetBudgets();
 			var index = 0;
@@ -75,21 +75,59 @@ namespace ynac
 			int.TryParse(selection, out var selectionIndex);
 			var selectedBudget = budgets.Result.ElementAt(selectionIndex);
 			
-			var categoryGroups = _budgetQueryService.GetBudgetCategories(selectedBudget);
-			index = 0;
-			foreach (var categoryGroup in categoryGroups.Result)
-			{
-				AnsiConsole.Markup($"[underline yellow]{index++}[/] [bold white]{categoryGroup.Name}[/]\n");
-			}
+			var budgetCategoryGroups = await _budgetQueryService.GetBudgetCategories(selectedBudget);
+			var table = new Table()
+				.Caption("You Need A Table")
+				.Border(TableBorder.Rounded)
+				.BorderColor(Color.Yellow);	
+			table.AddColumn($"[bold white][[[/] [yellow]{selectedBudget.Name}[/] [bold white]]][/]");
 			
-			var selectedCategories = _budgetQueryService.GetBudgetCategories(selectedBudget);
-			index = 0;
-			foreach (var categoryGroup in selectedCategories.Result)
+			foreach (var categoryGroup in budgetCategoryGroups.Where(c => !c.Hidden).Skip(1).SkipLast(1))
 			{
-				//AnsiConsole.Markup($"[underline yellow]{index++}[/] [bold white]{categoryGroup.Name}[/]\n");
+				var subTable = new Table()
+					.Title(categoryGroup.Name, Style.Parse("italic blue"))
+					.Expand();
+				
+				subTable.AddColumn(new TableColumn("Category").LeftAligned());
+				subTable.AddColumn(new TableColumn("Budgeted").RightAligned());
+				subTable.AddColumn(new TableColumn("Activity").RightAligned());
+				subTable.AddColumn(new TableColumn("Available").RightAligned());	
+				
+				var totalBudgeted = 0m;
+				var totalActivity = 0m;
+				var totalAvailable = 0m;
+				foreach (var category in categoryGroup.Categories.Where(c => !c.Hidden))
+				{
+					var activityDollars = category.Activity / 1000;
+					var budgetedDollars = category.Balance / 1000;
+					var availableDollars = category.Balance / 1000;
+					
+					totalBudgeted += budgetedDollars;
+					totalActivity += activityDollars;
+					totalAvailable += availableDollars;
+					
+					subTable.AddRow(
+						$"[bold white]{category.Name}[/]", 
+						$"[green]{budgetedDollars.ToString("C")}[/]", 
+						$"[red]{activityDollars.ToString("C")}[/]", 
+						$"[green]{availableDollars.ToString("C")}[/]"
+					);
+				}
+					
+				subTable.AddRow(
+					"", 
+					$"[green]{totalBudgeted.ToString("C")}[/]", 
+					$"[red]{totalActivity.ToString("C")}[/]", 
+					$"[green]{totalAvailable.ToString("C")}[/]"
+				);
+
+				table.AddRow(subTable);
 			}
-			//AnsiConsole.Markup("[italic grey]Select a budget:[/] ");
-			return Task.CompletedTask;
+
+			
+			AnsiConsole.Write(table);
+			
+			return;
 		}
 	}
 }
