@@ -89,7 +89,7 @@ namespace ynac
 		public async Task RunAsync(string? budgetFilter, string? categoryFilter)
 		{
 			var budgets = await _budgetQueryService.GetBudgets();
-			Budget selectedBudget = null;
+			Budget? selectedBudget = null;
 			
 			if (string.IsNullOrWhiteSpace(budgetFilter))
 			{
