@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
@@ -59,6 +60,11 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
 		[Description("The category name to filter to. Will find the first category containing this string")]
 		[CommandArgument(0, "[budgetFilter]")]
 		public string? CategoryFilter { get; init; }
+		
+		[Description("Open the budget on the web. If a budget filter is applied, the found budget will be opened. If a filter is not applied, the budget will be opened after one is selected.")]
+		[CommandOption("-o|--open")]
+		[DefaultValue(false)]
+		public bool Open { get; init; }
 	}
 
 	public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -66,7 +72,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
 		var config =  new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 		var services = Setup.BuildServiceProvider(config);
 		var ynabConsole = services.GetRequiredService<IYnabConsole>();
-		await ynabConsole.RunAsync(settings.BudgetFilter, settings.CategoryFilter);
+		await ynabConsole.RunAsync(settings);
 		return 0;
 	}
 }
@@ -75,7 +81,7 @@ namespace ynac
 {
 	public interface IYnabConsole
 	{
-		public Task RunAsync(string? budgetFilter, string? categoryFilter);
+		public Task RunAsync(BudgetCommand.Settings settings);
 	}
 
 	class Ynac : IYnabConsole
@@ -86,15 +92,18 @@ namespace ynac
 		{
 			_budgetQueryService = budgetQueryService;
 		}
-		public async Task RunAsync(string? budgetFilter, string? categoryFilter)
+		public async Task RunAsync(BudgetCommand.Settings settings) 
 		{
 			var budgets = await _budgetQueryService.GetBudgets();
 			Budget? selectedBudget = null;
+			var budgetFilter = settings.BudgetFilter;
+			var categoryFilter = settings.CategoryFilter;
+			
+			AnsiConsole.Markup("[bold aqua]            You Need A Console[/]\n");
 			
 			if (string.IsNullOrWhiteSpace(budgetFilter))
 			{
 				var index = 0;
-				AnsiConsole.Markup("[bold aqua]            You Need A Console[/]\n");
 				foreach (var budget in budgets)
 				{
 					AnsiConsole.Markup(
@@ -113,6 +122,17 @@ namespace ynac
 			if (selectedBudget == null)
 			{
 				AnsiConsole.Markup("[red]Budget(s) not found[/]");
+				return;
+			}
+
+			if (settings.Open)
+			{
+				ProcessStartInfo psi = new ProcessStartInfo
+				{
+					FileName = $"https://app.ynab.com/{selectedBudget.Id}/budget",
+					UseShellExecute = true
+				};
+				Process.Start (psi);
 				return;
 			}
 			
