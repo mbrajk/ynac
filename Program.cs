@@ -136,14 +136,25 @@ namespace ynac
 				return;
 			}
 			
+			var selectedBudgetFull = await _budgetQueryService.GetBudgetMonth(selectedBudget.Id, new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1));
 			var budgetCategoryGroups = await _budgetQueryService.GetBudgetCategories(selectedBudget);
 			var table = new Table()
 				.Caption("You Need A Table")
 				.Border(TableBorder.Rounded)
-				.BorderColor(Color.Yellow);	
-			table.AddColumn($"[bold white][[[/] [yellow]{selectedBudget.Name}[/] [bold white]]][/]");
+				.BorderColor(Color.Yellow);
 
-			var categoryGroups = budgetCategoryGroups.Where(c => !c.Hidden).Skip(1).SkipLast(1);
+			var columnText = $"[bold white][[[/] [yellow]{selectedBudget.Name}[/] [bold white]]][/]" +
+			                 $"                 " +
+			                 $"[white]Age of money:[/] [aqua]{selectedBudgetFull.AgeOfMoney}[/]" +
+			                 $"\n" +
+			                 $"                            To Be Budgeted: [green]{(selectedBudgetFull.ToBeBudgeted/1000).ToString("C")}[/]";
+			table.AddColumn(columnText);
+
+			var categoryGroups = budgetCategoryGroups
+				.Where(c => !c.Hidden)
+				.Where(c => !c.Deleted)
+				.Skip(1)
+				.SkipLast(1);
 			if (!string.IsNullOrWhiteSpace(categoryFilter))
 			{
 				categoryGroups = categoryGroups.Where(c => c.Name.Contains(categoryFilter, StringComparison.OrdinalIgnoreCase));
@@ -162,7 +173,7 @@ namespace ynac
 				var totalBudgeted = 0m;
 				var totalActivity = 0m;
 				var totalAvailable = 0m;
-				foreach (var category in categoryGroup.Categories.Where(c => !c.Hidden))
+				foreach (var category in categoryGroup.Categories.Where(c => !c.Hidden).Where(c => !c.Deleted))
 				{
 					var activityDollars = category.Activity / 1000;
 					var budgetedDollars = category.Budgeted / 1000;
