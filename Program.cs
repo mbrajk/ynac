@@ -183,11 +183,26 @@ namespace ynac
 					totalActivity += activityDollars;
 					totalAvailable += availableDollars;
 					
+					
+					var breakdownChart = new BreakdownChart();
+					breakdownChart.Width(20);
+					breakdownChart.HideTags();
+					breakdownChart.HideTagValues();
+					if (category.GoalPercentageComplete != null)
+					{
+						breakdownChart.AddItem("Complete", category.GoalPercentageComplete.Value, Color.Green);
+						breakdownChart.AddItem("Incomplete", 100 - category.GoalPercentageComplete.Value, Color.Red);
+					}
+					
+					var panel = new Panel(breakdownChart);
+					panel.Border = BoxBorder.None;
+					panel.Header = new PanelHeader(category.Name);
 					subTable.AddRow(
-						$"[bold white]{category.Name}[/]", 
-						$"[green]{budgetedDollars.ToString("C")}[/]", 
-						$"[red]{activityDollars.ToString("C")}[/]", 
-						$"[green]{availableDollars.ToString("C")}[/]"
+						//	new Text($"[bold white]{category.Name}[/]"), 
+						panel,
+						new Markup($"[green]{budgetedDollars.ToString("C")}[/]"), 
+						new Markup($"[red]{activityDollars.ToString("C")}[/]"), 
+						new Markup($"[green]{availableDollars.ToString("C")}[/]")
 					);
 				}
 				subTable.ShowFooters().AddRow(
