@@ -1,12 +1,12 @@
-using BudgetSync.YnabApi;
-using BudgetSync.YnabApi.Budget;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
 using Refit;
+using ynac.YnabApi;
+using ynac.YnabApi.Budget;
 
-namespace Ynac;
+namespace ynac;
 
 public static class Setup
 {

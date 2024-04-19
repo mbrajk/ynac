@@ -1,9 +1,9 @@
 using System.Diagnostics;
-using BudgetSync.YnabApi.Budget;
 using Spectre.Console;
 using Spectre.Console.Rendering;
+using ynac.YnabApi.Budget;
 
-namespace Ynac;
+namespace ynac;
 
 public interface IYnabConsole
 {
@@ -66,7 +66,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 		var columnText = $"[bold white][[[/] [yellow]{selectedBudget.Name}[/] [bold white]]][/]" +
 		                 $"                 " +
-		                 $"[white]Age of money:[/] [aqua]{selectedBudgetFull.AgeOfMoney}[/]\n" +
+		                 $"[white]Age of money:[/] [aqua]{selectedBudgetFull.AgeOfMoney ?? 0}[/]\n" +
 		                 $"                            " +
 		                 $"To Be Budgeted: [green]{(selectedBudgetFull.ToBeBudgeted/1000).ToString("C")}[/]";
 		table.AddColumn(columnText);

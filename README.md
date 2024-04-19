@@ -1,6 +1,6 @@
 ## You Need A Console
 
-// image
+
 
 ### Purpose
 
@@ -12,23 +12,22 @@ This is just a personal project but I am open to any feedback and issue requests
 - Download the git repo
 - Navigate to the download folder
 - Type `dotnet run`
-- Select a budget by typing the number of the budget, alternatively you can provide the budget name as the first argument after dotnet run.
+- Select a budget by typing the number of the budget, alternatively you can provide the budget name as the first argument after dotnet run. E.g. `dotnet run mybudget`. The first budget containing the provided string will be retreived, if one exists.
 - Your budget should be displayed
 
 ### Requirements
-Dotnet Core
-Windows (for now)
-YNAB account w/ devloper access (api key)
-//detail the api key process
+- Dotnet Core
+- Windows (for now)
+- YNAB account w/ devloper access (api key)
 
 ### Libraries
 Spectre.Console
 Refit
 
-### Planned Improvements
+### Potential Improvements
 - Multi-platform
-- Install as a dotnet tool or provide standalone exe
+- Install as a dotnet tool or provide alternate standalone solution
 - Include additional features from the YNAB Api
-- Futher details about the existing commands
+- Further details about the existing commands
 - Provide write commands (e.g. approving or categorizing a transaction)
-- Refactoring the code. It started as a single file and it is my first attempt at using neovim so idk how to do stuff.
+- Refactoring the code. It started as a single file and it is my first attempt at using vim motions/neovim so idk how to do stuff.

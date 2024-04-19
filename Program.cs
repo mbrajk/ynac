@@ -1,5 +1,5 @@
 ﻿using Spectre.Console.Cli;
-using Ynac;
+using ynac;
 
 var app = new CommandApp<BudgetCommand>();
 await app.RunAsync(args);
