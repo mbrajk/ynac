@@ -20,6 +20,11 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
         [CommandOption("-o|--open")]
         [DefaultValue(false)]
         public bool Open { get; init; }
+        
+        [Description("Show goal progress indicators in the view (work in progress, may not properly reflect some goals. Additionally, text is not formatted properly)")]
+        [CommandOption("-g|--show-goals")]
+        [DefaultValue(false)]
+        public bool ShowGoals { get; init; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)

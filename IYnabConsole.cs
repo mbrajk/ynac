@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using BudgetSync.YnabApi.Budget;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace Ynac;
 
@@ -102,24 +103,33 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 				totalBudgeted += budgetedDollars;
 				totalActivity += activityDollars;
 				totalAvailable += availableDollars;
-					
-					
-				var breakdownChart = new BreakdownChart();
-				breakdownChart.Width(20);
-				breakdownChart.HideTags();
-				breakdownChart.HideTagValues();
-				if (category.GoalPercentageComplete != null)
+
+
+				IRenderable categoryCell;
+				if (settings.ShowGoals)
 				{
-					breakdownChart.AddItem("Complete", category.GoalPercentageComplete.Value, Color.Green);
-					breakdownChart.AddItem("Incomplete", 100 - category.GoalPercentageComplete.Value, Color.Red);
+					var breakdownChart = new BreakdownChart();
+					breakdownChart.Width(20);
+					breakdownChart.HideTags();
+					breakdownChart.HideTagValues();
+					if (category.GoalPercentageComplete != null)
+					{
+						breakdownChart.AddItem("Complete", category.GoalPercentageComplete.Value, Color.Green);
+						breakdownChart.AddItem("Incomplete", 100 - category.GoalPercentageComplete.Value, Color.Red);
+					}
+                    					
+					var panel = new Panel(breakdownChart);
+					panel.Border = BoxBorder.None;
+					panel.Header = new PanelHeader(category.Name);
+					categoryCell = panel;
 				}
-					
-				var panel = new Panel(breakdownChart);
-				panel.Border = BoxBorder.None;
-				panel.Header = new PanelHeader(category.Name);
+				else
+				{
+					categoryCell = new Markup($"[bold white]{category.Name}[/]");
+				}
+			
 				subTable.AddRow(
-					//	new Text($"[bold white]{category.Name}[/]"), 
-					panel,
+					categoryCell,
 					new Markup($"[green]{budgetedDollars.ToString("C")}[/]"), 
 					new Markup($"[red]{activityDollars.ToString("C")}[/]"), 
 					new Markup($"[green]{availableDollars.ToString("C")}[/]")
