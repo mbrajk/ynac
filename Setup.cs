@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
 using Refit;
-using Ynac.ConsoleService;
+
+namespace Ynac;
 
 public static class Setup
 {
@@ -36,7 +37,7 @@ public static class Setup
             );
 
         // other required dependencies
-        services.AddSingleton<IYnabConsole, Ynac.ConsoleService.Ynac>();
+        services.AddSingleton<IYnabConsole, YnabConsole>();
         services.AddSingleton<IBudgetQueryService, BudgetQueryService>();
 
         return services.BuildServiceProvider();

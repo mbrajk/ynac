@@ -2,24 +2,18 @@ using System.Diagnostics;
 using BudgetSync.YnabApi.Budget;
 using Spectre.Console;
 
-namespace Ynac.ConsoleService;
+namespace Ynac;
 
 public interface IYnabConsole
 {
     public Task RunAsync(BudgetCommand.Settings settings);
 }
 
-class Ynac : IYnabConsole
+class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 {
-	private readonly IBudgetQueryService _budgetQueryService;
-
-	public Ynac(IBudgetQueryService budgetQueryService)
-	{
-		_budgetQueryService = budgetQueryService;
-	}
 	public async Task RunAsync(BudgetCommand.Settings settings) 
 	{
-		var budgets = await _budgetQueryService.GetBudgets();
+		var budgets = await budgetQueryService.GetBudgets();
 		Budget? selectedBudget = null;
 		var budgetFilter = settings.BudgetFilter;
 		var categoryFilter = settings.CategoryFilter;
@@ -52,6 +46,7 @@ class Ynac : IYnabConsole
 
 		if (settings.Open)
 		{
+			//only works on windows but would is possible on Linux and Mac
 			ProcessStartInfo psi = new ProcessStartInfo
 			{
 				FileName = $"https://app.ynab.com/{selectedBudget.Id}/budget",
@@ -61,8 +56,8 @@ class Ynac : IYnabConsole
 			return;
 		}
 			
-		var selectedBudgetFull = await _budgetQueryService.GetBudgetMonth(selectedBudget.Id, new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1));
-		var budgetCategoryGroups = await _budgetQueryService.GetBudgetCategories(selectedBudget);
+		var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget.Id, new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1));
+		var budgetCategoryGroups = await budgetQueryService.GetBudgetCategories(selectedBudget);
 		var table = new Table()
 			.Caption("You Need A Table")
 			.Border(TableBorder.Rounded)

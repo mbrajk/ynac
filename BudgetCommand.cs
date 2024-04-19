@@ -1,7 +1,8 @@
 using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
-using Ynac.ConsoleService;
+
+namespace Ynac;
 
 public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
 {
