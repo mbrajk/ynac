@@ -7,6 +7,7 @@ This is a console application that uses Spectre Console to create a visually app
 
 | :exclamation: | Construction ahead |
 |---------------|--------------------|
+
 This is a proof of concept and not a stable release and will be very rough around the edges. Expect to run into issues and limitations if you use this application. 
 This is just a personal project, but I am open to any feedback and issue requests.
 
