@@ -1,5 +1,7 @@
 ## You Need A Console
 
+![Console Example](https://raw.githubusercontent.com/mbrajk/ynac/main/res/ynac-output.png "console example")
+
 ### Purpose
 
 This is a console application that uses Spectre Console to create a visually appealing CLI that connects to the YNAB Api and displays basic budget information.
