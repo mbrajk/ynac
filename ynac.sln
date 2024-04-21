@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YnabApi", "Api\YnabApi.csproj", "{781C9426-2A98-4973-A75C-2AD018DE8F98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI", "Console\CLI.csproj", "{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{781C9426-2A98-4973-A75C-2AD018DE8F98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{781C9426-2A98-4973-A75C-2AD018DE8F98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{781C9426-2A98-4973-A75C-2AD018DE8F98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{781C9426-2A98-4973-A75C-2AD018DE8F98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
