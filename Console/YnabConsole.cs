@@ -51,10 +51,10 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 		if (settings.Open)
 		{
-			//only works on windows but would is possible on Linux and Mac
+			//only works on windows but is possible on Linux and Mac
 			ProcessStartInfo psi = new ProcessStartInfo
 			{
-				FileName = $"https://app.ynab.com/{selectedBudget.Id}/budget",
+				FileName = $"{Constants.YnabRootUrl}{selectedBudget.Id}{Constants.BudgetRouteAffix}",
 				UseShellExecute = true
 			};
 			Process.Start (psi);
