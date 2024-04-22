@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 
@@ -29,7 +30,16 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var services = Setup.BuildServiceProvider();
+        var configurationRoot =  new ConfigurationBuilder()
+            .AddIniFile("config.ini") 
+            .AddEnvironmentVariables()
+            .Build();
+        
+        var token = configurationRoot[Constants.YnabApiTokenKey];
+        token = TokenHandler.HandleMissingToken(token);
+        
+        var services = Setup.BuildServiceProvider(token);
+        
         var ynabConsole = services.GetRequiredService<IYnabConsole>();
         await ynabConsole.RunAsync(settings);
         return 0;
