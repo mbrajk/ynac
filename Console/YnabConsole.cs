@@ -18,8 +18,12 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		Budget? selectedBudget = null;
 		var budgetFilter = settings.BudgetFilter;
 		var categoryFilter = settings.CategoryFilter;
-			
-		AnsiConsole.Markup("[bold aqua]            You Need A Console[/]\n");
+
+		var rule = new Rule("[bold]You Need A Console[/]");
+		rule.Style = Style.Parse("aqua");
+		rule.LeftJustified();
+		
+		AnsiConsole.Write(rule);
 			
 		if (string.IsNullOrWhiteSpace(budgetFilter))
 		{
