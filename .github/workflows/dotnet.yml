@@ -21,6 +21,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: build
-      run: dotnet build --no-restore
+      run: dotnet build
     - name: publish
       run: dotnet publish -r win-x64
