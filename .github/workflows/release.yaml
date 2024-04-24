@@ -3,7 +3,9 @@ name: .NET release
 on:
   push:
     tags:
-      - 'v*'
+      - 'test*'
+    branches: [ "test-release" ]
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,10 +18,12 @@ jobs:
         dotnet-version: 8.0.x
     - name: publish
       run: dotnet publish -r win-x64
+    - name: pwd
+      run: pwd
     - name: echo files
       run: ls /home/runner/work/ynac/ynac/Console/bin/Release/net8.0/win-x64/publish/ 
     - name: Create Release
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create "$GITHUB_REF_NAME" --generate-notes /home/runner/work/ynac/ynac/Console/bin/Release/net8.0/win-x64/publish/ynac.exe
+      run: gh release create "$GITHUB_REF_NAME" /home/runner/work/ynac/ynac/Console/bin/Release/net8.0/win-x64/publish/ynac.exe
