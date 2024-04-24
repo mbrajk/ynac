@@ -4,9 +4,9 @@ namespace YnabApi.Budget
 {
     public interface IBudgetQueryService
     {
-        Task<IReadOnlyCollection<YnabApi.Budget.Budget>> GetBudgets();
+        Task<IReadOnlyCollection<Budget>> GetBudgets();
         Task<BudgetMonth> GetBudgetMonth(Guid budgetId, DateOnly date);
-        Task<IReadOnlyCollection<CategoryGroup>> GetBudgetCategories(YnabApi.Budget.Budget selectedBudget);
-        Task<IReadOnlyCollection<Account.Account>> GetBudgetAccounts(YnabApi.Budget.Budget selectedBudget);
+        Task<IReadOnlyCollection<CategoryGroup>> GetBudgetCategories(Budget selectedBudget);
+        Task<IReadOnlyCollection<Account.Account>> GetBudgetAccounts(Budget selectedBudget);
     }
 }

@@ -2,27 +2,27 @@
 
 namespace YnabApi.Budget
 {
-    public class BudgetQueryService(IYnabApi _ynabApi) : IBudgetQueryService
+    public class BudgetQueryService(IYnabApi ynabApi) : IBudgetQueryService
     {
         public async Task<IReadOnlyCollection<CategoryGroup>> GetBudgetCategories(
-            YnabApi.Budget.Budget selectedBudget
+            Budget selectedBudget
         )
         {
-            var response = await _ynabApi.GetBudgetCategoriesAsync(selectedBudget.Id);
+            var response = await ynabApi.GetBudgetCategoriesAsync(selectedBudget.Id);
 
             return response.Data.Groups;
         }
 
-        public async Task<IReadOnlyCollection<Account.Account>> GetBudgetAccounts(YnabApi.Budget.Budget selectedBudget)
+        public async Task<IReadOnlyCollection<Account.Account>> GetBudgetAccounts(Budget selectedBudget)
         {
-            var response = await _ynabApi.GetBudgetAccountsAsync(selectedBudget.Id);
+            var response = await ynabApi.GetBudgetAccountsAsync(selectedBudget.Id);
 
             return response.Data.Accounts;
         }
 
-        public async Task<IReadOnlyCollection<YnabApi.Budget.Budget>> GetBudgets()
+        public async Task<IReadOnlyCollection<Budget>> GetBudgets()
         {
-            var response = await _ynabApi.GetBudgetsAsync();
+            var response = await ynabApi.GetBudgetsAsync();
 
             return response.Data.Budgets;
         }
@@ -37,7 +37,7 @@ namespace YnabApi.Budget
             }
 
             var dateString = dateModified.ToString("yyyy-MM-01");
-            var response = await _ynabApi.GetBudgetMonthAsync(budgetId, dateString);
+            var response = await ynabApi.GetBudgetMonthAsync(budgetId, dateString);
         
             return response.Data.Budget;
         }
