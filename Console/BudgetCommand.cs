@@ -31,11 +31,11 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         var configurationRoot =  new ConfigurationBuilder()
-            .AddIniFile("config.ini") 
+            .AddIniFile(Constants.ConfigFileLocation) 
             .AddEnvironmentVariables()
             .Build();
         
-        var token = configurationRoot[Constants.YnabApiTokenKey];
+        var token = configurationRoot[Constants.YnabApiSectionTokenKey];
         token = TokenHandler.HandleMissingToken(token);
         
         var services = Setup.BuildServiceProvider(token);

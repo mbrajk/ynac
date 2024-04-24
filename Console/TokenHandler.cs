@@ -4,7 +4,7 @@ namespace ynac;
 
 internal static class TokenHandler
 {
-    private const string DefaultTokenString = "put-your-token-here";
+    internal static string DefaultTokenString = "put-your-token-here";
 
     public static string HandleMissingToken(string? token)
     {
