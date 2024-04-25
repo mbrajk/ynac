@@ -3,8 +3,7 @@ name: .NET release
 on:
   push:
     tags:
-      - 'test*'
-    branches: [ "test-release" ]
+      - 'v*'
     
 jobs:
   build:
@@ -26,4 +25,4 @@ jobs:
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create v1.0 ./Console/bin/Release/net8.0/win-x64/publish/ynac.exe
+      run: gh release create "$GITHUB_REF_NAME" ./Console/bin/Release/net8.0/win-x64/publish/ynac.exe --generate-notes
