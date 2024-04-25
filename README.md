@@ -7,11 +7,30 @@
 A console application that uses Spectre Console to create a visually appealing CLI that connects to the YNAB API and displays basic budget information.
 
 
-| :exclamation: | Construction ahead |
+| :warning: | Construction ahead |
 |---------------|--------------------|
 
-This is a proof of concept and not a stable release and will be very rough around the edges. Expect to run into issues and limitations if you use this application. 
-This is just a personal project, but I am open to any feedback and issue requests.
+This project is still a work in progress and although it has a full release, this is just a personal project. Therefore it may have rough edges and incomplete features.
+Feel free to suggest features, feedback, or bugs on the [issue tracker](https://github.com/mbrajk/ynac/issues).
+
+### Requirements
+- Windows 
+- YNAB account w/ a Developer Personal Access Token.
+  - Instructions: [https://api.ynab.com/](https://api.ynab.com/)
+
+### Usage (Windows)
+- Download the latest stable release [executable](https://github.com/mbrajk/ynac/releases)
+- Open Windows Terminal or Powershell
+- Navigate to the download folder
+- Run `./ynac.exe`
+- You will be prompted for your YNAB API token. You will want to save this to the `config.ini` that is created on first run so that you do not need to input it every time
+  - This will soon be automated
+- Using the exe from any location
+  - Place the executable somewhere on your defined Windows Path or
+  - Add the folder where you saved the exe to your Windows Path
+
+## Development
+:warning: The following instructions are only needed if you would like to devlope or debug the application or otherwise prefer to run it through .NET
 
 ### Requirements
 - [Microsoft Dotnet](https://dotnet.microsoft.com/en-us/)
@@ -42,8 +61,7 @@ This is just a personal project, but I am open to any feedback and issue request
 
 ### Potential Improvements
 - Multi-platform
-- Install as a dotnet tool or provide an alternate standalone solution
 - Include additional features from the YNAB API
 - Further details about the existing commands
 - Provide write commands (e.g. approving or categorizing a transaction)
-- Refactoring the code. It started as a single file and is my first attempt at using vim motions/neovim so idk how to do stuff.
+- Further improvements detailed on the [issue tracker](https://github.com/mbrajk/ynac/releases)
