@@ -30,7 +30,7 @@ Feel free to suggest features, feedback, or bugs on the [issue tracker](https://
   - Add the folder where you saved the exe to your Windows Path
 
 ## Development
-:warning: The following instructions are only needed if you would like to devlope or debug the application or otherwise prefer to run it through .NET
+:warning: The following instructions are only needed if you would like to develop or debug the application or otherwise prefer to run it through .NET
 
 ### Requirements
 - [Microsoft Dotnet](https://dotnet.microsoft.com/en-us/)
