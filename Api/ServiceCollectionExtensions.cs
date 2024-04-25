@@ -2,7 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
 using Refit;
+using YnabApi.Account;
 using YnabApi.Budget;
+using YnabApi.Category;
 
 namespace YnabApi;
 
@@ -18,12 +20,12 @@ public static class YnabApiServiceCollectionExtensions
     {
         if (string.IsNullOrWhiteSpace("token"))
             throw new ArgumentException("Valid YNAB API token is required", nameof(token));
-        
+
         services.AddRefitClient<IYnabApi>()
             .ConfigureHttpClient(
                 httpClient =>
                 {
-                    var endpoint = YnabOptions.Endpoint; 
+                    var endpoint = YnabOptions.Endpoint;
                     var version = YnabOptions.Version;
 
                     httpClient.BaseAddress = new Uri($"{endpoint}/{version}");
@@ -38,6 +40,9 @@ public static class YnabApiServiceCollectionExtensions
             );
 
         services.AddSingleton<IBudgetQueryService, BudgetQueryService>();
+        services.AddSingleton<ICategoryQueryService, CategoryQueryService>();
+        services.AddSingleton<IAccountQueryService, AccountQueryService>();
+        
         return services;
     }
 }

@@ -5,6 +5,6 @@ namespace YnabApi.Budget
     public class BudgetResponse
     {
         [JsonPropertyName("budgets")]
-        public IReadOnlyCollection<Budget> Budgets { get; init; }
+        public IReadOnlyCollection<Budget> Budgets { get; init; } = Array.Empty<Budget>();
     }
 }

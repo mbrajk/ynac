@@ -1,12 +1,12 @@
 ﻿namespace YnabApi.Category
 {
-    public class CategoryQueryService(IYnabApi _ynabApi)
+    public class CategoryQueryService(IYnabApi ynabApi) : ICategoryQueryService
     {
-        public async Task<IReadOnlyCollection<CategoryGroup>?> GetBudgetCategoriesAsync(Budget.Budget budget)
+        public async Task<IReadOnlyCollection<CategoryGroup>> GetBudgetCategoriesAsync(Budget.Budget budget)
         {
-            var response = await _ynabApi.GetBudgetCategoriesAsync(budget.Id);
+            var response = await ynabApi.GetBudgetCategoriesAsync(budget.Id);
             
-            return response?.Data?.Groups;
+            return response.Data?.Groups ?? new []{ new CategoryGroup() };
         }
     }
 }

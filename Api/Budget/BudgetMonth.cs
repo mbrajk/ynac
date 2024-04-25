@@ -5,7 +5,7 @@ namespace YnabApi.Budget
     public class BudgetMonth
     {
         [JsonPropertyName("note")]
-        public string Note { get; init; }
+        public string Note { get; init; } = string.Empty;
 
         [JsonPropertyName("age_of_money")]
         public int? AgeOfMoney { get; init; } = 0;
@@ -17,6 +17,6 @@ namespace YnabApi.Budget
     public class BudgetMonthResponse
     {
         [JsonPropertyName("month")]
-        public BudgetMonth Budget { get; init; }
+        public required BudgetMonth Budget { get; init; }
     }
 }

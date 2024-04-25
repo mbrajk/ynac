@@ -11,13 +11,13 @@ namespace YnabApi.Category
         public Guid CategoryGroupId { get; init; }
 
         [JsonPropertyName("name")]
-        public string Name { get; init; }
+        public string Name { get; init; } = string.Empty;
 
         [JsonPropertyName("hidden")]
         public bool Hidden { get; init; }
 
         [JsonPropertyName("note")]
-        public string Note { get; init; }
+        public string Note { get; init; } = string.Empty;
 
         [JsonPropertyName("budgeted")]
         public decimal Budgeted { get; init; }

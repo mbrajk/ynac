@@ -4,8 +4,8 @@ namespace YnabApi.Category
 {
     public class CategoryGroup
     {
-        [JsonPropertyName("name")]
-        public string Name { get; init; }
+        [JsonPropertyName("name")] 
+        public string Name { get; init; } = string.Empty;
 
         [JsonPropertyName("id")]
         public Guid Id { get; init; }
@@ -17,6 +17,6 @@ namespace YnabApi.Category
         public bool Deleted { get; init; }
 
         [JsonPropertyName("categories")]
-        public IReadOnlyCollection<Category> Categories { get; init; }
+        public IReadOnlyCollection<Category> Categories { get; init; } = Array.Empty<Category>();
     }
 }
