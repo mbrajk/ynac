@@ -44,7 +44,7 @@ Feel free to suggest features, feedback, or bugs on the [issue tracker](https://
 - Install dotnet core
 - Download the git repo
 - Navigate to the download folder
-- Paste the Personal Access Token from YNAB into the `appsettings.json` file in the `Token` field under `YnabApi`
+- Paste the Personal Access Token from YNAB into the `config.ini` file in the `Token` field under `YnabApi`
 - Type `dotnet run` on the command line in the root folder or run in VS/VSCode/Rider/etc.
 - Select a budget by typing the number of the budget
   - Alternatively, you can provide the budget name as the first argument after dotnet run. E.g. `dotnet run mybudget`.
