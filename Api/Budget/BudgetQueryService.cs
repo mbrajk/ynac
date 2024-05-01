@@ -21,7 +21,7 @@ namespace YnabApi.Budget
             return response.Data?.Budgets ?? new []{ new Budget() };
         }
         
-        public async Task<BudgetMonth> GetBudgetMonth(Guid budgetId, DateOnly date)
+        public async Task<BudgetMonth> GetBudgetMonth(string budgetId, DateOnly date)
         {
             var dateModified = date;
 

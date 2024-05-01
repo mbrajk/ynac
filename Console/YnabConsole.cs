@@ -19,27 +19,16 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		var budgetFilter = settings.BudgetFilter;
 		var categoryFilter = settings.CategoryFilter;
 
-		var rule = new Rule("[bold]You Need A Console[/]");
-		rule.Style = Style.Parse("aqua");
-		rule.LeftJustified();
-		
-		AnsiConsole.Write(rule);
-			
+		WriteHeaderRule("[bold]You Need A Console[/]");
+
 		if (string.IsNullOrWhiteSpace(budgetFilter))
 		{
-			var index = 0;
-			foreach (var budget in budgets)
-			{
-				AnsiConsole.Markup(
-					$"[underline yellow]{index++}[/] [bold white]{budget.Name}[/] [italic grey]{budget.Id}[/]\n");
-			}
-
-			var selection = AnsiConsole.Ask<string>("[italic grey]   Select a budget:[/] ");
-			int.TryParse(selection, out var selectionIndex);
-			selectedBudget = budgets.ElementAt(selectionIndex);
+			selectedBudget = PromptBudgetSelection(budgets);
 		}
 		else
 		{
+			// todo: print out the budget that was found, or prompt for selection if multiple results
+			// todo: allow guid to be entered directly on command line
 			selectedBudget = budgets.FirstOrDefault(b => b.Name.Contains(budgetFilter, StringComparison.OrdinalIgnoreCase));
 		}
 
@@ -49,6 +38,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 			return;
 		}
 
+		// if 'last-used' budget is chosen, we wouldn't be able to open it here without another round trip to ynab to get the id
 		if (settings.Open)
 		{
 			//only works on windows but is possible on Linux and Mac
@@ -61,7 +51,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 			return;
 		}
 			
-		var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget.Id, new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1));
+		var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget.BudgetId, new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1));
 		var budgetCategoryGroups = await budgetQueryService.GetBudgetCategories(selectedBudget);
 		var table = new Table()
 			.Caption("You Need A Table")
@@ -153,5 +143,33 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		AnsiConsole.Write(table);
 			
 		return;
+	}
+
+	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets)
+	{
+		// todo: finish implementing last-used as a budget selection
+		var lastUsedBudget = new Budget
+		{
+			Name = "last-used",
+			Id = Guid.Empty
+		};
+		var budget = AnsiConsole.Prompt(
+			new SelectionPrompt<Budget>()
+				.Title("[italic grey]Select a[/] [underline italic aqua]budget:[/]")
+				.PageSize(10)
+				.MoreChoicesText("[grey](Move up and down to reveal more budgets)[/]")
+				.AddChoices(budgets)
+				.UseConverter(budget => budget.ToString() + $" [grey]{budget.BudgetId}[/]")
+			);
+		
+		return budget;
+	}
+
+	private static void WriteHeaderRule(string title)
+	{
+		var rule = new Rule(title);
+		rule.Style = Style.Parse("aqua");
+		rule.LeftJustified();
+		AnsiConsole.Write(rule);
 	}
 }

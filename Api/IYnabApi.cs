@@ -10,7 +10,7 @@ namespace YnabApi
         [Get("/budgets")]
         internal Task<QueryResponse<BudgetResponse>> GetBudgetsAsync();
         [Get("/budgets/{id}/months/{month}")]
-        internal Task<QueryResponse<BudgetMonthResponse>> GetBudgetMonthAsync(Guid id, string month);
+        internal Task<QueryResponse<BudgetMonthResponse>> GetBudgetMonthAsync(string id, string month);
         [Get("/budgets/{id}/categories")]
         internal Task<QueryResponse<CategoryResponse>> GetBudgetCategoriesAsync(Guid id);
 
