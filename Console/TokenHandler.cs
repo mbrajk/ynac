@@ -4,6 +4,7 @@ namespace ynac;
 
 internal static class TokenHandler
 {
+    // The default string to check for in the config file, not meant to be edited
     internal static string DefaultTokenString = "put-your-token-here";
 
     public static string HandleMissingToken(string? token)
