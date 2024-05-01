@@ -11,7 +11,7 @@ namespace YnabApi;
 internal static class YnabOptions
 {
     public static string Version => "v1";
-    public static string Endpoint => "https://api.youneedabudget.com"; 
+    public static string Endpoint => "https://api.ynab.com"; 
 }
 
 public static class YnabApiServiceCollectionExtensions
