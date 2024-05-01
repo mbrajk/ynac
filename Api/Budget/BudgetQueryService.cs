@@ -9,7 +9,7 @@ namespace YnabApi.Budget
             Budget selectedBudget
         )
         {
-            var response = await ynabApi.GetBudgetCategoriesAsync(selectedBudget.Id);
+            var response = await ynabApi.GetBudgetCategoriesAsync(selectedBudget.BudgetId);
 
             return response.Data?.Groups ?? new []{ new CategoryGroup() };
         }

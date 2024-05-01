@@ -147,7 +147,6 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets)
 	{
-		// todo: finish implementing last-used as a budget selection
 		var lastUsedBudget = new Budget
 		{
 			Name = "last-used",
@@ -158,7 +157,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 				.Title("[italic grey]Select a[/] [underline italic aqua]budget:[/]")
 				.PageSize(10)
 				.MoreChoicesText("[grey](Move up and down to reveal more budgets)[/]")
-				.AddChoices(budgets)
+				.AddChoices([lastUsedBudget, ..budgets])
 				.UseConverter(budget => budget.ToString() + $" [grey]{budget.BudgetId}[/]")
 			);
 		
