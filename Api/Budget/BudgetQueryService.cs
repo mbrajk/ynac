@@ -6,22 +6,36 @@ namespace YnabApi.Budget
     public class BudgetQueryService(IYnabApi ynabApi) : IBudgetQueryService
     {
         public async Task<IReadOnlyCollection<CategoryGroup>> GetBudgetCategories(
-            Budget selectedBudget
+            Budget selectedBudget,
+            string? categoryFilter = null
         )
         {
             var response = await ynabApi.GetBudgetCategoriesAsync(selectedBudget.BudgetId);
 
-            return response.Data?.Groups ?? new []{ new CategoryGroup() };
+            // first group is the "Internal Master Category" used by YNAB, so we skip it
+            var filteredGroups = response.Data?.Groups?
+                .Where(group => !group.Hidden)
+                .Where(group => !group.Deleted)
+                .Skip(1);
+
+            if (!string.IsNullOrWhiteSpace(categoryFilter))
+            {
+                filteredGroups = filteredGroups?
+                    .Where(group => group.Name.Contains(categoryFilter, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+            
+            return filteredGroups?.ToList() ?? [new CategoryGroup()];
         }
 
         public async Task<IReadOnlyCollection<Budget>> GetBudgets()
         {
             var response = await ynabApi.GetBudgetsAsync();
 
-            return response.Data?.Budgets ?? new []{ new Budget() };
+            return response.Data?.Budgets ?? [ new Budget() ];
         }
         
-        public async Task<BudgetMonth> GetBudgetMonth(string budgetId, DateOnly date)
+        public async Task<BudgetMonth> GetBudgetMonth(Budget budget, DateOnly date)
         {
             var dateModified = date;
 
@@ -31,9 +45,14 @@ namespace YnabApi.Budget
             }
 
             var dateString = dateModified.ToString("yyyy-MM-01");
-            var response = await ynabApi.GetBudgetMonthAsync(budgetId, dateString);
+            var response = await ynabApi.GetBudgetMonthAsync(budget.BudgetId, dateString);
         
             return response.Data?.Budget ?? new BudgetMonth();
+        } 
+        
+        public Task<BudgetMonth> GetCurrentMonthBudget(Budget budget)
+        {
+            return GetBudgetMonth(budget, DateOnly.FromDateTime(DateTime.UtcNow));
         }
     }
 }

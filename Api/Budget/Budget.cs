@@ -13,17 +13,21 @@ namespace YnabApi.Budget
         {
             get
             {
-                if (Name == "last-used" && Id == Guid.Empty)
-                    return "last-used";
+                if (Name == LastUsedBudgetName && Id == Guid.Empty)
+                    return LastUsedBudgetName;
                 return Id.ToString();
             }
         }
 
         public override string ToString()
         {
-            if (Name == "last-used" && Id == Guid.Empty)
-                    return "Last Used Budget";
+            if (Name == LastUsedBudgetName && Id == Guid.Empty)
+                return LastUsedBudgetDescription;
             return Name;
         }
+        
+        public static Budget LastUsedBudget => new() { Name = LastUsedBudgetName, Id = Guid.Empty };
+        private static string LastUsedBudgetName => "last-used";
+        private static string LastUsedBudgetDescription => "Last Used Budget";
     }
 }
