@@ -23,7 +23,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 		if (string.IsNullOrWhiteSpace(budgetFilter))
 		{
-			selectedBudget = PromptBudgetSelection(budgets);
+			selectedBudget = PromptBudgetSelection(budgets, settings);
 		}
 		else
 		{
@@ -38,42 +38,29 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 			return;
 		}
 
-		// if 'last-used' budget is chosen, we wouldn't be able to open it here without another round trip to ynab to get the id
+		// if 'last-used' budget is chosen, we are not able to open it here 
+		// as the id is unknown without calling the entire budget export endpoint, which takes a very long time
 		if (settings.Open)
 		{
-			//only works on windows but is possible on Linux and Mac
-			ProcessStartInfo psi = new ProcessStartInfo
-			{
-				FileName = $"{Constants.YnabRootUrl}{selectedBudget.Id}{Constants.BudgetRouteAffix}",
-				UseShellExecute = true
-			};
-			Process.Start (psi);
+			// TODO: implement for other OSes
+			OSFeatures.OpenBudgetWindows(selectedBudget);
 			return;
 		}
 			
-		var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget.BudgetId, new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1));
-		var budgetCategoryGroups = await budgetQueryService.GetBudgetCategories(selectedBudget);
-		var table = new Table()
-			.Caption("You Need A Table")
-			.Border(TableBorder.Rounded)
-			.BorderColor(Color.Yellow);
+		var selectedBudgetFull = await budgetQueryService.GetCurrentMonthBudget(selectedBudget);
+		var budgetCategoryGroups = await budgetQueryService.GetBudgetCategories(selectedBudget, categoryFilter);
+		
+		var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
 
-		var columnText = $"[bold white][[[/] [yellow]{selectedBudget.Name}[/] [bold white]]][/]" +
-		                 $"                 " +
-		                 $"[white]Age of money:[/] [aqua]{selectedBudgetFull.AgeOfMoney ?? 0}[/]\n" +
-		                 $"                            " +
-		                 $"To Be Budgeted: [green]{(selectedBudgetFull.ToBeBudgeted/1000).ToString("C")}[/]";
-		table.AddColumn(columnText);
-
+		// skip last category group, this is the "hidden" group that includes categories hidden by the user
 		var categoryGroups = budgetCategoryGroups
-			.Where(c => !c.Hidden)
-			.Where(c => !c.Deleted)
-			.Skip(1)
 			.SkipLast(1);
+		
 		if (!string.IsNullOrWhiteSpace(categoryFilter))
 		{
 			categoryGroups = categoryGroups.Where(c => c.Name.Contains(categoryFilter, StringComparison.OrdinalIgnoreCase));
 		}
+        
 		foreach (var categoryGroup in categoryGroups)
 		{
 			var subTable = new Table()
@@ -145,19 +132,41 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		return;
 	}
 
-	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets)
+	//TODO: format column text using Spectre tools
+	private static Table CreateTable(string budgetName, BudgetMonth selectedBudget)
+	{
+		var table = new Table()
+			.Caption(budgetName)
+			.Border(TableBorder.Rounded)
+			.BorderColor(Color.Yellow);
+		
+		var columnText = $"[bold white][[[/] [yellow]{budgetName}[/] [bold white]]][/]" +
+		                 $"                 " +
+		                 $"[white]Age of money:[/] [aqua]{selectedBudget.AgeOfMoney ?? 0}[/]\n" +
+		                 $"                            " +
+		                 $"To Be Budgeted: [green]{(selectedBudget.ToBeBudgeted/1000).ToString("C")}[/]";
+		
+		table.AddColumn(columnText);
+
+		return table;
+	}
+
+	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets, BudgetCommand.Settings settings)
 	{
 		var lastUsedBudget = new Budget
 		{
 			Name = "last-used",
 			Id = Guid.Empty
 		};
+		
+		var budgetSelection = settings.Open ? budgets : [lastUsedBudget, ..budgets];
+		
 		var budget = AnsiConsole.Prompt(
 			new SelectionPrompt<Budget>()
 				.Title("[italic grey]Select a[/] [underline italic aqua]budget:[/]")
 				.PageSize(10)
 				.MoreChoicesText("[grey](Move up and down to reveal more budgets)[/]")
-				.AddChoices([lastUsedBudget, ..budgets])
+				.AddChoices(budgetSelection)
 				.UseConverter(budget => budget.ToString() + $" [grey]{budget.BudgetId}[/]")
 			);
 		

@@ -5,7 +5,8 @@ namespace YnabApi.Budget
     public interface IBudgetQueryService
     {
         Task<IReadOnlyCollection<Budget>> GetBudgets();
-        Task<BudgetMonth> GetBudgetMonth(string budgetId, DateOnly date);
-        Task<IReadOnlyCollection<CategoryGroup>> GetBudgetCategories(Budget selectedBudget);
+        Task<BudgetMonth> GetBudgetMonth(Budget budget, DateOnly date);
+        Task<BudgetMonth> GetCurrentMonthBudget(Budget selectedBudget);
+        Task<IReadOnlyCollection<CategoryGroup>> GetBudgetCategories(Budget selectedBudget, string? categoryFilter = null);
     }
 }
