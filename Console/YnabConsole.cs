@@ -48,19 +48,14 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		}
 			
 		var selectedBudgetFull = await budgetQueryService.GetCurrentMonthBudget(selectedBudget);
-		var budgetCategoryGroups = await budgetQueryService.GetBudgetCategories(selectedBudget, categoryFilter);
+		var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
+		{
+			options.SelectedBudget = selectedBudget;
+			options.CategoryFilter = categoryFilter;
+		});
 		
 		var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
 
-		// skip last category group, this is the "hidden" group that includes categories hidden by the user
-		var categoryGroups = budgetCategoryGroups
-			.SkipLast(1);
-		
-		if (!string.IsNullOrWhiteSpace(categoryFilter))
-		{
-			categoryGroups = categoryGroups.Where(c => c.Name.Contains(categoryFilter, StringComparison.OrdinalIgnoreCase));
-		}
-        
 		foreach (var categoryGroup in categoryGroups)
 		{
 			var subTable = new Table()
