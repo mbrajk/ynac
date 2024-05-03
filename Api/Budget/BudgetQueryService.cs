@@ -62,7 +62,7 @@ namespace YnabApi.Budget
 
             var budgets = response.Data?.Budgets;
             
-            if (budgets == null || !budgets.Any())
+            if (budgets == null || budgets.Count is 0)
             {
                 return [ Budget.NoBudget ];
             }
@@ -76,7 +76,7 @@ namespace YnabApi.Budget
                     .ToList();
             }
             
-            if (budgetList.Count == 0)
+            if (budgetList.Count is 0)
             {
                 budgetList = [ Budget.NoBudget ];
             }
