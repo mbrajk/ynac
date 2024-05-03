@@ -135,9 +135,10 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets)
 	{
+		// if there is only one budget, select it automatically
 		if (budgets.Count == 1)
 		{
-			return budgets.FirstOrDefault() ?? Budget.NoBudget;
+			return budgets.First();
 		}
 		
 		var budget = AnsiConsole.Prompt(
