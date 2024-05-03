@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using YnabApi.Budget;
@@ -14,25 +13,13 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 {
 	public async Task RunAsync(BudgetCommand.Settings settings) 
 	{
-		var budgets = await budgetQueryService.GetBudgets();
-		Budget? selectedBudget = null;
-		var budgetFilter = settings.BudgetFilter;
-		var categoryFilter = settings.CategoryFilter;
-
 		WriteHeaderRule("[bold]You Need A Console[/]");
 
-		if (string.IsNullOrWhiteSpace(budgetFilter))
-		{
-			selectedBudget = PromptBudgetSelection(budgets, settings);
-		}
-		else
-		{
-			// todo: print out the budget that was found, or prompt for selection if multiple results
-			// todo: allow guid to be entered directly on command line
-			selectedBudget = budgets.FirstOrDefault(b => b.Name.Contains(budgetFilter, StringComparison.OrdinalIgnoreCase));
-		}
-
-		if (selectedBudget == null)
+		var budgets = await budgetQueryService.GetBudgets(settings.BudgetFilter);
+		
+		var selectedBudget = PromptBudgetSelection(budgets);
+	
+		if (selectedBudget.Name == Budget.NoBudget.Name)
 		{
 			AnsiConsole.Markup("[red]Budget(s) not found[/]");
 			return;
@@ -40,6 +27,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 		// if 'last-used' budget is chosen, we are not able to open it here 
 		// as the id is unknown without calling the entire budget export endpoint, which takes a very long time
+		// TODO: fix it
 		if (settings.Open)
 		{
 			// TODO: implement for other OSes
@@ -47,6 +35,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 			return;
 		}
 			
+		var categoryFilter = settings.CategoryFilter;
 		var selectedBudgetFull = await budgetQueryService.GetCurrentMonthBudget(selectedBudget);
 		var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
 		{
@@ -123,8 +112,6 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 			
 		AnsiConsole.Write(table);
-			
-		return;
 	}
 
 	//TODO: format column text using Spectre tools
@@ -146,22 +133,19 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		return table;
 	}
 
-	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets, BudgetCommand.Settings settings)
+	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets)
 	{
-		var lastUsedBudget = new Budget
+		if (budgets.Count == 1)
 		{
-			Name = "last-used",
-			Id = Guid.Empty
-		};
-		
-		var budgetSelection = settings.Open ? budgets : [lastUsedBudget, ..budgets];
+			return budgets.FirstOrDefault() ?? Budget.NoBudget;
+		}
 		
 		var budget = AnsiConsole.Prompt(
 			new SelectionPrompt<Budget>()
 				.Title("[italic grey]Select a[/] [underline italic aqua]budget:[/]")
 				.PageSize(10)
 				.MoreChoicesText("[grey](Move up and down to reveal more budgets)[/]")
-				.AddChoices(budgetSelection)
+				.AddChoices(budgets)
 				.UseConverter(budget => budget.ToString() + $" [grey]{budget.BudgetId}[/]")
 			);
 		

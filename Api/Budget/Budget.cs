@@ -26,8 +26,10 @@ namespace YnabApi.Budget
             return Name;
         }
         
-        public static Budget LastUsedBudget => new() { Name = LastUsedBudgetName, Id = Guid.Empty };
+        public static readonly Budget LastUsedBudget = new() { Name = LastUsedBudgetName, Id = Guid.Empty };
+        public static readonly Budget NoBudget = new() { Name = NoBudgetsFoundText, Id = Guid.Empty };
         private static string LastUsedBudgetName => "last-used";
+        private static string NoBudgetsFoundText => "ynac:error:no-budgets-found";
         private static string LastUsedBudgetDescription => "Last Used Budget";
     }
 }
