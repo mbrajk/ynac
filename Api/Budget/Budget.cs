@@ -7,6 +7,7 @@ namespace YnabApi.Budget
         public static readonly Budget LastUsedBudget;
         public static readonly Budget NoBudget;
         
+        // TODO: separate out the visible budget name from the budget name used internally for YNAB API calls
         private static string LastUsedBudgetName => "last-used";
         private static string NoBudgetsFoundText => "ynac:error:no-budgets-found";
         private static string LastUsedBudgetDescription => "Last Used Budget";
@@ -39,7 +40,7 @@ namespace YnabApi.Budget
         {
             get
             {
-                if (Name == LastUsedBudgetName && Id == Guid.Empty)
+                if (Type == BudgetType.LastUsed)
                     return LastUsedBudgetName;
                 return Id.ToString();
             }
@@ -47,7 +48,7 @@ namespace YnabApi.Budget
 
         public override string ToString()
         {
-            if (Name == LastUsedBudgetName && Id == Guid.Empty)
+            if (Type == BudgetType.LastUsed)
                 return LastUsedBudgetDescription;
             return Name;
         }
