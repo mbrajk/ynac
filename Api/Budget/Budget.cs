@@ -4,10 +4,36 @@ namespace YnabApi.Budget
 {
     public class Budget
     {
+        public static readonly Budget LastUsedBudget;
+        public static readonly Budget NoBudget;
+        
+        private static string LastUsedBudgetName => "last-used";
+        private static string NoBudgetsFoundText => "ynac:error:no-budgets-found";
+        private static string LastUsedBudgetDescription => "Last Used Budget";
+        
+        static Budget()
+        {
+            NoBudget = new Budget
+            {
+                Name = NoBudgetsFoundText,
+                Id = Guid.Empty, 
+                Type = BudgetType.NotFound
+            };
+            
+            LastUsedBudget = new Budget
+            {
+                Name = LastUsedBudgetName,
+                Id = Guid.Empty, 
+                Type = BudgetType.LastUsed
+            };
+        }
+        
         [JsonPropertyName("name")]
         public string Name { get; init; } = string.Empty;
 
         public Guid Id { get; init; }
+        
+        public BudgetType Type { get; init; } = BudgetType.UserBudget;
 
         public string BudgetId
         {
@@ -25,11 +51,12 @@ namespace YnabApi.Budget
                 return LastUsedBudgetDescription;
             return Name;
         }
-        
-        public static readonly Budget LastUsedBudget = new() { Name = LastUsedBudgetName, Id = Guid.Empty };
-        public static readonly Budget NoBudget = new() { Name = NoBudgetsFoundText, Id = Guid.Empty };
-        private static string LastUsedBudgetName => "last-used";
-        private static string NoBudgetsFoundText => "ynac:error:no-budgets-found";
-        private static string LastUsedBudgetDescription => "Last Used Budget";
+    }
+
+    public enum BudgetType
+    {
+        UserBudget,
+        LastUsed,
+        NotFound,
     }
 }
