@@ -35,12 +35,12 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
                      "If the API token you are using has not accessed a budget previously, the command will fail.")]
         [CommandOption("-u|--last-used")]
         [DefaultValue(false)]
-        public bool OpenLastUsed { get; init; }
+        public bool PullLastUsed { get; init; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        if (settings.Open && settings.OpenLastUsed)
+        if (settings.Open && settings.PullLastUsed)
         {
             AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n");
             settings.Open = false;
