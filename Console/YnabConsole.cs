@@ -18,7 +18,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		var hideLastUsedBudget = settings.Open;
 		var budgets = await budgetQueryService.GetBudgets(settings.BudgetFilter, hideLastUsedBudget);
 		
-		var selectedBudget = PromptBudgetSelection(budgets);
+		var selectedBudget = settings.PullLastUsed ? Budget.LastUsedBudget : PromptBudgetSelection(budgets);
 	
 		if (selectedBudget.Type == BudgetType.NotFound)
 		{
