@@ -15,7 +15,8 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 	{
 		WriteHeaderRule("[bold]You Need A Console[/]");
 
-		var budgets = await budgetQueryService.GetBudgets(settings.BudgetFilter);
+		var hideLastUsedBudget = settings.Open;
+		var budgets = await budgetQueryService.GetBudgets(settings.BudgetFilter, hideLastUsedBudget);
 		
 		var selectedBudget = PromptBudgetSelection(budgets);
 	
