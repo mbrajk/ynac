@@ -19,7 +19,7 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 		
 		var selectedBudget = PromptBudgetSelection(budgets);
 	
-		if (selectedBudget.Name == Budget.NoBudget.Name)
+		if (selectedBudget.Type == BudgetType.NotFound)
 		{
 			AnsiConsole.Markup("[red]Budget(s) not found[/]");
 			return;
@@ -27,7 +27,6 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 
 		// if 'last-used' budget is chosen, we are not able to open it here 
 		// as the id is unknown without calling the entire budget export endpoint, which takes a very long time
-		// TODO: fix it
 		if (settings.Open)
 		{
 			// TODO: implement for other OSes
