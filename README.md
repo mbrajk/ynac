@@ -24,10 +24,15 @@ Feel free to suggest features, feedback, or bugs on the [issue tracker](https://
 - Navigate to the download folder
 - Run `./ynac.exe`
 - You will be prompted for your YNAB API token. You will want to save this to the `config.ini` that is created on first run so that you do not need to input it every time
-  - This will soon be automated
+  - This will eventually be automated
+- You will be presented with the budget selection options
+  - Alternatively you can provide your budget name as the first argument to ynac (e.g. `ynac mybudget`)
+  - If only one budget is found it will be opened immediately
 - Using the exe from any location
   - Place the executable somewhere on your defined Windows Path or
   - Add the folder where you saved the exe to your Windows Path
+
+![Budget Selection](https://raw.githubusercontent.com/mbrajk/ynac/main/res/ynac-output.png "budget selection")
 
 ## Development
 :warning: The following instructions are only needed if you would like to develop or debug the application or otherwise prefer to run it through .NET
@@ -46,8 +51,7 @@ Feel free to suggest features, feedback, or bugs on the [issue tracker](https://
 - Navigate to the download folder
 - Paste the Personal Access Token from YNAB into the `config.ini` file in the `Token` field under `YnabApi`
 - Type `dotnet run` on the command line in the root folder or run in VS/VSCode/Rider/etc.
-- Select a budget by typing the number of the budget
-  - Alternatively, you can provide the budget name as the first argument after dotnet run. E.g. `dotnet run mybudget`.
+- You will be presented with the budget selection options
   - The first budget containing the provided string will be retrieved if it exists.
 - Your budget should be displayed on the console 🥳
 
