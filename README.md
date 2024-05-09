@@ -32,7 +32,7 @@ Feel free to suggest features, feedback, or bugs on the [issue tracker](https://
   - Place the executable somewhere on your defined Windows Path or
   - Add the folder where you saved the exe to your Windows Path
 
-![Budget Selection](https://raw.githubusercontent.com/mbrajk/ynac/main/res/ynac-output.png "budget selection")
+![Budget Selection](https://raw.githubusercontent.com/mbrajk/ynac/main/res/ynac-budget-select.png "budget selection")
 
 ## Development
 :warning: The following instructions are only needed if you would like to develop or debug the application or otherwise prefer to run it through .NET
