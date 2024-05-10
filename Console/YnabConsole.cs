@@ -47,6 +47,14 @@ class YnabConsole(
 		
 		var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
 
+		GenerateCategoryTable(categoryGroups, settings);
+
+		// add row	
+		AnsiConsole.Write(table);
+	}
+
+	private static void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommand.Settings settings)
+	{
 		foreach (var categoryGroup in categoryGroups)
 		{
 			var subTable = new Table()
@@ -108,12 +116,7 @@ class YnabConsole(
 				$"[red]{totalActivity.ToString("C")}[/]", 
 				$"[green]{totalAvailable.ToString("C")}[/]"
 			).ShowRowSeparators().MinimalBorder();
-
-			table.AddRow(subTable);
 		}
-
-			
-		AnsiConsole.Write(table);
 	}
 
 	//TODO: format column text using Spectre tools
