@@ -8,7 +8,7 @@ if(!File.Exists(Constants.ConfigFileLocation))
     await using var streamWriter = new StreamWriter(configFileStream);
     
     await streamWriter.WriteLineAsync(Constants.YnabSectionKey);
-    await streamWriter.WriteLineAsync($"{Constants.TokenString}=\"{TokenHandler.DefaultTokenString}\"");
+    await streamWriter.WriteLineAsync($"{Constants.TokenString}=\"{Constants.DefaultTokenString}\"");
 }
 #endif
 
