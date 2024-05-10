@@ -1,6 +1,8 @@
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using YnabApi.Budget;
+using YnabApi.Category;
+using ynac.OSFeatures;
 
 namespace ynac;
 
@@ -9,7 +11,10 @@ public interface IYnabConsole
     public Task RunAsync(BudgetCommand.Settings settings);
 }
 
-class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
+class YnabConsole(
+	IBudgetQueryService budgetQueryService, 
+	IBudgetOpener budgetOpener
+) : IYnabConsole
 {
 	public async Task RunAsync(BudgetCommand.Settings settings) 
 	{
@@ -26,12 +31,9 @@ class YnabConsole(IBudgetQueryService budgetQueryService) : IYnabConsole
 			return;
 		}
 
-		// if 'last-used' budget is chosen, we are not able to open it here 
-		// as the id is unknown without calling the entire budget export endpoint, which takes a very long time
 		if (settings.Open)
 		{
-			// TODO: implement for other OSes
-			OSFeatures.OpenBudgetWindows(selectedBudget);
+			budgetOpener.OpenBudget(selectedBudget);
 			return;
 		}
 			
