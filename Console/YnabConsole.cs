@@ -46,14 +46,15 @@ class YnabConsole(
 		});
 		
 		var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
+		
+		GenerateCategoryTable(categoryGroups, settings, table);
 
-		GenerateCategoryTable(categoryGroups, settings);
-
-		// add row	
 		AnsiConsole.Write(table);
+		
+		// budget actions
 	}
 
-	private static void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommand.Settings settings)
+	private static void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommand.Settings settings, Table table)
 	{
 		foreach (var categoryGroup in categoryGroups)
 		{
@@ -116,6 +117,8 @@ class YnabConsole(
 				$"[red]{totalActivity.ToString("C")}[/]", 
 				$"[green]{totalAvailable.ToString("C")}[/]"
 			).ShowRowSeparators().MinimalBorder();
+
+			table.AddRow(subTable);
 		}
 	}
 
