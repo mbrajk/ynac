@@ -4,19 +4,19 @@ namespace ynac;
 
 internal static class TokenHandler
 {
-    // The default string to check for in the config file, not meant to be edited
-    internal static string DefaultTokenString = "put-your-token-here";
+    // cannot be made private as it is used in Program.cs so that warning is disabled
+    // ReSharper disable once MemberCanBePrivate.Global
 
     public static string HandleMissingToken(string? token)
     {
-        if (string.IsNullOrWhiteSpace(token) || token == DefaultTokenString)
+        if (string.IsNullOrWhiteSpace(token) || token == Constants.DefaultTokenString)
         {
             AnsiConsole.Markup("[yellow]:warning: YNAB Api token not found in[/] [white underline]config.ini[/]\n");
 
             var prompt = new TextPrompt<string>("[white]Please enter your YNAB Api token: [/]")
                 .PromptStyle("grey");
            
-            token = AnsiConsole.Prompt<string>(prompt); 
+            token = AnsiConsole.Prompt(prompt); 
         }
 
         return token;
