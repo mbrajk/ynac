@@ -19,7 +19,8 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
         public string? CategoryFilter { get; init; }
 		
         [Description("Open the budget on the web. If a budget filter is applied, the found budget will be opened. " +
-                     "If a filter is not applied, the budget will be opened after one is selected.")]
+                     "If a filter is not applied, the budget will be opened after one is selected. Cannot be used with" +
+                     "--last-used flag.")]
         [CommandOption("-o|--open")]
         [DefaultValue(false)]
         public bool Open { get; set; }
@@ -32,7 +33,8 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
         
         [Description("Default to showing the last used budget, will ignore the budget filter, and the --open flag. " +
                      "Relies on the YNAB API to determine the last used budget. " +
-                     "If the API token you are using has not accessed a budget previously, the command will fail.")]
+                     "If the API token you are using has not accessed a budget previously, the command will fail. " +
+                     "Cannot be used with the --open flag.")]
         [CommandOption("-u|--last-used")]
         [DefaultValue(false)]
         public bool PullLastUsed { get; init; }
