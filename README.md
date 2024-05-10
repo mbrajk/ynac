@@ -67,4 +67,4 @@ Feel free to suggest features, feedback, or bugs on the [issue tracker](https://
 - Include additional features from the YNAB API
 - Further details about the existing commands
 - Provide write commands (e.g. approving or categorizing a transaction)
-- Further improvements detailed on the [issue tracker](https://github.com/mbrajk/ynac/releases)
+- Further improvements detailed on the [issue tracker](https://github.com/mbrajk/ynac/issues)
