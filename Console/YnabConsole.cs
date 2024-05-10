@@ -2,6 +2,7 @@ using Spectre.Console;
 using Spectre.Console.Rendering;
 using YnabApi.Budget;
 using YnabApi.Category;
+using ynac.BudgetActions;
 using ynac.OSFeatures;
 
 namespace ynac;
@@ -13,7 +14,8 @@ public interface IYnabConsole
 
 class YnabConsole(
 	IBudgetQueryService budgetQueryService, 
-	IBudgetOpener budgetOpener
+	IBudgetOpener budgetOpener,
+	IEnumerable<IBudgetAction> budgetActions
 ) : IYnabConsole
 {
 	public async Task RunAsync(BudgetCommand.Settings settings) 
@@ -50,8 +52,19 @@ class YnabConsole(
 		GenerateCategoryTable(categoryGroups, settings, table);
 
 		AnsiConsole.Write(table);
-		
-		// budget actions
+
+		while (true)
+		{
+			var action = AnsiConsole.Prompt(
+				new SelectionPrompt<IBudgetAction>()
+					.PageSize(10)
+					.MoreChoicesText("more..")
+					.AddChoices(budgetActions.OrderBy(b => b.Order))
+					.UseConverter(b => b.DisplayName)
+					.Title("Select an action:"));
+			
+			action.Execute();
+		}
 	}
 
 	private static void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommand.Settings settings, Table table)
