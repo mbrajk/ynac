@@ -52,8 +52,7 @@ Feel free to suggest features, feedback, or bugs on the [issue tracker](https://
 - Paste the Personal Access Token from YNAB into the `config.ini` file in the `Token` field under `YnabApi`
 - Type `dotnet run` on the command line in the root folder or run in VS/VSCode/Rider/etc.
 - You will be presented with the budget selection options
-  - The first budget containing the provided string will be retrieved if it exists.
-- Your budget should be displayed on the console 🥳
+- Select a budget and it will be displayed on the console 🥳
 
 ### Libraries
 - [Spectre.Console](https://spectreconsole.net/)
