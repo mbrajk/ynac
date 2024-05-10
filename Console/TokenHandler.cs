@@ -4,9 +4,9 @@ namespace ynac;
 
 internal static class TokenHandler
 {
-    // cannot be made private as it is used in Program.cs so that warning is disabled
+    // warning is suppressed as this is used in Program.cs but
+    // preprocessor directive causes it to appear unused in debug
     // ReSharper disable once MemberCanBePrivate.Global
-
     public static string HandleMissingToken(string? token)
     {
         if (string.IsNullOrWhiteSpace(token) || token == Constants.DefaultTokenString)
