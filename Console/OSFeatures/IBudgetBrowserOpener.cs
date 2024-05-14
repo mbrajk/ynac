@@ -2,7 +2,7 @@ using YnabApi.Budget;
 
 namespace ynac.OSFeatures;
 
-internal interface IBudgetOpener
+internal interface IBudgetBrowserOpener
 {
     void OpenBudget(Budget selectedBudget);
 }

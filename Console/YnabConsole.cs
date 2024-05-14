@@ -14,7 +14,7 @@ public interface IYnabConsole
 
 class YnabConsole(
 	IBudgetQueryService budgetQueryService, 
-	IBudgetOpener budgetOpener,
+	IBudgetBrowserOpener budgetBrowserOpener,
 	IBudgetSelector budgetSelector,
 	IEnumerable<IBudgetAction> budgetActions
 ) : IYnabConsole
@@ -36,7 +36,7 @@ class YnabConsole(
 
 		if (settings.Open)
 		{
-			budgetOpener.OpenBudget(selectedBudget);
+			budgetBrowserOpener.OpenBudget(selectedBudget);
 			return;
 		}
 			
