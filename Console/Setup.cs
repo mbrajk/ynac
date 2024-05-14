@@ -33,7 +33,8 @@ public static class Setup
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
         
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();
-        services.AddSingleton<IBudgetAction, ListTransactionsBudgetAction>(); 
+        // add back when implemented
+        //services.AddSingleton<IBudgetAction, ListTransactionsBudgetAction>(); 
         
         return services.BuildServiceProvider();
     }
