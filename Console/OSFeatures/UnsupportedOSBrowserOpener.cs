@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace ynac.OSFeatures;
 
-internal class UnsupportedOSBrowserOpener : IBrowserOpener
+internal class UnsupportedOsBrowserOpener : IBrowserOpener
 {
     public void OpenBrowser(string url)
     {
