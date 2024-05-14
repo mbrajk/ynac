@@ -37,6 +37,12 @@ public class BudgetSelector : IBudgetSelector
 	    // allow refreshing via option or a time based cache etc. Furthermore, caching could 
 	    // move into the query service itself so that this consumer doesn't have to know about it
 	    _budgets = _budgets.Any() ? _budgets : await _budgetQueryService.GetBudgets();
+
+	    if (!_budgets.Any())
+	    {
+		    return Budget.NoBudget;
+	    }
+	    
 	    IReadOnlyCollection<Budget> filteredBudgets = [ Budget.LastUsedBudget, .._budgets];
 
 	    if (!string.IsNullOrWhiteSpace(budgetFilter))
