@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using YnabApi;
 using ynac.BudgetActions;
@@ -16,8 +17,18 @@ public static class Setup
         // other required dependencies
         services.AddSingleton<IYnabConsole, YnabConsole>();
         
-        services.AddSingleton<IBudgetOpener, BudgetOpener>();
-        services.AddSingleton<IBrowserOpener, WindowsBrowserOpener>();
+        services.AddSingleton<IBudgetBrowserOpener, BudgetBrowserOpener>();
+        
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // this could be determined from within OSFeatures
+            services.AddSingleton<IBrowserOpener, WindowsBrowserOpener>();
+        }
+        else
+        {
+            services.AddSingleton<IBrowserOpener, UnsupportedOSBrowserOpener>();
+        }
+        
         services.AddSingleton<IBudgetPrompter, BudgetPrompter>();
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
         

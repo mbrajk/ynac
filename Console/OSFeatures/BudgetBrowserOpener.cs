@@ -2,12 +2,11 @@ using YnabApi.Budget;
 
 namespace ynac.OSFeatures;
 
-internal class BudgetOpener : IBudgetOpener
+internal class BudgetBrowserOpener : IBudgetBrowserOpener
 {
-    //TODO: Implement for other OSes
     private readonly IBrowserOpener _browserOpener;
 
-    public BudgetOpener(IBrowserOpener browserOpener)
+    public BudgetBrowserOpener(IBrowserOpener browserOpener)
     {
         _browserOpener = browserOpener;
     }
