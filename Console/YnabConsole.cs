@@ -15,6 +15,7 @@ public interface IYnabConsole
 class YnabConsole(
 	IBudgetQueryService budgetQueryService, 
 	IBudgetOpener budgetOpener,
+	IBudgetSelector budgetSelector,
 	IEnumerable<IBudgetAction> budgetActions
 ) : IYnabConsole
 {
@@ -22,11 +23,11 @@ class YnabConsole(
 	{
 		WriteHeaderRule("[bold]You Need A Console[/]");
 
-		var hideLastUsedBudget = settings.Open;
-		var budgets = await budgetQueryService.GetBudgets(settings.BudgetFilter, hideLastUsedBudget);
-		
-		var selectedBudget = settings.PullLastUsed ? Budget.LastUsedBudget : PromptBudgetSelection(budgets);
+		var pullLastUsedBudget = settings.PullLastUsed;
+		var filter = settings.BudgetFilter ?? "";
 	
+		var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
+		
 		if (selectedBudget.Type == BudgetType.NotFound)
 		{
 			AnsiConsole.Markup("[red]Budget(s) not found[/]");
@@ -154,25 +155,7 @@ class YnabConsole(
 		return table;
 	}
 
-	private Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets)
-	{
-		// if there is only one budget, select it automatically
-		if (budgets.Count == 1)
-		{
-			return budgets.First();
-		}
-		
-		var budget = AnsiConsole.Prompt(
-			new SelectionPrompt<Budget>()
-				.Title("[italic grey]Select a[/] [underline italic aqua]budget:[/]")
-				.PageSize(10)
-				.MoreChoicesText("[grey](Move up and down to reveal more budgets)[/]")
-				.AddChoices(budgets)
-				.UseConverter(budget => budget.ToString() + $" [grey]{budget.BudgetId}[/]")
-			);
-		
-		return budget;
-	}
+	
 
 	private static void WriteHeaderRule(string title)
 	{

@@ -56,7 +56,7 @@ namespace YnabApi.Budget
             return filteredGroups?.ToList() ?? [new CategoryGroup()];
         }
         
-        public async Task<IReadOnlyCollection<Budget>> GetBudgets(string? filter, bool hideLastUsedBudget = false)
+        public async Task<IReadOnlyCollection<Budget>> GetBudgets()
         {
             var response = await ynabApi.GetBudgetsAsync();
 
@@ -67,22 +67,7 @@ namespace YnabApi.Budget
                 return [ Budget.NoBudget ];
             }
 
-            IReadOnlyCollection<Budget> budgetList = hideLastUsedBudget ? budgets : [ Budget.LastUsedBudget, ..budgets ];
-
-            if (!string.IsNullOrWhiteSpace(filter))
-            {
-                budgetList = budgetList
-                    .Where(budget => budget.Name.Contains(filter, StringComparison.OrdinalIgnoreCase))
-                    .Where(budget => budget.Type != BudgetType.LastUsed)
-                    .ToList();
-            }
-            
-            if (budgetList.Count is 0)
-            {
-                budgetList = [ Budget.NoBudget ];
-            }
-
-            return budgetList;
+            return budgets; 
         }
         
         public async Task<BudgetMonth> GetBudgetMonth(Budget budget, DateOnly date)

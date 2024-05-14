@@ -18,6 +18,8 @@ public static class Setup
         
         services.AddSingleton<IBudgetOpener, BudgetOpener>();
         services.AddSingleton<IBrowserOpener, WindowsBrowserOpener>();
+        services.AddSingleton<IBudgetPrompter, BudgetPrompter>();
+        services.AddSingleton<IBudgetSelector, BudgetSelector>();
         
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();
         services.AddSingleton<IBudgetAction, ListTransactionsBudgetAction>(); 
