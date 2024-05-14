@@ -11,7 +11,7 @@ A console application that uses Spectre Console to create a visually appealing C
 |---------------|--------------------|
 
 This project is still a work in progress and although it has a full release, this is just a personal project. Therefore it may have rough edges and incomplete features.
-Feel free to suggest features, feedback, or bugs on the [issue tracker](https://github.com/mbrajk/ynac/issues).
+Feel free to suggest features, provide feedback, or report bugs on the [issue tracker](https://github.com/mbrajk/ynac/issues).
 
 ### Requirements
 - Windows 
