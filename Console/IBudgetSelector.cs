@@ -23,7 +23,7 @@ public class BudgetSelector : IBudgetSelector
 	}
 	
     private Budget? _selectedBudget;
-    private IReadOnlyCollection<Budget> _budgets;
+    private IReadOnlyCollection<Budget> _budgets = Array.Empty<Budget>();
 
     public async Task<Budget> SelectBudget(string budgetFilter = "", bool selectLastBudget = true)
     {
