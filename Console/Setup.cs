@@ -26,7 +26,7 @@ public static class Setup
         }
         else
         {
-            services.AddSingleton<IBrowserOpener, UnsupportedOSBrowserOpener>();
+            services.AddSingleton<IBrowserOpener, UnsupportedOsBrowserOpener>();
         }
         
         services.AddSingleton<IBudgetPrompter, BudgetPrompter>();
