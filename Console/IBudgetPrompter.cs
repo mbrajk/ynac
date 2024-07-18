@@ -12,6 +12,11 @@ public class BudgetPrompter : IBudgetPrompter
 {
     public Budget PromptBudgetSelection(IReadOnlyCollection<Budget> budgets)
     {
+        if (budgets.Count == 0)
+        {
+            return Budget.NoBudget;
+        }
+        
         // if there is only one budget, select it automatically
         if (budgets.Count == 1)
         {
