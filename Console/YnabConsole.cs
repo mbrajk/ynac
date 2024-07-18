@@ -155,8 +155,6 @@ class YnabConsole(
 		return table;
 	}
 
-	
-
 	private static void WriteHeaderRule(string title)
 	{
 		var rule = new Rule(title);
