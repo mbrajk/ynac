@@ -1,5 +1,6 @@
 ﻿using Spectre.Console.Cli;
 using ynac;
+using ynac.Commands;
 
 #if ! DEBUG
 if(!File.Exists(Constants.ConfigFileLocation))

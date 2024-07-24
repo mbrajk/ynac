@@ -1,6 +1,6 @@
 using YnabApi.Budget;
 
-namespace ynac;
+namespace ynac.BudgetSelection;
 
 public class BudgetSelector : IBudgetSelector
 {
@@ -37,6 +37,13 @@ public class BudgetSelector : IBudgetSelector
             return Budget.NoBudget;
         }
 	    
+        // if a guid was passed in, use it to select the budget directly
+        if (Guid.TryParse(budgetFilter, out var budgetId))
+        {
+            _selectedBudget = _budgets.FirstOrDefault(budget => budget.Id == budgetId);
+            return _selectedBudget ?? Budget.NoBudget;
+        }
+        
         IReadOnlyCollection<Budget> filteredBudgets = [ Budget.LastUsedBudget, .._budgets];
 
         if (!string.IsNullOrWhiteSpace(budgetFilter))

@@ -3,21 +3,18 @@ using Spectre.Console.Rendering;
 using YnabApi.Budget;
 using YnabApi.Category;
 using ynac.BudgetActions;
+using ynac.BudgetSelection;
+using ynac.Commands;
 using ynac.OSFeatures;
 
 namespace ynac;
 
-public interface IYnabConsole
-{
-    public Task RunAsync(BudgetCommand.Settings settings);
-}
-
-class YnabConsole(
+internal class YnacConsole(
 	IBudgetQueryService budgetQueryService, 
 	IBudgetBrowserOpener budgetBrowserOpener,
 	IBudgetSelector budgetSelector,
 	IEnumerable<IBudgetAction> budgetActions
-) : IYnabConsole
+) : IYnacConsole
 {
 	public async Task RunAsync(BudgetCommand.Settings settings) 
 	{

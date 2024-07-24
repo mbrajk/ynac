@@ -2,20 +2,21 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using YnabApi;
 using ynac.BudgetActions;
+using ynac.BudgetSelection;
 using ynac.OSFeatures;
 
 namespace ynac;
 
-public static class Setup
+public static class YnacConsoleProvider
 {
-    public static ServiceProvider BuildServiceProvider(string token)
+    public static ServiceProvider BuildYnacServices(string token)
     {
         var services = new ServiceCollection();
         
         services.AddYnabApi(token);
 
         // other required dependencies
-        services.AddSingleton<IYnabConsole, YnabConsole>();
+        services.AddSingleton<IYnacConsole, YnacConsole>();
         
         services.AddSingleton<IBudgetBrowserOpener, BudgetBrowserOpener>();
         

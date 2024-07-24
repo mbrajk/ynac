@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-namespace ynac;
+namespace ynac.Commands;
 
 public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
 {
@@ -56,10 +56,10 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
         var token = configurationRoot[Constants.YnabApiSectionTokenKey];
         token = TokenHandler.HandleMissingToken(token);
         
-        var services = Setup.BuildServiceProvider(token);
+        var ynacProvider = YnacConsoleProvider.BuildYnacServices(token);
         
-        var ynabConsole = services.GetRequiredService<IYnabConsole>();
-        await ynabConsole.RunAsync(settings);
+        var ynacConsole = ynacProvider.GetRequiredService<IYnacConsole>();
+        await ynacConsole.RunAsync(settings);
         return 0;
     }
 }
