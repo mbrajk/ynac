@@ -15,7 +15,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
         public string? BudgetFilter { get; init; }
 
         [Description("The category name to filter to. Will all first categorites containing this string")]
-        [CommandArgument(0, "[categoryFilter]")]
+        [CommandArgument(1, "[categoryFilter]")]
         public string? CategoryFilter { get; init; }
 		
         [Description("Open the budget on the web. If a budget filter is applied, the found budget will be opened. " +
