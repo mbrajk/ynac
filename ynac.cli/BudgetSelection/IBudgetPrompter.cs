@@ -1,6 +1,6 @@
 using YnabApi.Budget;
 
-namespace ynac;
+namespace ynac.BudgetSelection;
 
 public interface IBudgetPrompter
 {

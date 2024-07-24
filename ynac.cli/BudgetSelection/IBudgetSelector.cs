@@ -1,7 +1,6 @@
-using Spectre.Console;
 using YnabApi.Budget;
 
-namespace ynac;
+namespace ynac.BudgetSelection;
 
 public interface IBudgetSelector
 {
