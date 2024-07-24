@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ynab.Api\YnabApi.csproj" />
+    <ProjectReference Include="..\ynab.api\YnabApi.csproj" />
   </ItemGroup>
 
 </Project>
