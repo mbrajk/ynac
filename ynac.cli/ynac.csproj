@@ -12,6 +12,7 @@
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>True</PublishTrimmed>
   </PropertyGroup>
   
   <ItemGroup>
