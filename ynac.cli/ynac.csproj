@@ -7,8 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>ynac</RootNamespace>
-    <TrimSingleWarn>False</TrimSingleWarn>
     <LangVersion>13</LangVersion>
+    <TrimSingleWarn>False</TrimSingleWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
