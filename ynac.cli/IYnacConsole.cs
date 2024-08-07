@@ -4,5 +4,5 @@ namespace ynac;
 
 public interface IYnacConsole
 {
-    public Task RunAsync(BudgetCommand.Settings settings);
+    public Task RunAsync(BudgetCommandSettings settings);
 }
