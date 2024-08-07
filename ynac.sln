@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YnabApi", "ynab.api\YnabApi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ynac", "ynac.cli\ynac.csproj", "{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ynac.tests", "ynac.tests\ynac.tests.csproj", "{09D04D98-BAD4-4EE9-AB69-5836CE8FF237}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{628CFF60-8D0F-44AB-A660-30BB1E1D4CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09D04D98-BAD4-4EE9-AB69-5836CE8FF237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09D04D98-BAD4-4EE9-AB69-5836CE8FF237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09D04D98-BAD4-4EE9-AB69-5836CE8FF237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09D04D98-BAD4-4EE9-AB69-5836CE8FF237}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
