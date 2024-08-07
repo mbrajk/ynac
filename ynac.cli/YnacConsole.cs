@@ -16,7 +16,7 @@ internal class YnacConsole(
 	IEnumerable<IBudgetAction> budgetActions
 ) : IYnacConsole
 {
-	public async Task RunAsync(BudgetCommand.Settings settings) 
+	public async Task RunAsync(BudgetCommandSettings settings) 
 	{
 		WriteHeaderRule("[bold]You Need A Console[/]");
 
@@ -65,7 +65,7 @@ internal class YnacConsole(
 		}
 	}
 
-	private static void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommand.Settings settings, Table table)
+	private static void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommandSettings settings, Table table)
 	{
 		foreach (var categoryGroup in categoryGroups)
 		{
