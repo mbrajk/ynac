@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+<!--	https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options?pivots=dotnet-8-0 -->
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>ynac</RootNamespace>
+    <TrimSingleWarn>False</TrimSingleWarn>
     <LangVersion>13</LangVersion>
   </PropertyGroup>
 
@@ -13,6 +15,7 @@
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
     <PublishTrimmed>True</PublishTrimmed>
   </PropertyGroup>
   
