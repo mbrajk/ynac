@@ -38,6 +38,11 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
         [CommandOption("-u|--last-used")]
         [DefaultValue(false)]
         public bool PullLastUsed { get; init; }
+
+        [Description("Output response as json to a file locally" +
+                     "Cannot be used with the --open flag.")]
+        [CommandOption("-j|--output-json")]
+        public string? OutputJson { get; init; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -47,7 +52,13 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
             AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n");
             settings.Open = false;
         }
-        
+
+        if (settings.Open && !string.IsNullOrWhiteSpace(settings.OutputJson))
+        {
+            AnsiConsole.Markup("[red]Cannot use both --open and --output-json flags together. --open flag will be ignored[/]\n");
+            settings.Open = false;
+        }
+
         var configurationRoot =  new ConfigurationBuilder()
             .AddIniFile(Constants.ConfigFileLocation) 
             .AddEnvironmentVariables()

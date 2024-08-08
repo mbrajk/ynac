@@ -1,5 +1,6 @@
 using Spectre.Console;
 using Spectre.Console.Rendering;
+using System.Text.Json;
 using YnabApi.Budget;
 using YnabApi.Category;
 using ynac.BudgetActions;
@@ -44,6 +45,13 @@ internal class YnacConsole(
 			options.SelectedBudget = selectedBudget;
 			options.CategoryFilter = categoryFilter;
 		});
+
+		if (!string.IsNullOrWhiteSpace(settings.OutputJson))
+		{
+			var json = JsonSerializer.Serialize(categoryGroups);
+			await File.WriteAllTextAsync(settings.OutputJson, json);
+			return;
+		}
 		
 		var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
 		
