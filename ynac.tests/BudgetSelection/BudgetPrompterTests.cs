@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+using Spectre.Console;
 using YnabApi.Budget;
 using ynac.BudgetSelection;
 
@@ -9,13 +11,19 @@ namespace ynac.Tests.BudgetSelection;
 [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
 public class BudgetPrompterTests
 {
-    private BudgetPrompter? _sut;
+    private readonly IConsolePrompt _console = Substitute.For<IConsolePrompt>();
+    private BudgetPrompter _sut = null!;
 
+    [TestInitialize]
+    public void Initialize()
+    {
+        _sut = new BudgetPrompter(_console);
+    }
+    
     [TestMethod]
     public void PromptBudgetSelection_ReturnsNoBudgetIfEmpty()
     {
         // Arrange
-        _sut = new BudgetPrompter();
         var budgets = new List<Budget>();
         
         // Act
@@ -29,7 +37,6 @@ public class BudgetPrompterTests
     public void PromptBudgetSelection_ReturnsFirstBudgetIfOnlyOne()
     {
         // Arrange
-        _sut = new BudgetPrompter();
         var budget = new Budget { Id = Guid.NewGuid(), Name = "Budget 1" };
         var budgets = new List<Budget> { budget };
         
@@ -41,5 +48,26 @@ public class BudgetPrompterTests
         Assert.AreEqual(budget.Id, result.Id);
     }
     
-    
+    [TestMethod]
+    public void PromptBudgetSelection_PromptsForBudgetIfMultiple()
+    {
+        // Arrange
+        var budgets = new List<Budget>
+        {
+            new Budget { Id = Guid.NewGuid(), Name = "Budget 1" },
+            new Budget { Id = Guid.NewGuid(), Name = "Budget 2" },
+            new Budget { Id = Guid.NewGuid(), Name = "Budget 3" },
+        };
+        var prompt = Substitute.For<IPrompt<Budget>>();
+        _console.Prompt(Arg.Any<SelectionPrompt<Budget>>()).Returns(budgets[1]);
+        //prompt.Show(_console).Returns(budgets[1]);
+                
+        // Act
+        var result = _sut.PromptBudgetSelection(budgets);
+                
+        // Assert
+        Assert.AreEqual(budgets[1].BudgetId, result.BudgetId);
+        Assert.AreEqual(budgets[1].Id, result.Id);
+        _console.Received(1).Prompt(Arg.Any<SelectionPrompt<Budget>>());
+    }
 }
