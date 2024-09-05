@@ -58,9 +58,7 @@ public class BudgetPrompterTests
             new Budget { Id = Guid.NewGuid(), Name = "Budget 2" },
             new Budget { Id = Guid.NewGuid(), Name = "Budget 3" },
         };
-        var prompt = Substitute.For<IPrompt<Budget>>();
         _console.Prompt(Arg.Any<SelectionPrompt<Budget>>()).Returns(budgets[1]);
-        //prompt.Show(_console).Returns(budgets[1]);
                 
         // Act
         var result = _sut.PromptBudgetSelection(budgets);
