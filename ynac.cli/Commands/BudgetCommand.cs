@@ -10,7 +10,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommand.Settings>
 {
     public sealed class Settings : CommandSettings
     {
-        [Description("The budget name to filter to. If more than one budget matches the filter string, a selection promp will be presented.")]
+        [Description("The budget name to filter to. If more than one budget matches the filter string, a selection prompt will be presented.")]
         [CommandArgument(0, "[budgetFilter]")]
         public string? BudgetFilter { get; init; }
 
