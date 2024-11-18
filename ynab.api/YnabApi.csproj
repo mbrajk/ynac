@@ -10,7 +10,6 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
-    <PublishTrimmed>True</PublishTrimmed>
   </PropertyGroup>
   
   <ItemGroup>
