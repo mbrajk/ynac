@@ -18,5 +18,7 @@ jobs:
         dotnet-version: 8.0.x
     - name: build
       run: dotnet build
+    - name: test
+      run: dotnet test
     - name: publish
       run: dotnet publish -r win-x64
