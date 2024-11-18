@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console;
 using YnabApi;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
@@ -31,6 +32,7 @@ public static class YnacConsoleProvider
         }
         
         services.AddSingleton<IBudgetPrompter, BudgetPrompter>();
+        services.AddSingleton<IConsolePrompt, ConsolePrompt>();
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
         
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();
