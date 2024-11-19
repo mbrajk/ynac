@@ -21,24 +21,36 @@ public static class YnabApiServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace("token"))
             throw new ArgumentException("Valid YNAB API token is required", nameof(token));
 
-        services.AddRefitClient<IYnabApi>()
+     //   services.AddRefitClient<IYnabApi>()
+     //       .ConfigureHttpClient(
+     //           httpClient =>
+     //           {
+     //               var endpoint = YnabOptions.Endpoint;
+     //               var version = YnabOptions.Version;
+
+     //               httpClient.BaseAddress = new Uri($"{endpoint}/{version}");
+     //               httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+     //           }
+     //       )
+     //       .AddPolicyHandler(
+     //           HttpPolicyExtensions
+     //               .HandleTransientHttpError()
+     //               .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+     //               .WaitAndRetryAsync(4, retry => TimeSpan.FromSeconds(Math.Pow(2, retry)))
+     //       );
+
+        services.AddHttpClient(nameof(YnabApi))
             .ConfigureHttpClient(
                 httpClient =>
                 {
                     var endpoint = YnabOptions.Endpoint;
                     var version = YnabOptions.Version;
 
-                    httpClient.BaseAddress = new Uri($"{endpoint}/{version}");
+                    httpClient.BaseAddress = new Uri($"{endpoint}/{version}/");
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-                }
-            )
-            .AddPolicyHandler(
-                HttpPolicyExtensions
-                    .HandleTransientHttpError()
-                    .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-                    .WaitAndRetryAsync(4, retry => TimeSpan.FromSeconds(Math.Pow(2, retry)))
-            );
+                }).AddStandardResilienceHandler();
 
+        services.AddSingleton<IYnabApi, YnabApi>();
         services.AddSingleton<IBudgetQueryService, BudgetQueryService>();
         services.AddSingleton<ICategoryQueryService, CategoryQueryService>();
         services.AddSingleton<IAccountQueryService, AccountQueryService>();
