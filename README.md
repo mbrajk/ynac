@@ -4,7 +4,7 @@
 
 ### Purpose
 
-A console application that uses Spectre Console to create a visually appealing CLI that connects to the YNAB API and displays basic budget information.
+A multi-platform console application that uses Spectre Console to create a visually appealing CLI that connects to the YNAB API and displays basic budget information. Verified to work on Windows, Mac and Linux.
 
 
 | :warning: | Construction ahead |
@@ -39,7 +39,6 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 
 ### Requirements
 - [Microsoft Dotnet](https://dotnet.microsoft.com/en-us/)
-- Windows (for now)
 - YNAB account w/ a Developer Personal Access Token.
   - Instructions: [https://api.ynab.com/](https://api.ynab.com/)
 
@@ -63,7 +62,6 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
   - Streamlined web request resiliency strategies
 
 ### Potential Improvements
-- Multi-platform
 - Include additional features from the YNAB API
 - Further details about the existing commands
 - Provide write commands (e.g. approving or categorizing a transaction)
