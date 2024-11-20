@@ -14,7 +14,6 @@ This project is still a work in progress and although it has a full release, thi
 Feel free to suggest features, provide feedback, or report bugs on the [issue tracker](https://github.com/mbrajk/ynac/issues).
 
 ### Requirements
-- Windows 
 - YNAB account w/ a Developer Personal Access Token.
   - Instructions: [https://api.ynab.com/](https://api.ynab.com/)
 
