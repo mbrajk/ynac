@@ -5,6 +5,7 @@
 ### Purpose
 
 A multi-platform console application that uses Spectre Console to create a visually appealing CLI that connects to the YNAB API and displays basic budget information. Verified to work on Windows, Mac and Linux.
+Binaries are only created for windows currently so Mac and Linux will have to follow the developer instructions.
 
 
 | :warning: | Construction ahead |
@@ -13,7 +14,9 @@ A multi-platform console application that uses Spectre Console to create a visua
 This project is still a work in progress and although it has a full release, this is just a personal project. Therefore it may have rough edges and incomplete features.
 Feel free to suggest features, provide feedback, or report bugs on the [issue tracker](https://github.com/mbrajk/ynac/issues).
 
+## Running from Binaries
 ### Requirements
+- Windows (other OS binaries to be added to CI/CD soon)
 - YNAB account w/ a Developer Personal Access Token.
   - Instructions: [https://api.ynab.com/](https://api.ynab.com/)
 
