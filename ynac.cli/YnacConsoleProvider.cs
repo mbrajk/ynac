@@ -23,8 +23,15 @@ public static class YnacConsoleProvider
         
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // this could be determined from within OSFeatures
             services.AddSingleton<IBrowserOpener, WindowsBrowserOpener>();
+        }
+        else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            services.AddSingleton<IBrowserOpener, OSXBrowserOpener>();
+        }
+        else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            services.AddSingleton<IBrowserOpener, UnsupportedOsBrowserOpener>();
         }
         else
         {
