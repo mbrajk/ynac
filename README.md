@@ -58,8 +58,8 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 ### Libraries
 - [Spectre.Console](https://spectreconsole.net/)
   - The reason the console looks good at all
-- [Refit](https://github.com/reactiveui/refit)
-  - Automatically generate REST API implementation from an interface
+- [Microsoft Resilience](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.http.resilience?view=net-9.0-pp)
+  - Ensures HTTP requests are reliable by providing automatic retries and failure handling
 - [Polly](https://github.com/App-vNext/Polly)
   - Streamlined web request resiliency strategies
 
