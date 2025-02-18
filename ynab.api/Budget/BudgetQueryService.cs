@@ -44,6 +44,7 @@ namespace YnabApi.Budget
             var filteredGroups = response.Data?.Groups?
                 .Where(group => !group.Hidden)
                 .Where(group => !group.Deleted)
+                .Where(group => group.Categories.Any())
                 .Skip(1);
 
             if (!string.IsNullOrWhiteSpace(_options.CategoryFilter))
