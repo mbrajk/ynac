@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Text.Json;
 using YnabApi.Account;
 using YnabApi.Budget;
 using YnabApi.Category;
@@ -20,11 +21,11 @@ public class YnabApi : IYnabApi
         var budgets = new QueryResponse<BudgetResponse>();
         try
         {
-            budgets = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path) ?? budgets;
+            budgets = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetResponse) ?? budgets;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }
 
         return budgets;
@@ -36,11 +37,11 @@ public class YnabApi : IYnabApi
         var budget = new QueryResponse<BudgetMonthResponse>();
         try
         {
-            budget = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetMonthResponse>>(path) ?? budget;
+            budget = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetMonthResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetMonthResponse) ?? budget;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }
             
         return budget;
@@ -53,11 +54,11 @@ public class YnabApi : IYnabApi
         var categories = new QueryResponse<CategoryResponse>();
         try
         {
-            categories = await _httpClient.GetFromJsonAsync<QueryResponse<CategoryResponse>>(path) ?? categories;
+            categories = await _httpClient.GetFromJsonAsync<QueryResponse<CategoryResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseCategoryResponse) ?? categories;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }
 
         return categories;
@@ -70,11 +71,11 @@ public class YnabApi : IYnabApi
         var accounts = new QueryResponse<AccountResponse>();
         try
         {
-            accounts = await _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path) ?? accounts;
+            accounts = await _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseAccountResponse) ?? accounts;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }
         return accounts;
     }
