@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Diagnostics;
+using System.Net.Http.Json;
 using Refit;
 using YnabApi.Account;
 using YnabApi.Budget;
@@ -30,23 +31,66 @@ namespace YnabApi
         public async Task<QueryResponse<BudgetResponse>> GetBudgetsAsync()
         {
             var path = "budgets";
-            var budgets = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path);
+            var budgets = new QueryResponse<BudgetResponse>();
+            try
+            {
+                budgets = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path) ?? budgets;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
             return budgets;
         }
 
-        public Task<QueryResponse<BudgetMonthResponse>> GetBudgetMonthAsync(string id, string month)
+        public async Task<QueryResponse<BudgetMonthResponse>> GetBudgetMonthAsync(string id, string month)
         {
-            throw new NotImplementedException();
+            var path = $"budgets/{id}/months/{month}";
+            var budget = new QueryResponse<BudgetMonthResponse>();
+            try
+            {
+                budget = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetMonthResponse>>(path) ?? budget;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+            
+            return budget;
         }
 
-        public Task<QueryResponse<CategoryResponse>> GetBudgetCategoriesAsync(string id)
+        public async Task<QueryResponse<CategoryResponse>> GetBudgetCategoriesAsync(string id)
         {
-            throw new NotImplementedException();
+
+            var path = $"budgets/{id}/categories";
+            var categories = new QueryResponse<CategoryResponse>();
+            try
+            {
+                categories = await _httpClient.GetFromJsonAsync<QueryResponse<CategoryResponse>>(path) ?? categories;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
+            return categories;
         }
 
-        public Task<QueryResponse<AccountResponse>> GetBudgetAccountsAsync(string id)
+        public async Task<QueryResponse<AccountResponse>> GetBudgetAccountsAsync(string id)
         {
-            throw new NotImplementedException();
+
+            var path = $"budgets/{id}/accounts";
+            var accounts = new QueryResponse<AccountResponse>();
+            try
+            {
+                accounts = await _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path) ?? accounts;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+            return accounts;
         }
     }
 }
