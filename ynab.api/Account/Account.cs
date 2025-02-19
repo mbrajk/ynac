@@ -4,6 +4,7 @@ namespace YnabApi.Account
 {
     public class Account
     {
+        [JsonPropertyName("id")]
         public Guid Id { get; set; }
 
         [JsonPropertyName("balance")]
