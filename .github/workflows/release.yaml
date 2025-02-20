@@ -21,4 +21,4 @@ jobs:
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create "$GITHUB_REF_NAME" ./Console/bin/Release/net8.0/win-x64/publish/ynac.exe --generate-notes
+      run: gh release create "$GITHUB_REF_NAME" ./Console/bin/Release/net9.0/win-x64/publish/ynac.exe --generate-notes
