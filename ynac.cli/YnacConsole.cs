@@ -1,7 +1,7 @@
 using Spectre.Console;
 using Spectre.Console.Rendering;
-using YnabApi.Budget;
-using YnabApi.Category;
+using ynab.Budget;
+using ynab.Category;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.Commands;

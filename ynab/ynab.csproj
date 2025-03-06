@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>13</LangVersion>
+    <AssemblyName>ynab</AssemblyName>
+    <RootNamespace>ynab</RootNamespace>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

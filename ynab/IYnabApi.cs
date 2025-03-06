@@ -1,8 +1,8 @@
-﻿using YnabApi.Account;
-using YnabApi.Budget;
-using YnabApi.Category;
+﻿using ynab.Account;
+using ynab.Budget;
+using ynab.Category;
 
-namespace YnabApi
+namespace ynab
 {
     public interface IYnabApi
     {
