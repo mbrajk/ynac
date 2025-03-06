@@ -1,6 +1,6 @@
-﻿using YnabApi.Category;
+﻿using ynab.Category;
 
-namespace YnabApi.Budget
+namespace ynab.Budget
 {
     public interface IBudgetQueryService
     {

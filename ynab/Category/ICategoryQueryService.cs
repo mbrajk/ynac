@@ -1,4 +1,4 @@
-namespace YnabApi.Category;
+namespace ynab.Category;
 
 public interface ICategoryQueryService
 {

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace YnabApi
+namespace ynab
 {
     public class QueryResponse<T>
     {

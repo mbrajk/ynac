@@ -1,4 +1,4 @@
-﻿namespace YnabApi.Account
+﻿namespace ynab.Account
 {
     public class AccountQueryService(IYnabApi ynabApi) : IAccountQueryService
     {

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace YnabApi.Account
+namespace ynab.Account
 {
     public class AccountResponse
     {

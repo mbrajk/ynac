@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
-using Spectre.Console;
-using YnabApi;
+using ynab;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.OSFeatures;

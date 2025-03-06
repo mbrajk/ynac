@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Spectre.Console;
-using YnabApi.Budget;
+using ynab.Budget;
 using ynac.BudgetSelection;
 
 namespace ynac.Tests.BudgetSelection;

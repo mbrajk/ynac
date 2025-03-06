@@ -1,4 +1,4 @@
-namespace YnabApi.Account;
+namespace ynab.Account;
 
 public interface IAccountQueryService
 {
