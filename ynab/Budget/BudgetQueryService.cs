@@ -10,7 +10,7 @@ namespace ynab.Budget
         public bool ShowDeletedCategories { get; set; }
     }
 
-    public class BudgetQueryService(IYnabApi ynabApi) : IBudgetQueryService
+    public class BudgetQueryService(IBudgetApi budgetApi) : IBudgetQueryService
     {
         private BudgetCategorySearchOptions _options = new();
         private void Configure(Action<BudgetCategorySearchOptions> budgetAction)
@@ -38,7 +38,7 @@ namespace ynab.Budget
         {
             ArgumentNullException.ThrowIfNull(_options.SelectedBudget, nameof(_options.SelectedBudget));
             
-            var response = await ynabApi.GetBudgetCategoriesAsync(_options.SelectedBudget.BudgetId);
+            var response = await budgetApi.GetBudgetCategoriesAsync(_options.SelectedBudget.BudgetId);
 
             // first group is the "Internal Master Category" used by YNAB, so we skip it
             var filteredGroups = response.Data?.Groups?
@@ -59,7 +59,7 @@ namespace ynab.Budget
         
         public async Task<IReadOnlyCollection<Budget>> GetBudgets()
         {
-            var response = await ynabApi.GetBudgetsAsync();
+            var response = await budgetApi.GetBudgetsAsync();
 
             var budgets = response.Data?.Budgets;
             
@@ -81,7 +81,7 @@ namespace ynab.Budget
             }
 
             var dateString = dateModified.ToString("yyyy-MM-01");
-            var response = await ynabApi.GetBudgetMonthAsync(budget.BudgetId, dateString);
+            var response = await budgetApi.GetBudgetMonthAsync(budget.BudgetId, dateString);
         
             return response.Data?.Budget ?? new BudgetMonth();
         } 

@@ -18,7 +18,7 @@ public static class YnabApiServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace("token"))
             throw new ArgumentException("Valid YNAB API token is required", nameof(token));
 
-        services.AddHttpClient(nameof(YnabApi))
+        services.AddHttpClient(nameof(BudgetApi))
             .ConfigureHttpClient(
                 httpClient =>
                 {
@@ -29,7 +29,7 @@ public static class YnabApiServiceCollectionExtensions
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
                 }).AddStandardResilienceHandler();
 
-        services.AddSingleton<IYnabApi, YnabApi>();
+        services.AddSingleton<IBudgetApi, BudgetApi>();
         services.AddSingleton<IBudgetQueryService, BudgetQueryService>();
         services.AddSingleton<ICategoryQueryService, CategoryQueryService>();
         services.AddSingleton<IAccountQueryService, AccountQueryService>();
