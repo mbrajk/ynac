@@ -4,7 +4,7 @@ using ynab.Category;
 
 namespace ynab
 {
-    public interface IYnabApi
+    public interface IBudgetApi
     {
         internal Task<QueryResponse<BudgetResponse>> GetBudgetsAsync();
         internal Task<QueryResponse<BudgetMonthResponse>> GetBudgetMonthAsync(string id, string month);

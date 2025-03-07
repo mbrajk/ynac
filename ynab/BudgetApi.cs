@@ -5,12 +5,12 @@ using ynab.Category;
 
 namespace ynab;
 
-public class YnabApi : IYnabApi
+internal class BudgetApi : IBudgetApi
 {
     private readonly HttpClient _httpClient;
-    public YnabApi(IHttpClientFactory httpClientFactory)
+    public BudgetApi(IHttpClientFactory httpClientFactory)
     {
-        _httpClient = httpClientFactory.CreateClient(nameof(YnabApi));
+        _httpClient = httpClientFactory.CreateClient(nameof(BudgetApi));
     }
         
     public async Task<QueryResponse<BudgetResponse>> GetBudgetsAsync()
