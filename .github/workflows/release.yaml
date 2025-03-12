@@ -23,9 +23,9 @@ jobs:
     - name: make artifact dir
       run: mkdir ./artifacts
     - name: tar macOS
-      run: tar -czf ynac_osx.tar.gz ./ynac.cli/bin/Release/net9.0/osx-x64/publish ./artifacts
+      run: tar -czf ./artifacts/ynac_osx.tar.gz ./ynac.cli/bin/Release/net9.0/osx-x64/publish/ynac
     - name: tar linux
-      run: tar -czf ynac_linux.tar.gz ./ynac.cli/bin/Release/net9.0/linux-x64/publish ./artifacts
+      run: tar -czf ./artifacts/ynac_linux.tar.gz ./ynac.cli/bin/Release/net9.0/linux-x64/publish/ynac
     - name: move win exe
       run: mv ./ynac.cli/bin/Release/net9.0/win-x64/publish/ynac.exe ./artifacts
     - name: Create Release
