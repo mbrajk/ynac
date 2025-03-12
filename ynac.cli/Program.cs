@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Spectre.Console.Cli;
 using ynac.Commands;
 
@@ -21,21 +22,20 @@ internal class Program
     }
 
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     private static async Task InitConfigFile()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
-        // create config file if it doesn't exist, but only in release mode. This was done for testing purposes.
-        // can likely do this with a flag in the future
-#if ! DEBUG
-if(!File.Exists(Constants.ConfigFileLocation))
-{
-    await using var configFileStream = File.Create(Constants.ConfigFileLocation);
-    await using var streamWriter = new StreamWriter(configFileStream);
-    
-    await streamWriter.WriteLineAsync(Constants.YnabSectionKey);
-    await streamWriter.WriteLineAsync($"{Constants.TokenString}=\"{Constants.DefaultTokenString}\"");
-}
-#endif
+        if(!File.Exists(Constants.ConfigFileLocation))
+        {
+            await using var configFileStream = File.Create(Constants.ConfigFileLocation);
+            await using var streamWriter = new StreamWriter(configFileStream);
+
+            var assembly = Assembly.GetExecutingAssembly();
+            await using var configTemplateStream = assembly.GetManifestResourceStream(Constants.ConfigFileTemplate);
+            if (configTemplateStream == null)
+            {
+                throw new FileNotFoundException("Embedded resource not found", Constants.ConfigFileTemplate);
+            }
+            await configTemplateStream.CopyToAsync(configFileStream); 
+        }
     }
 }

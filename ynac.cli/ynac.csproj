@@ -30,13 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="config.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\ynab\ynab.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ynab\ynab.csproj" />
+    <EmbeddedResource Include="_res\config.template.ini" />
   </ItemGroup>
 
 </Project>

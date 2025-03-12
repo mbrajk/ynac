@@ -12,6 +12,7 @@ public static class Constants
     internal static string YnabRootUrl => "https://app.ynab.com/";
     internal static string BudgetRouteAffix => "/budget";
     internal static string ConfigFileLocation => "./config.ini";
+    internal static string ConfigFileTemplate => "ynac._res.config.template.ini";
     
     // The default string to check for in config.ini, do not edit here 
     internal static string DefaultTokenString => "put-your-token-here";
