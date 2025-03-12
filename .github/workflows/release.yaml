@@ -20,16 +20,16 @@ jobs:
           dotnet publish -c Release -r win-x64 --self-contained true
           dotnet publish -c Release -r osx-x64 --self-contained true
           dotnet publish -c Release -r linux-x64 --self-contained true
-    - name: make publish dir
-      run: mkdir ./ynac/release
+    - name: make artifact dir
+      run: mkdir ./artifacts
     - name: tar macOS
-      run: tar -czf ynac_osx.tar.gz -C ./ynac.cli/bin/Release/net9.0/osx-x64/publish ./ynac/release
+      run: tar -czf ynac_osx.tar.gz -C ./ynac.cli/bin/Release/net9.0/osx-x64/publish ./artifacts
     - name: tar linux
-      run: tar -czf ynac_linux.tar.gz -C ./ynac.cli/bin/Release/net9.0/linux-x64/publish ./ynac/release
+      run: tar -czf ynac_linux.tar.gz -C ./ynac.cli/bin/Release/net9.0/linux-x64/publish ./artifacts
     - name: move win exe
-      run: mv ./ynac.cli/bin/Release/net9.0/win-x64/publish/ynac.exe ./ynac/release
+      run: mv ./ynac.cli/bin/Release/net9.0/win-x64/publish/ynac.exe ./artifacts
     - name: Create Release
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create "$GITHUB_REF_NAME" ./ynac/release/* --generate-notes
+      run: gh release create "$GITHUB_REF_NAME" ./artifacts/* --generate-notes
