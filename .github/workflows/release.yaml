@@ -23,13 +23,13 @@ jobs:
     - name: make artifact dir
       run: mkdir $GITHUB_WORKSPACE/artifacts
     - name: tar macOS
-      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx.tar.gz $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/osx-x64/publish/ynac
+      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/osx-x64/publish ynac
     - name: tar linux
-      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux.tar.gz $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/linux-x64/publish/ynac
+      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/linux-x64/publish ynac
     - name: move win exe
       run: mv $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/win-x64/publish/ynac.exe $GITHUB_WORKSPACE/artifacts
     - name: Create Release
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create "$GITHUB_REF_NAME" ./artifacts/* --generate-notes
+      run: gh release create "$GITHUB_REF_NAME" $GITHUB_WORKSPACE/artifacts/* --generate-notes
