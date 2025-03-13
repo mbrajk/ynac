@@ -21,13 +21,13 @@ jobs:
           dotnet publish -c Release -r osx-x64 --self-contained true
           dotnet publish -c Release -r linux-x64 --self-contained true
     - name: make artifact dir
-      run: mkdir ./artifacts
+      run: mkdir $GITHUB_WORKSPACE/artifacts
     - name: tar macOS
-      run: tar -czf ./artifacts/ynac_osx.tar.gz ./ynac.cli/bin/Release/net9.0/osx-x64/publish/ynac
+      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx.tar.gz -C ./ynac.cli/bin/Release/net9.0/osx-x64/publish ynac
     - name: tar linux
-      run: tar -czf ./artifacts/ynac_linux.tar.gz ./ynac.cli/bin/Release/net9.0/linux-x64/publish/ynac
+      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux.tar.gz -C ./ynac.cli/bin/Release/net9.0/linux-x64/publish ynac
     - name: move win exe
-      run: mv ./ynac.cli/bin/Release/net9.0/win-x64/publish/ynac.exe ./artifacts
+      run: mv ./ynac.cli/bin/Release/net9.0/win-x64/publish/ynac.exe $GITHUB_WORKSPACE/artifacts
     - name: Create Release
       id: create_release
       env:
