@@ -2,7 +2,7 @@
 
 namespace ynab.Budget
 {
-    public class Budget
+    public record Budget
     {
         public static readonly Budget LastUsedBudget;
         public static readonly Budget NoBudget;

@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using ynab.Account;
 using ynab.Budget;
 using ynab.Category;
+using ynab.Transaction;
 
 namespace ynab;
 
@@ -76,5 +77,21 @@ internal class BudgetApi : IBudgetApi
             Console.WriteLine(ex.ToString());
         }
         return accounts;
+    }
+    
+    public async Task<QueryResponse<TransactionResponse>> GetBudgetTransactionsAsync(string id)
+    {
+    
+        var path = $"budgets/{id}/transactions";
+        var transactions = new QueryResponse<TransactionResponse>();
+        try
+        {
+            transactions = await _httpClient.GetFromJsonAsync<QueryResponse<TransactionResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseTransactionResponse) ?? transactions;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+        return transactions;
     }
 }
