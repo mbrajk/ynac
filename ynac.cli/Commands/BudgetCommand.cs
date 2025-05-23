@@ -20,8 +20,9 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             .AddIniFile(Constants.ConfigFileLocation) 
             .AddEnvironmentVariables()
             .Build();
-                
-        var token = configurationRoot[Constants.YnabApiSectionTokenKey];
+        
+        TokenHandler.MaybeSaveToken(settings.ApiToken);
+        var token = settings.ApiToken ?? configurationRoot[Constants.YnabApiSectionTokenKey];
         token = TokenHandler.HandleMissingToken(token);
                 
         var ynacProvider = YnacConsoleProvider.BuildYnacServices(token);
@@ -62,4 +63,8 @@ public sealed class BudgetCommandSettings : CommandSettings
     [CommandOption("-u|--last-used")]
     [DefaultValue(false)]
     public bool PullLastUsed { get; init; }
+
+    [Description("YNAB API Token. If provided on first run, the token will be saved to config.ini.")]
+    [CommandOption("-t|--api-token")]
+    public string? ApiToken { get; init; }
 }
