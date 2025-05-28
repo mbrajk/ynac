@@ -13,7 +13,7 @@ internal static class TokenHandler
             return;
         }
 
-        var configFile = Constants.ConfigFileLocation;
+        var configFile = Constants.ConfigFilePath;
         var lines = File.Exists(configFile) ? File.ReadAllLines(configFile).ToList() : new List<string>();
 
         var ynabApiSectionIndex = lines.FindIndex(line => line.Trim().Equals(Constants.YnabSectionKey, StringComparison.OrdinalIgnoreCase));
@@ -51,7 +51,7 @@ internal static class TokenHandler
 
         File.WriteAllLines(configFile, lines);
     }
-    
+
     public static string HandleMissingToken(string? token)
     {
         if (string.IsNullOrWhiteSpace(token) || token == Constants.DefaultTokenString)
@@ -60,8 +60,8 @@ internal static class TokenHandler
 
             var prompt = new TextPrompt<string>("[white]Please enter your YNAB Api token: [/]")
                 .PromptStyle("grey");
-           
-            token = AnsiConsole.Prompt(prompt); 
+
+            token = AnsiConsole.Prompt(prompt);
         }
 
         return token;

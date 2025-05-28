@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
@@ -15,9 +16,9 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n"); 
             settings.Open = false;
         }
-                
+               
         var configurationRoot =  new ConfigurationBuilder()
-            .AddIniFile(Constants.ConfigFileLocation) 
+            .AddIniFile(Constants.ConfigFilePath) 
             .AddEnvironmentVariables()
             .Build();
         
@@ -64,7 +65,8 @@ public sealed class BudgetCommandSettings : CommandSettings
     [DefaultValue(false)]
     public bool PullLastUsed { get; init; }
 
-    [Description("YNAB API Token. If provided on first run, the token will be saved to config.ini.")]
-    [CommandOption("-t|--api-token")]
+    [Description("YNAB API Token. If provided on first run, the token will be saved to config.ini. You can " +
+                 "also set the token in the config.ini file directly without having to use this flag.")]
+    [CommandOption("--api-token")]
     public string? ApiToken { get; init; }
 }

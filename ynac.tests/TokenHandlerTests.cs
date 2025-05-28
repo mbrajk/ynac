@@ -1,223 +1,224 @@
-using Xunit;
-using System.IO;
-using ynac; // For TokenHandler and Constants
-using System.Linq;
-using System;
-using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ynac.Tests
+namespace ynac.Tests;
+
+[TestClass]
+public class TokenHandlerTests
 {
-    public class TokenHandlerTests : IDisposable
+    private string _testConfigFilePath = string.Empty;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private readonly string _testConfigFilePath;
+        _testConfigFilePath = Path.GetFullPath($"./{Constants.ConfigFileName}");
+        CleanUpTestConfigFile();
+    }
 
-        public TokenHandlerTests()
+    [TestCleanup]
+    public void TestCleanup()
+    {
+        CleanUpTestConfigFile();
+        GC.SuppressFinalize(this);
+    }
+
+    private void CleanUpTestConfigFile()
+    {
+        if (File.Exists(_testConfigFilePath))
         {
-            // Constants.ConfigFileLocation is "./config.ini"
-            // Path.GetFullPath resolves this against the current working directory,
-            // which for xUnit tests is usually the test project's output directory (e.g., bin/Debug/netX.X)
-            _testConfigFilePath = Path.GetFullPath(Constants.ConfigFileLocation);
-            
-            // Ensure a clean state before each test
-            CleanUpTestConfigFile();
+            File.Delete(_testConfigFilePath);
         }
+    }
 
-        private void CleanUpTestConfigFile()
+    private void CreateTestConfigFile(string content)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(_testConfigFilePath) ?? throw new InvalidOperationException());
+        File.WriteAllText(_testConfigFilePath, content);
+    }
+
+    private List<string> ReadTestConfigFile()
+    {
+        if (!File.Exists(_testConfigFilePath))
         {
-            if (File.Exists(_testConfigFilePath))
-            {
-                File.Delete(_testConfigFilePath);
-            }
+            return new List<string>();
         }
+        return File.ReadAllLines(_testConfigFilePath).ToList();
+    }
 
-        public void Dispose()
-        {
-            // Ensure a clean state after all tests in the class have run
-            CleanUpTestConfigFile();
-            GC.SuppressFinalize(this);
-        }
+    [TestMethod]
+    public void MaybeSaveToken_SavesToken_WhenConfigFileDoesNotExistAndTokenIsValid()
+    {
+        // Arrange
+        var newToken = "test_token_123";
 
-        private void CreateTestConfigFile(string content)
-        {
-            // Ensure directory exists if ./config.ini implies a structure like that (though usually not for a simple filename)
-            Directory.CreateDirectory(Path.GetDirectoryName(_testConfigFilePath));
-            File.WriteAllText(_testConfigFilePath, content);
-        }
+        // Act
+        TokenHandler.MaybeSaveToken(newToken);
 
-        private List<string> ReadTestConfigFile()
-        {
-            if (!File.Exists(_testConfigFilePath))
-            {
-                return new List<string>();
-            }
-            return File.ReadAllLines(_testConfigFilePath).ToList();
-        }
+        // Assert
+        Assert.IsTrue(File.Exists(_testConfigFilePath), "Config file should be created.");
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
+    }
 
-        [Fact]
-        public void MaybeSaveToken_SavesToken_WhenConfigFileDoesNotExistAndTokenIsValid()
-        {
-            string newToken = "test_token_123";
+    [TestMethod]
+    public void MaybeSaveToken_SavesToken_WhenConfigFileHasPlaceholderTokenAndTokenIsValid()
+    {
+        // Arrange
+        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={Constants.DefaultTokenString}\n";
+        CreateTestConfigFile(initialContent);
+        var newToken = "test_token_456";
 
-            TokenHandler.MaybeSaveToken(newToken);
+        // Act
+        TokenHandler.MaybeSaveToken(newToken);
 
-            Assert.True(File.Exists(_testConfigFilePath), "Config file should be created.");
-            var lines = ReadTestConfigFile();
-            Assert.Contains(Constants.YnabSectionKey, lines);
-            Assert.Contains($"{Constants.TokenString}={newToken}", lines);
-        }
+        // Assert
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
+        CollectionAssert.DoesNotContain(lines, $"{Constants.TokenString}={Constants.DefaultTokenString}");
+    }
 
-        [Fact]
-        public void MaybeSaveToken_SavesToken_WhenConfigFileHasPlaceholderTokenAndTokenIsValid()
-        {
-            string initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={Constants.DefaultTokenString}\n";
-            CreateTestConfigFile(initialContent);
-            string newToken = "test_token_456";
+    [TestMethod]
+    public void MaybeSaveToken_DoesNotSaveToken_WhenTokenIsEmptyOrWhitespaceAndConfigFileDoesNotExist()
+    {
+        // Arrange & Act
+        TokenHandler.MaybeSaveToken("");
+        TokenHandler.MaybeSaveToken("  ");
+        TokenHandler.MaybeSaveToken(Constants.DefaultTokenString);
 
-            TokenHandler.MaybeSaveToken(newToken);
+        // Assert
+        Assert.IsFalse(File.Exists(_testConfigFilePath), "Config file should not be created for empty token if it doesn't exist.");
+    }
 
-            var lines = ReadTestConfigFile();
-            Assert.Contains(Constants.YnabSectionKey, lines);
-            Assert.Contains($"{Constants.TokenString}={newToken}", lines);
-            Assert.DoesNotContain($"{Constants.TokenString}={Constants.DefaultTokenString}", lines);
-        }
+    [TestMethod]
+    public void MaybeSaveToken_DoesNotAlterFile_WhenTokenIsEmptyAndConfigFileExists()
+    {
+        // Arrange
+        var existingToken = "existing_valid_token";
+        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
+        CreateTestConfigFile(initialContent);
+        var initialFileSize = new FileInfo(_testConfigFilePath).Length;
 
-        [Fact]
-        public void MaybeSaveToken_DoesNotSaveToken_WhenTokenIsEmptyAndConfigFileDoesNotExist()
-        {
-            TokenHandler.MaybeSaveToken("");
+        // Act
+        TokenHandler.MaybeSaveToken("");
 
-            Assert.False(File.Exists(_testConfigFilePath), "Config file should not be created for empty token if it doesn't exist.");
-        }
-        
-        [Fact]
-        public void MaybeSaveToken_DoesNotAlterFile_WhenTokenIsEmptyAndConfigFileExists()
-        {
-            string existingToken = "existing_valid_token";
-            string initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
-            CreateTestConfigFile(initialContent);
-            long initialFileSize = new FileInfo(_testConfigFilePath).Length;
+        // Assert
+        Assert.IsTrue(File.Exists(_testConfigFilePath));
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={existingToken}");
+        var finalFileSize = new FileInfo(_testConfigFilePath).Length;
+        Assert.AreEqual(initialFileSize, finalFileSize);
+    }
 
-            TokenHandler.MaybeSaveToken("");
-            
-            Assert.True(File.Exists(_testConfigFilePath));
-            var lines = ReadTestConfigFile();
-            Assert.Contains($"{Constants.TokenString}={existingToken}", lines);
-            long finalFileSize = new FileInfo(_testConfigFilePath).Length;
-            Assert.Equal(initialFileSize, finalFileSize); // Ensure file not touched
-        }
+    [TestMethod]
+    public void MaybeSaveToken_DoesNotAlterFile_WhenTokenIsWhitespaceAndConfigFileExists()
+    {
+        // Arrange
+        var existingToken = "existing_valid_token";
+        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
+        CreateTestConfigFile(initialContent);
+        var initialFileSize = new FileInfo(_testConfigFilePath).Length;
 
+        // Act
+        TokenHandler.MaybeSaveToken("   ");
 
-        [Fact]
-        public void MaybeSaveToken_DoesNotSaveToken_WhenTokenIsWhitespaceAndConfigFileDoesNotExist()
-        {
-            TokenHandler.MaybeSaveToken("   ");
+        // Assert
+        Assert.IsTrue(File.Exists(_testConfigFilePath));
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={existingToken}");
+        var finalFileSize = new FileInfo(_testConfigFilePath).Length;
+        Assert.AreEqual(initialFileSize, finalFileSize);
+    }
 
-            Assert.False(File.Exists(_testConfigFilePath), "Config file should not be created for whitespace token if it doesn't exist.");
-        }
+    [TestMethod]
+    public void MaybeSaveToken_DoesNotAlterFile_WhenTokenIsDefaultPlaceholderAndConfigFileExists()
+    {
+        // Arrange
+        var existingToken = "existing_valid_token";
+        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
+        CreateTestConfigFile(initialContent);
+        var initialFileSize = new FileInfo(_testConfigFilePath).Length;
 
-        [Fact]
-        public void MaybeSaveToken_DoesNotAlterFile_WhenTokenIsWhitespaceAndConfigFileExists()
-        {
-            string existingToken = "existing_valid_token";
-            string initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
-            CreateTestConfigFile(initialContent);
-            long initialFileSize = new FileInfo(_testConfigFilePath).Length;
+        // Act
+        TokenHandler.MaybeSaveToken(Constants.DefaultTokenString);
 
-            TokenHandler.MaybeSaveToken("   ");
+        // Assert
+        Assert.IsTrue(File.Exists(_testConfigFilePath));
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={existingToken}");
+        var finalFileSize = new FileInfo(_testConfigFilePath).Length;
+        Assert.AreEqual(initialFileSize, finalFileSize);
+    }
 
-            Assert.True(File.Exists(_testConfigFilePath));
-            var lines = ReadTestConfigFile();
-            Assert.Contains($"{Constants.TokenString}={existingToken}", lines);
-            long finalFileSize = new FileInfo(_testConfigFilePath).Length;
-            Assert.Equal(initialFileSize, finalFileSize);
-        }
-        
-        [Fact]
-        public void MaybeSaveToken_DoesNotSaveToken_WhenTokenIsDefaultPlaceholderAndConfigFileDoesNotExist()
-        {
-            TokenHandler.MaybeSaveToken(Constants.DefaultTokenString);
+    [TestMethod]
+    public void MaybeSaveToken_OverwritesToken_WhenConfigFileHasDifferentUserTokenAndTokenIsValid()
+    {
+        // Arrange
+        var existingUserToken = "existing_user_token";
+        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingUserToken}\n";
+        CreateTestConfigFile(initialContent);
+        var newTokenFromCli = "new_token_from_cli";
 
-            Assert.False(File.Exists(_testConfigFilePath), "Config file should not be created for default placeholder token if it doesn't exist.");
-        }
+        // Act
+        TokenHandler.MaybeSaveToken(newTokenFromCli);
 
-        [Fact]
-        public void MaybeSaveToken_DoesNotAlterFile_WhenTokenIsDefaultPlaceholderAndConfigFileExists()
-        {
-            string existingToken = "existing_valid_token";
-            string initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
-            CreateTestConfigFile(initialContent);
-            long initialFileSize = new FileInfo(_testConfigFilePath).Length;
+        // Assert
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={newTokenFromCli}");
+        CollectionAssert.DoesNotContain(lines, $"{Constants.TokenString}={existingUserToken}");
+    }
 
-            TokenHandler.MaybeSaveToken(Constants.DefaultTokenString);
+    [TestMethod]
+    public void MaybeSaveToken_AddsToken_WhenConfigFileExistsWithoutTokenEntryInSectionAndTokenIsValid()
+    {
+        // Arrange
+        var initialContent = $"{Constants.YnabSectionKey}\nSomeOtherKey=SomeValue\n";
+        CreateTestConfigFile(initialContent);
+        var newToken = "newly_added_token";
 
-            Assert.True(File.Exists(_testConfigFilePath));
-            var lines = ReadTestConfigFile();
-            Assert.Contains($"{Constants.TokenString}={existingToken}", lines);
-            long finalFileSize = new FileInfo(_testConfigFilePath).Length;
-            Assert.Equal(initialFileSize, finalFileSize);
-        }
+        // Act
+        TokenHandler.MaybeSaveToken(newToken);
 
-        // Test scenario 6: Testing that a new valid token *overwrites* an existing user token.
-        // This reflects the current implementation's behavior where a token from CLI is prioritized for saving.
-        [Fact]
-        public void MaybeSaveToken_OverwritesToken_WhenConfigFileHasDifferentUserTokenAndTokenIsValid()
-        {
-            string existingUserToken = "existing_user_token";
-            string initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingUserToken}\n";
-            CreateTestConfigFile(initialContent);
-            string newTokenFromCli = "new_token_from_cli";
+        // Assert
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, "SomeOtherKey=SomeValue");
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
+    }
 
-            TokenHandler.MaybeSaveToken(newTokenFromCli);
+    [TestMethod]
+    public void MaybeSaveToken_AddsTokenAndSection_WhenConfigFileIsEmptyAndTokenIsValid()
+    {
+        // Arrange
+        CreateTestConfigFile("");
+        var newToken = "token_for_empty_file";
 
-            var lines = ReadTestConfigFile();
-            Assert.Contains(Constants.YnabSectionKey, lines);
-            Assert.Contains($"{Constants.TokenString}={newTokenFromCli}", lines);
-            Assert.DoesNotContain($"{Constants.TokenString}={existingUserToken}", lines);
-        }
-        
-        // Additional test cases for robustness
-        [Fact]
-        public void MaybeSaveToken_AddsToken_WhenConfigFileExistsWithoutTokenEntryInSectionAndTokenIsValid()
-        {
-            string initialContent = $"{Constants.YnabSectionKey}\nSomeOtherKey=SomeValue\n";
-            CreateTestConfigFile(initialContent);
-            string newToken = "newly_added_token";
+        // Act
+        TokenHandler.MaybeSaveToken(newToken);
 
-            TokenHandler.MaybeSaveToken(newToken);
+        // Assert
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
+    }
 
-            var lines = ReadTestConfigFile();
-            Assert.Contains(Constants.YnabSectionKey, lines);
-            Assert.Contains("SomeOtherKey=SomeValue", lines);
-            Assert.Contains($"{Constants.TokenString}={newToken}", lines);
-        }
-        
-        [Fact]
-        public void MaybeSaveToken_AddsTokenAndSection_WhenConfigFileIsEmptyAndTokenIsValid()
-        {
-            CreateTestConfigFile(""); // Empty file
-            string newToken = "token_for_empty_file";
+    [TestMethod]
+    public void MaybeSaveToken_AddsTokenAndSection_WhenConfigFileExistsWithOtherSectionsAndTokenIsValid()
+    {
+        // Arrange
+        var initialContent = "[OtherSection]\nKey=Value\n";
+        CreateTestConfigFile(initialContent);
+        var newToken = "token_with_other_sections";
 
-            TokenHandler.MaybeSaveToken(newToken);
+        // Act
+        TokenHandler.MaybeSaveToken(newToken);
 
-            var lines = ReadTestConfigFile();
-            Assert.Contains(Constants.YnabSectionKey, lines);
-            Assert.Contains($"{Constants.TokenString}={newToken}", lines);
-        }
-        
-        [Fact]
-        public void MaybeSaveToken_AddsTokenAndSection_WhenConfigFileExistsWithOtherSectionsAndTokenIsValid()
-        {
-            string initialContent = "[OtherSection]\nKey=Value\n";
-            CreateTestConfigFile(initialContent);
-            string newToken = "token_with_other_sections";
-
-            TokenHandler.MaybeSaveToken(newToken);
-
-            var lines = ReadTestConfigFile();
-            Assert.Contains("[OtherSection]", lines);
-            Assert.Contains("Key=Value", lines);
-            Assert.Contains(Constants.YnabSectionKey, lines);
-            Assert.Contains($"{Constants.TokenString}={newToken}", lines);
-        }
+        // Assert
+        var lines = ReadTestConfigFile();
+        CollectionAssert.Contains(lines, "[OtherSection]");
+        CollectionAssert.Contains(lines, "Key=Value");
+        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
     }
 }

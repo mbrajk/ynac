@@ -24,9 +24,9 @@ internal class Program
 
     private static async Task InitConfigFile()
     {
-        if(!File.Exists(Constants.ConfigFileLocation))
+        if(!File.Exists(Constants.ConfigFilePath))
         {
-            await using var configFileStream = File.Create(Constants.ConfigFileLocation);
+            await using var configFileStream = File.Create(Constants.ConfigFilePath);
             await using var streamWriter = new StreamWriter(configFileStream);
 
             var assembly = Assembly.GetExecutingAssembly();
