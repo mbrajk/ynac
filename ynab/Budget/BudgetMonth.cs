@@ -9,11 +9,11 @@ namespace ynab.Budget
 
         [JsonPropertyName("age_of_money")]
         public int? AgeOfMoney { get; init; } = 0;
-        
+
         [JsonPropertyName("to_be_budgeted")]
         public decimal ToBeBudgeted { get; init; }
     }
-    
+
     public class BudgetMonthResponse
     {
         [JsonPropertyName("month")]

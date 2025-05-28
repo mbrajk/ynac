@@ -37,4 +37,7 @@
     <EmbeddedResource Include="_res\config.template.ini" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ynac.tests" />
+  </ItemGroup>
 </Project>
