@@ -1,6 +1,4 @@
 using Spectre.Console;
-using System.IO;
-using System.Linq;
 
 namespace ynac;
 
@@ -50,6 +48,7 @@ internal static class TokenHandler
         }
 
         File.WriteAllLines(configFile, lines);
+        Console.WriteLine($"[YNAC] Token peristed to {Constants.ConfigFileName}.");
     }
 
     public static string HandleMissingToken(string? token)
