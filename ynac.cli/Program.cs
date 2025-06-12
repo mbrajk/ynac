@@ -15,8 +15,8 @@ internal class Program
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.XmlDocCommand", "Spectre.Console.Cli")]
     public static async Task Main(string[] args)
     {
-        await InitConfigFile(); 
-       
+        await InitConfigFile();
+
         var app = new CommandApp<BudgetCommand>();
         await app.RunAsync(args);
     }
@@ -24,7 +24,7 @@ internal class Program
 
     private static async Task InitConfigFile()
     {
-        if(!File.Exists(Constants.ConfigFilePath))
+        if (!File.Exists(Constants.ConfigFilePath))
         {
             await using var configFileStream = File.Create(Constants.ConfigFilePath);
             await using var streamWriter = new StreamWriter(configFileStream);
@@ -35,7 +35,8 @@ internal class Program
             {
                 throw new FileNotFoundException("Embedded resource not found", Constants.ConfigFileTemplate);
             }
-            await configTemplateStream.CopyToAsync(configFileStream); 
+            await configTemplateStream.CopyToAsync(configFileStream);
+            Console.WriteLine($"[YNAC] created {Constants.ConfigFilePath}");
         }
     }
 }
