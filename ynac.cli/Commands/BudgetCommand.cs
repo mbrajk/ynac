@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using ynac.CurrencyFormatting;
 
 namespace ynac.Commands;
 
@@ -25,8 +26,22 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         TokenHandler.MaybeSaveToken(settings.ApiToken);
         var token = settings.ApiToken ?? configurationRoot[Constants.YnabApiSectionTokenKey];
         token = TokenHandler.HandleMissingToken(token);
+
+        var hideAmountsConfig = configurationRoot.GetSection(Constants.YnabApiSectionKey).GetValue<bool>("HideAmounts");
+
+        var hideAmounts = settings.HideAmounts || hideAmountsConfig;
+
+        ICurrencyFormatter currencyFormatter;
+        if (hideAmounts)
+        {
+            currencyFormatter = new HiddenCurrencyFormatter();
+        }
+        else
+        {
+            currencyFormatter = new DefaultCurrencyFormatter();
+        }
                 
-        var ynacProvider = YnacConsoleProvider.BuildYnacServices(token);
+        var ynacProvider = YnacConsoleProvider.BuildYnacServices(token, currencyFormatter);
                 
         var ynacConsole = ynacProvider.GetRequiredService<IYnacConsole>();
         await ynacConsole.RunAsync(settings);
@@ -69,4 +84,9 @@ public sealed class BudgetCommandSettings : CommandSettings
                  "also set the token in the config.ini file directly without having to use this flag.")]
     [CommandOption("--api-token")]
     public string? ApiToken { get; init; }
+    
+    [Description("Hide all monetary amounts in the output. This is useful for sharing screenshots or when privacy is a concern.")]
+    [CommandOption("-h|--hide-amounts")]
+    [DefaultValue(false)]
+    public bool HideAmounts { get; init; }
 }

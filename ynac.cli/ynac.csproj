@@ -9,6 +9,7 @@
     <RootNamespace>ynac</RootNamespace>
     <LangVersion>13</LangVersion>
     <TrimSingleWarn>False</TrimSingleWarn>
+    <InternalsVisibleTo Include="ynac.tests" />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

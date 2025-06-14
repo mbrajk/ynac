@@ -4,16 +4,18 @@ using ynab;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.OSFeatures;
+using ynac.CurrencyFormatting;
 
 namespace ynac;
 
 public static class YnacConsoleProvider
 {
-    public static ServiceProvider BuildYnacServices(string token)
+    public static ServiceProvider BuildYnacServices(string token, ICurrencyFormatter currencyFormatter)
     {
         var services = new ServiceCollection();
         
         services.AddYnabApi(token);
+        services.AddSingleton<ICurrencyFormatter>(currencyFormatter);
 
         // other required dependencies
         services.AddSingleton<IYnacConsole, YnacConsole>();
