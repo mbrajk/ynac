@@ -6,20 +6,21 @@ using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.Commands;
 using ynac.OSFeatures;
+using ynac.CurrencyFormatting;
 
 namespace ynac;
 
 internal class YnacConsole(
-	IBudgetQueryService budgetQueryService, 
-	IBudgetBrowserOpener budgetBrowserOpener,
-	IBudgetSelector budgetSelector,
-	IEnumerable<IBudgetAction> budgetActions,
-	IAnsiConsoleService ansiConsoleService
+    IBudgetQueryService budgetQueryService,
+    IBudgetBrowserOpener budgetBrowserOpener,
+    IBudgetSelector budgetSelector,
+    IEnumerable<IBudgetAction> budgetActions,
+    ICurrencyFormatter currencyFormatter
 ) : IYnacConsole
 {
-	public async Task RunAsync(BudgetCommandSettings settings) 
-	{
-		ansiConsoleService.WriteHeaderRule("[bold]You Need A Console[/]");
+    public async Task RunAsync(BudgetCommandSettings settings)
+    {
+        WriteHeaderRule("[bold]You Need A Console[/]");
 
 		var pullLastUsedBudget = settings.PullLastUsed;
 		var filter = settings.BudgetFilter ?? "";
@@ -66,7 +67,7 @@ internal class YnacConsole(
 		}
 	}
 
-	private static void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommandSettings settings, Table table)
+	internal void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommandSettings settings, Table table)
 	{
 		foreach (var categoryGroup in categoryGroups)
 		{
@@ -118,16 +119,16 @@ internal class YnacConsole(
 			
 				subTable.AddRow(
 					categoryCell,
-					new Markup($"[green]{budgetedDollars.ToString("C")}[/]"), 
-					new Markup($"[red]{activityDollars.ToString("C")}[/]"), 
-					new Markup($"[green]{availableDollars.ToString("C")}[/]")
+					new Markup($"[green]{currencyFormatter.Format(budgetedDollars)}[/]"),
+					new Markup($"[red]{currencyFormatter.Format(activityDollars)}[/]"),
+					new Markup($"[green]{currencyFormatter.Format(availableDollars)}[/]")
 				);
 			}
 			subTable.ShowFooters().AddRow(
 				"", 
-				$"[green]{totalBudgeted.ToString("C")}[/]", 
-				$"[red]{totalActivity.ToString("C")}[/]", 
-				$"[green]{totalAvailable.ToString("C")}[/]"
+				$"[green]{currencyFormatter.Format(totalBudgeted)}[/]",
+				$"[red]{currencyFormatter.Format(totalActivity)}[/]",
+				$"[green]{currencyFormatter.Format(totalAvailable)}[/]"
 			).ShowRowSeparators().MinimalBorder();
 
 			table.AddRow(subTable);
@@ -135,7 +136,7 @@ internal class YnacConsole(
 	}
 
 	//TODO: format column text using Spectre tools
-	private static Table CreateTable(string budgetName, BudgetMonth selectedBudget)
+	internal Table CreateTable(string budgetName, BudgetMonth selectedBudget)
 	{
 		var table = new Table()
 			.Caption(budgetName)
@@ -146,7 +147,7 @@ internal class YnacConsole(
 		                 $"                 " +
 		                 $"[white]Age of money:[/] [aqua]{selectedBudget.AgeOfMoney ?? 0}[/]\n" +
 		                 $"                            " +
-		                 $"To Be Budgeted: [green]{(selectedBudget.ToBeBudgeted/1000).ToString("C")}[/]";
+		                 $"To Be Budgeted: [green]{currencyFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]";
 		
 		table.AddColumn(columnText);
 
