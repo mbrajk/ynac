@@ -18,8 +18,6 @@ internal class YnacConsole(
     ICurrencyFormatter currencyFormatter
 ) : IYnacConsole
 {
-    private readonly ICurrencyFormatter _currencyFormatter = currencyFormatter;
-
     public async Task RunAsync(BudgetCommandSettings settings)
     {
         WriteHeaderRule("[bold]You Need A Console[/]");
@@ -121,16 +119,16 @@ internal class YnacConsole(
 			
 				subTable.AddRow(
 					categoryCell,
-					new Markup($"[green]{_currencyFormatter.Format(budgetedDollars)}[/]"),
-					new Markup($"[red]{_currencyFormatter.Format(activityDollars)}[/]"),
-					new Markup($"[green]{_currencyFormatter.Format(availableDollars)}[/]")
+					new Markup($"[green]{currencyFormatter.Format(budgetedDollars)}[/]"),
+					new Markup($"[red]{currencyFormatter.Format(activityDollars)}[/]"),
+					new Markup($"[green]{currencyFormatter.Format(availableDollars)}[/]")
 				);
 			}
 			subTable.ShowFooters().AddRow(
 				"", 
-				$"[green]{_currencyFormatter.Format(totalBudgeted)}[/]",
-				$"[red]{_currencyFormatter.Format(totalActivity)}[/]",
-				$"[green]{_currencyFormatter.Format(totalAvailable)}[/]"
+				$"[green]{currencyFormatter.Format(totalBudgeted)}[/]",
+				$"[red]{currencyFormatter.Format(totalActivity)}[/]",
+				$"[green]{currencyFormatter.Format(totalAvailable)}[/]"
 			).ShowRowSeparators().MinimalBorder();
 
 			table.AddRow(subTable);
@@ -149,7 +147,7 @@ internal class YnacConsole(
 		                 $"                 " +
 		                 $"[white]Age of money:[/] [aqua]{selectedBudget.AgeOfMoney ?? 0}[/]\n" +
 		                 $"                            " +
-		                 $"To Be Budgeted: [green]{_currencyFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]";
+		                 $"To Be Budgeted: [green]{currencyFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]";
 		
 		table.AddColumn(columnText);
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ynab;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
+using ynac.Commands;
 using ynac.OSFeatures;
 using ynac.CurrencyFormatting;
 
@@ -10,12 +11,20 @@ namespace ynac;
 
 public static class YnacConsoleProvider
 {
-    public static ServiceProvider BuildYnacServices(string token, ICurrencyFormatter currencyFormatter)
+    public static ServiceProvider BuildYnacServices(YnacConsoleSettings settings)
     {
         var services = new ServiceCollection();
         
-        services.AddYnabApi(token);
-        services.AddSingleton<ICurrencyFormatter>(currencyFormatter);
+        services.AddYnabApi(settings.Token);
+
+        if (settings.HideAmounts)
+        {
+            services.AddSingleton<ICurrencyFormatter>(new HiddenCurrencyFormatter());
+        }
+        else
+        {
+            services.AddSingleton<ICurrencyFormatter>(new DefaultCurrencyFormatter());
+        }
 
         // other required dependencies
         services.AddSingleton<IYnacConsole, YnacConsole>();

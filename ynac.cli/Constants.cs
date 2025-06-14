@@ -5,10 +5,16 @@ namespace ynac;
 public static class Constants
 {
     private const string YnabApiString = "YnabApi";
-
+    private const string YnacString = "Ynac";
+   
+    internal static string YnabApiSectionHeader => $"[{YnabApiString}]";
     internal static string TokenString => "Token";
-    internal static string YnabApiSectionTokenKey => $"{YnabApiString}:{TokenString}";
-    internal static string YnabSectionKey => $"[{YnabApiString}]";
+    internal static string YnabApiTokenConfigPath => $"{YnabApiString}:{TokenString}";
+    
+    internal static string YnacSectionHeader => $"[{YnacString}]";
+    internal static string HideAmountsString => "HideAmounts";
+    internal static string YnacHideAmountsConfigPath => $"{YnacString}:{HideAmountsString}";
+    
     internal static string YnabRootUrl => "https://app.ynab.com/";
     internal static string BudgetRouteAffix => "/budget";
     

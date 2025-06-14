@@ -24,30 +24,23 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             .Build();
         
         TokenHandler.MaybeSaveToken(settings.ApiToken);
-        var token = settings.ApiToken ?? configurationRoot[Constants.YnabApiSectionTokenKey];
+        var token = settings.ApiToken ?? configurationRoot[Constants.YnabApiTokenConfigPath];
         token = TokenHandler.HandleMissingToken(token);
 
-        var hideAmountsConfig = configurationRoot.GetSection(Constants.YnabApiSectionKey).GetValue<bool>("HideAmounts");
-
+        var hideAmountsConfig = configurationRoot.GetValue<bool>(Constants.YnacHideAmountsConfigPath);
         var hideAmounts = settings.HideAmounts || hideAmountsConfig;
 
-        ICurrencyFormatter currencyFormatter;
-        if (hideAmounts)
-        {
-            currencyFormatter = new HiddenCurrencyFormatter();
-        }
-        else
-        {
-            currencyFormatter = new DefaultCurrencyFormatter();
-        }
+        var ynacConsoleSettings = new YnacConsoleSettings(token, hideAmounts);
                 
-        var ynacProvider = YnacConsoleProvider.BuildYnacServices(token, currencyFormatter);
+        var ynacProvider = YnacConsoleProvider.BuildYnacServices(ynacConsoleSettings);
                 
         var ynacConsole = ynacProvider.GetRequiredService<IYnacConsole>();
         await ynacConsole.RunAsync(settings);
         return 0; 
     }
 }
+
+public record struct YnacConsoleSettings(string Token, bool HideAmounts);
 
 public sealed class BudgetCommandSettings : CommandSettings
 {
