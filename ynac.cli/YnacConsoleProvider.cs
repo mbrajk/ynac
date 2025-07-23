@@ -38,7 +38,7 @@ public static class YnacConsoleProvider
         }
         
         services.AddSingleton<IBudgetPrompter, BudgetPrompter>();
-        services.AddSingleton<IConsolePrompt, ConsolePrompt>();
+        services.AddSingleton<IAnsiConsoleService, AnsiConsoleService>();
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
         
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();

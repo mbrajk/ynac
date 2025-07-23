@@ -11,7 +11,7 @@ namespace ynac.Tests.BudgetSelection;
 [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
 public class BudgetPrompterTests
 {
-    private readonly IConsolePrompt _console = Substitute.For<IConsolePrompt>();
+    private readonly IAnsiConsoleService _console = Substitute.For<IAnsiConsoleService>();
     private BudgetPrompter _sut = null!;
 
     [TestInitialize]
