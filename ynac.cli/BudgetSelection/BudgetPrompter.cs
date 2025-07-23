@@ -4,7 +4,7 @@ namespace ynac.BudgetSelection;
 
 public class BudgetPrompter : PrompterBase, IBudgetPrompter
 {
-    public BudgetPrompter(IConsolePrompt console) 
+    public BudgetPrompter(IAnsiConsoleService console) 
         : base(console)
     { }
         

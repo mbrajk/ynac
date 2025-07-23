@@ -2,15 +2,8 @@ using Spectre.Console;
 
 namespace ynac.BudgetSelection;
 
-public abstract class PrompterBase : IPrompter
+public abstract class PrompterBase(IAnsiConsoleService console) : IPrompter
 {
-    private readonly IConsolePrompt _console;
-
-    protected PrompterBase(IConsolePrompt console)
-    {
-        _console = console;
-    }
-
     public T PromptSelection<T>(IReadOnlyCollection<T> items, string title, Func<T, string> converter) where T : notnull
     {
         if (items.Count == 0)
@@ -23,7 +16,7 @@ public abstract class PrompterBase : IPrompter
             return items.First();
         }
 
-        return _console.Prompt(
+        return console.Prompt(
             new SelectionPrompt<T>()
                 .Title(title)
                 .PageSize(10)

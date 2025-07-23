@@ -13,12 +13,13 @@ internal class YnacConsole(
 	IBudgetQueryService budgetQueryService, 
 	IBudgetBrowserOpener budgetBrowserOpener,
 	IBudgetSelector budgetSelector,
-	IEnumerable<IBudgetAction> budgetActions
+	IEnumerable<IBudgetAction> budgetActions,
+	IAnsiConsoleService ansiConsoleService
 ) : IYnacConsole
 {
 	public async Task RunAsync(BudgetCommandSettings settings) 
 	{
-		WriteHeaderRule("[bold]You Need A Console[/]");
+		ansiConsoleService.WriteHeaderRule("[bold]You Need A Console[/]");
 
 		var pullLastUsedBudget = settings.PullLastUsed;
 		var filter = settings.BudgetFilter ?? "";
@@ -27,7 +28,7 @@ internal class YnacConsole(
 		
 		if (selectedBudget.Type == BudgetType.NotFound)
 		{
-			AnsiConsole.Markup("[red]Budget(s) not found[/]");
+			ansiConsoleService.Markup("[red]Budget(s) not found[/]");
 			return;
 		}
 
@@ -49,11 +50,11 @@ internal class YnacConsole(
 		
 		GenerateCategoryTable(categoryGroups, settings, table);
 
-		AnsiConsole.Write(table);
+		ansiConsoleService.Write(table);
 
 		while (true)
 		{
-			var action = AnsiConsole.Prompt(
+			var action = ansiConsoleService.Prompt(
 				new SelectionPrompt<IBudgetAction>()
 					.PageSize(10)
 					.MoreChoicesText("more..")
@@ -150,13 +151,5 @@ internal class YnacConsole(
 		table.AddColumn(columnText);
 
 		return table;
-	}
-
-	private static void WriteHeaderRule(string title)
-	{
-		var rule = new Rule(title);
-		rule.Style = Style.Parse("aqua");
-		rule.LeftJustified();
-		AnsiConsole.Write(rule);
 	}
 }
