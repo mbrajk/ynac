@@ -68,3 +68,5 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 - Further details about the existing commands
 - Provide write commands (e.g. approving or categorizing a transaction)
 - Further improvements detailed on the [issue tracker](https://github.com/mbrajk/ynac/issues)
+
+For AI tooling, refer to the current AI instructions: [AI_INSTRUCTIONS.md](./AI_INSTRUCTIONS.md).
