@@ -16,7 +16,7 @@ internal class YnacConsole(
     IBudgetSelector budgetSelector,
     IEnumerable<IBudgetAction> budgetActions,
     ICurrencyFormatter currencyFormatter,
-	AnsiConsoleService ansiConsoleService
+	IAnsiConsoleService ansiConsoleService
 ) : IYnacConsole
 {
     public async Task RunAsync(BudgetCommandSettings settings)
