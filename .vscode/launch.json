@@ -1,0 +1,12 @@
+{
+    "configurations": [
+
+        {
+            // Launch ynac CLI
+            "name": "ynac.cli",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/ynac.cli/ynac.csproj"
+        }
+    ]
+}
