@@ -148,7 +148,6 @@ Last reviewed: 2025-08-07
 
 ## Known limitations and TODOs (as of last review)
 
-- AddYnabApi token check likely bug: `if (string.IsNullOrWhiteSpace("token"))` uses a string literal; should validate the `token` parameter. Until fixed, DI registration won’t throw on empty token.
 - Browser opener URL for last-used budget: builds `…/{selectedBudget.Id}/budget`. For `LastUsedBudget` the Id is `Guid.Empty`. Likely should use `Budget.BudgetId` (which yields `"last-used"`) to support opening the last used budget.
 - `YnacConsole` goal display is WIP and formatting may not match non-goal view.
 - `BudgetSelector` cache prevents refresh; add explicit refresh or time-based cache in future.

@@ -15,7 +15,7 @@ public static class YnabApiServiceCollectionExtensions
 {
     public static IServiceCollection AddYnabApi(this IServiceCollection services, string token)
     {
-        if (string.IsNullOrWhiteSpace("token"))
+        if (string.IsNullOrWhiteSpace(token))
             throw new ArgumentException("Valid YNAB API token is required", nameof(token));
 
         services.AddHttpClient(nameof(BudgetApi))
