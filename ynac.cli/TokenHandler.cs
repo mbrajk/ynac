@@ -14,11 +14,11 @@ internal static class TokenHandler
         var configFile = Constants.ConfigFilePath;
         var lines = File.Exists(configFile) ? File.ReadAllLines(configFile).ToList() : new List<string>();
 
-        var ynabApiSectionIndex = lines.FindIndex(line => line.Trim().Equals(Constants.YnabSectionKey, StringComparison.OrdinalIgnoreCase));
+        var ynabApiSectionIndex = lines.FindIndex(line => line.Trim().Equals(Constants.YnabApiSectionHeader, StringComparison.OrdinalIgnoreCase));
 
         if (ynabApiSectionIndex == -1)
         {
-            lines.Add(Constants.YnabSectionKey);
+            lines.Add(Constants.YnabApiSectionHeader);
             lines.Add($"{Constants.TokenString}={tokenFromCommandLine}");
         }
         else
