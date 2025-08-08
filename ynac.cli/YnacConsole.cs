@@ -15,12 +15,13 @@ internal class YnacConsole(
     IBudgetBrowserOpener budgetBrowserOpener,
     IBudgetSelector budgetSelector,
     IEnumerable<IBudgetAction> budgetActions,
-    ICurrencyFormatter currencyFormatter
+    ICurrencyFormatter currencyFormatter,
+	AnsiConsoleService ansiConsoleService
 ) : IYnacConsole
 {
     public async Task RunAsync(BudgetCommandSettings settings)
     {
-        WriteHeaderRule("[bold]You Need A Console[/]");
+        ansiConsoleService.WriteHeaderRule("[bold]You Need A Console[/]");
 
 		var pullLastUsedBudget = settings.PullLastUsed;
 		var filter = settings.BudgetFilter ?? "";
