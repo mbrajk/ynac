@@ -56,7 +56,7 @@ public class TokenHandlerTests
         // Assert
         Assert.IsTrue(File.Exists(_testConfigFilePath), "Config file should be created.");
         var lines = ReadTestConfigFile();
-        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, Constants.YnabApiSectionHeader);
         CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
     }
 
@@ -64,7 +64,7 @@ public class TokenHandlerTests
     public void MaybeSaveToken_SavesToken_WhenConfigFileHasPlaceholderTokenAndTokenIsValid()
     {
         // Arrange
-        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={Constants.DefaultTokenString}\n";
+        var initialContent = $"{Constants.YnabApiSectionHeader}\n{Constants.TokenString}={Constants.DefaultTokenString}\n";
         CreateTestConfigFile(initialContent);
         var newToken = "test_token_456";
 
@@ -73,7 +73,7 @@ public class TokenHandlerTests
 
         // Assert
         var lines = ReadTestConfigFile();
-        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, Constants.YnabApiSectionHeader);
         CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
         CollectionAssert.DoesNotContain(lines, $"{Constants.TokenString}={Constants.DefaultTokenString}");
     }
@@ -95,7 +95,7 @@ public class TokenHandlerTests
     {
         // Arrange
         var existingToken = "existing_valid_token";
-        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
+        var initialContent = $"{Constants.YnabApiSectionHeader}\n{Constants.TokenString}={existingToken}\n";
         CreateTestConfigFile(initialContent);
         var initialFileSize = new FileInfo(_testConfigFilePath).Length;
 
@@ -115,7 +115,7 @@ public class TokenHandlerTests
     {
         // Arrange
         var existingToken = "existing_valid_token";
-        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
+        var initialContent = $"{Constants.YnabApiSectionHeader}\n{Constants.TokenString}={existingToken}\n";
         CreateTestConfigFile(initialContent);
         var initialFileSize = new FileInfo(_testConfigFilePath).Length;
 
@@ -135,7 +135,7 @@ public class TokenHandlerTests
     {
         // Arrange
         var existingToken = "existing_valid_token";
-        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingToken}\n";
+        var initialContent = $"{Constants.YnabApiSectionHeader}\n{Constants.TokenString}={existingToken}\n";
         CreateTestConfigFile(initialContent);
         var initialFileSize = new FileInfo(_testConfigFilePath).Length;
 
@@ -155,7 +155,7 @@ public class TokenHandlerTests
     {
         // Arrange
         var existingUserToken = "existing_user_token";
-        var initialContent = $"{Constants.YnabSectionKey}\n{Constants.TokenString}={existingUserToken}\n";
+        var initialContent = $"{Constants.YnabApiSectionHeader}\n{Constants.TokenString}={existingUserToken}\n";
         CreateTestConfigFile(initialContent);
         var newTokenFromCli = "new_token_from_cli";
 
@@ -164,7 +164,7 @@ public class TokenHandlerTests
 
         // Assert
         var lines = ReadTestConfigFile();
-        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, Constants.YnabApiSectionHeader);
         CollectionAssert.Contains(lines, $"{Constants.TokenString}={newTokenFromCli}");
         CollectionAssert.DoesNotContain(lines, $"{Constants.TokenString}={existingUserToken}");
     }
@@ -173,7 +173,7 @@ public class TokenHandlerTests
     public void MaybeSaveToken_AddsToken_WhenConfigFileExistsWithoutTokenEntryInSectionAndTokenIsValid()
     {
         // Arrange
-        var initialContent = $"{Constants.YnabSectionKey}\nSomeOtherKey=SomeValue\n";
+        var initialContent = $"{Constants.YnabApiSectionHeader}\nSomeOtherKey=SomeValue\n";
         CreateTestConfigFile(initialContent);
         var newToken = "newly_added_token";
 
@@ -182,7 +182,7 @@ public class TokenHandlerTests
 
         // Assert
         var lines = ReadTestConfigFile();
-        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, Constants.YnabApiSectionHeader);
         CollectionAssert.Contains(lines, "SomeOtherKey=SomeValue");
         CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
     }
@@ -199,7 +199,7 @@ public class TokenHandlerTests
 
         // Assert
         var lines = ReadTestConfigFile();
-        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, Constants.YnabApiSectionHeader);
         CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
     }
 
@@ -218,7 +218,7 @@ public class TokenHandlerTests
         var lines = ReadTestConfigFile();
         CollectionAssert.Contains(lines, "[OtherSection]");
         CollectionAssert.Contains(lines, "Key=Value");
-        CollectionAssert.Contains(lines, Constants.YnabSectionKey);
+        CollectionAssert.Contains(lines, Constants.YnabApiSectionHeader);
         CollectionAssert.Contains(lines, $"{Constants.TokenString}={newToken}");
     }
 }
