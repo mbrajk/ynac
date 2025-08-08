@@ -14,7 +14,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: publish
       run: |
           dotnet publish -c Release -r win-x64 --self-contained true
@@ -23,11 +23,11 @@ jobs:
     - name: make artifact dir
       run: mkdir $GITHUB_WORKSPACE/artifacts
     - name: tar macOS
-      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/osx-x64/publish ynac
+      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/osx-x64/publish ynac
     - name: tar linux
-      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/linux-x64/publish ynac
+      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/linux-x64/publish ynac
     - name: move win exe
-      run: mv $GITHUB_WORKSPACE/ynac.cli/bin/Release/net9.0/win-x64/publish/ynac.exe $GITHUB_WORKSPACE/artifacts
+      run: mv $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/win-x64/publish/ynac.exe $GITHUB_WORKSPACE/artifacts
     - name: Create Release
       id: create_release
       env:
