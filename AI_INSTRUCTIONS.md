@@ -28,7 +28,7 @@ Last reviewed: 2025-08-07
 ## Configuration and secrets
 
 - Config file: `config.ini` is created at first run from embedded template `ynac._res.config.template.ini` into `AppContext.BaseDirectory`.
-- Key of interest: `[YnabApi]` section with `Token` entry. Accessed via `Constants.YnabApiSectionTokenKey` ("YnabApi:Token").
+- Key of interest: `[YnabApi]` section with `Token` entry. Accessed via `Constants.YnabApiTokenConfigPath` ("YnabApi:Token").
 - Token handling:
   - `BudgetCommand` reads token from CLI option `--api-token` or `config.ini` or, if missing, prompts on console.
   - `TokenHandler.MaybeSaveToken` persists CLI-provided token into `config.ini` (if non-empty and not placeholder `put-your-token-here`).
@@ -82,6 +82,7 @@ Last reviewed: 2025-08-07
     - `-g|--show-goals`: render category progress charts (experimental formatting).
     - `-u|--last-used`: force "last-used" budget (ignores filter; cannot combine with `--open`).
     - `--api-token <token>`: YNAB API token; persisted to `config.ini` if provided.
+  - `--hide-amounts`: hide all monetary amounts in output (see CurrencyFormatting).
 
 
 ## UI and rendering
@@ -91,6 +92,12 @@ Last reviewed: 2025-08-07
   - For each `CategoryGroup` (not hidden/deleted): builds a sub-table with columns Category, Budgeted, Activity, Available.
   - With `--show-goals`, category cell becomes a breakdown chart for `GoalPercentageComplete`.
 - After render, the app loops, prompting user to pick an `IBudgetAction` (sorted by `Order`). Sample action: `ListTransactionsBudgetAction` (placeholder).
+
+CurrencyFormatting
+- All displayed amounts pass through `ICurrencyFormatter` (see `ynac.cli/CurrencyFormatting`).
+- DI chooses between `DefaultCurrencyFormatter` (uses `ToString("C")` with current culture) and `HiddenCurrencyFormatter` (masks values) based on settings.
+- The `HideAmounts` setting comes from CLI or `[Ynac] HideAmounts` in `config.ini` (path: `Constants.YnacHideAmountsConfigPath`).
+- See detailed guide: `ynac.cli/CurrencyFormatting/INSTRUCTIONS.md`.
 
 
 ## OS features
@@ -152,6 +159,7 @@ Last reviewed: 2025-08-07
 - `YnacConsole` goal display is WIP and formatting may not match non-goal view.
 - `BudgetSelector` cache prevents refresh; add explicit refresh or time-based cache in future.
 - Error logging is basic (Console.WriteLine). Consider structured logging.
+ - Currency: current default formatter is culture-sensitive; future multi-currency/localization can add a localized formatter or a masking decorator while preserving symbols/patterns.
 
 
 ## How to safely change behavior (AI checklist)

@@ -1,0 +1,44 @@
+# CurrencyFormatting: design and usage
+
+This folder defines how monetary amounts are formatted for display in the console.
+
+## Goals
+- Centralize currency formatting behind a small interface so renderers do not call ToString("C") directly.
+- Allow masking all amounts for privacy (screenshots, demos) via a toggle.
+- Be extensible for future localization and currency rules.
+
+## Components
+- ICurrencyFormatter: single method `string Format(decimal amount)`.
+- DefaultCurrencyFormatter: uses `amount.ToString("C")` (current culture) to format currency.
+- HiddenCurrencyFormatter: masks amounts and returns a placeholder string (currently `***.**`).
+
+## Selection (DI)
+- YnacConsoleProvider registers the implementation based on settings:
+  - When HideAmounts is true: `ICurrencyFormatter = HiddenCurrencyFormatter`.
+  - Otherwise: `ICurrencyFormatter = DefaultCurrencyFormatter`.
+- HideAmounts can be set via:
+  - CLI flag: `-h|--hide-amounts`.
+  - Config file: `[Ynac] HideAmounts = True|False`.
+
+## Usage
+- YnacConsole receives `ICurrencyFormatter` via DI and calls `Format(...)` for:
+  - Category Budgeted / Activity / Available values.
+  - Group totals.
+  - "To Be Budgeted" header line.
+- Amounts provided to the formatter are already converted from milliunits to currency units by dividing by 1000 upstream.
+
+## Future-proofing
+- Localization: introduce a `LocalizedCurrencyFormatter(CultureInfo culture)` or a strategy that reads culture currency settings from YNAB or YNAC config or OS.
+- Masking strategy: consider a decorator approach to preserve symbols/patterns while masking digits, e.g.:
+  - `new MaskingCurrencyFormatterDecorator(inner: LocalizedCurrencyFormatter)
+     => returns masked numerals but keeps negative pattern and currency symbol.`
+- Currency-specific rules: extend the interface or pass context if needed (e.g., currency code) once multi-currency support is added.
+
+## Testing
+- MSTest tests verify:
+  - Default formatting matches en-US examples and is culture-sensitive.
+  - Hidden formatting returns the placeholder string for any input.
+
+## Notes
+- Keep the formatter selection isolated to DI so UI code stays simple.
+- If you change the HiddenCurrencyFormatter placeholder string, update tests accordingly.
