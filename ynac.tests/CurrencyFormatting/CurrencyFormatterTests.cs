@@ -20,7 +20,7 @@ public class CurrencyFormatterTests
         var amount = (decimal)amountInput;
 
         // Act
-        var actualOutput = formatter.Format(amount);
+        var actualOutput = formatter.Format(amount, CultureInfo.GetCultureInfo("en-US"));
 
         // Assert
         Assert.AreEqual(expectedOutput, actualOutput);
