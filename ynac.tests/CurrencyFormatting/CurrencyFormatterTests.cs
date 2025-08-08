@@ -1,4 +1,3 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
 using ynac.CurrencyFormatting;
 
@@ -7,7 +6,7 @@ namespace ynac.Tests.CurrencyFormatting;
 [TestClass]
 public class CurrencyFormatterTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(1234.56, "$1,234.56")]
     [DataRow(-0.50, "-$0.50")] // Standard negative pattern for "C" in en-US
     [DataRow(0, "$0.00")]
@@ -33,7 +32,7 @@ public class CurrencyFormatterTests
         var formatter = new DefaultCurrencyFormatter();
         var amount = 1234.56m;
         var originalCulture = CultureInfo.CurrentCulture;
-        var originalUICulture = CultureInfo.CurrentUICulture;
+        var originalUiCulture = CultureInfo.CurrentUICulture;
 
         try
         {
@@ -47,11 +46,11 @@ public class CurrencyFormatterTests
         finally
         {
             CultureInfo.CurrentCulture = originalCulture;
-            CultureInfo.CurrentUICulture = originalUICulture;
+            CultureInfo.CurrentUICulture = originalUiCulture;
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(1234.56)]
     [DataRow(-0.50)]
     [DataRow(0)]

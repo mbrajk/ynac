@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using ynab.Account;
 using ynab.Budget;
@@ -27,6 +28,12 @@ public static class YnabApiServiceCollectionExtensions
 
                     httpClient.BaseAddress = new Uri($"{endpoint}/{version}/");
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler()
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        CertificateRevocationCheckMode = X509RevocationMode.NoCheck
+                    }
                 }).AddStandardResilienceHandler();
 
         services.AddSingleton<IBudgetApi, BudgetApi>();
