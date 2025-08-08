@@ -98,6 +98,7 @@ CurrencyFormatting
 - DI chooses between `DefaultCurrencyFormatter` (uses `ToString("C")` with current culture) and `HiddenCurrencyFormatter` (masks values) based on settings.
 - The `HideAmounts` setting comes from CLI or `[Ynac] HideAmounts` in `config.ini` (path: `Constants.YnacHideAmountsConfigPath`).
 - See detailed guide: `ynac.cli/CurrencyFormatting/INSTRUCTIONS.md`.
+ - Future approvals/write actions: When implementing transaction approvals or other write operations, re-evaluate how `--hide-amounts` should behave. It may be unsafe to approve transactions without seeing amounts. Options include: temporarily disallowing approvals while hidden, prompting to disable `--hide-amounts` for that action, or a specialized confirmation flow that reveals only the affected amount with explicit consent.
 
 
 ## OS features

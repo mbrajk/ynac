@@ -33,6 +33,10 @@ This folder defines how monetary amounts are formatted for display in the consol
   - `new MaskingCurrencyFormatterDecorator(inner: LocalizedCurrencyFormatter)
      => returns masked numerals but keeps negative pattern and currency symbol.`
 - Currency-specific rules: extend the interface or pass context if needed (e.g., currency code) once multi-currency support is added.
+ - Approvals/write actions and masking: If/when approving transactions (or other write operations) is implemented, re-evaluate `--hide-amounts`. It may be risky to perform irreversible actions while amounts are hidden. Consider one of:
+   1) Disallow approval while hidden and prompt to rerun without `--hide-amounts`.
+   2) Temporarily reveal only the relevant amount with an explicit confirmation.
+   3) Require an additional confirmation step summarizing the change in plain terms.
 
 ## Testing
 - MSTest tests verify:
