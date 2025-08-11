@@ -57,11 +57,9 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 - You will be presented with the budget selection options
 - Select a budget and it will be displayed on the console 🥳
 
-### Libraries
+### Spectre.Console
 - [Spectre.Console](https://spectreconsole.net/)
-  - The reason the console looks good at all
-- [Microsoft Resilience](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.http.resilience?view=net-9.0-pp)
-  - Ensures HTTP requests are reliable by providing automatic retries and failure handling
+  - The library driving the console styling
 
 ### Potential Improvements
 - Include additional features from the YNAB API
