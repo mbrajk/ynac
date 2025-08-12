@@ -26,8 +26,7 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 - Open a Terminal
 - Navigate to the folder where you downloaded or saved the `ynac` executable
 - Run `./ynac.exe` (Windows) or `./ynac` (MacOS/Linux) 
-- You will be prompted for your YNAB API token. You will want to save this to the `config.ini` that is created on first run so that you do not need to input it every time
-  - It is on the roadmap for this step to be automated
+- You will be prompted for your YNAB API token. It will be persisted to `config.ini` for following runs so you do not need to input it every time
 - You will be presented with the budget selection options
   - Alternatively you can provide your budget name as the first argument to ynac (e.g. `ynac mybudget`)
   - This works like a search so you can provide a partial name
