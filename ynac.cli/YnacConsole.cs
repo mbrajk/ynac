@@ -6,7 +6,6 @@ using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.Commands;
 using ynac.OSFeatures;
-using ynac.CurrencyFormatting;
 
 namespace ynac;
 
@@ -15,7 +14,7 @@ internal class YnacConsole(
     IBudgetBrowserOpener budgetBrowserOpener,
     IBudgetSelector budgetSelector,
     IEnumerable<IBudgetAction> budgetActions,
-    ICurrencyFormatter currencyFormatter,
+    IValueFormatter valueFormatter,
 	IAnsiConsoleService ansiConsoleService
 ) : IYnacConsole
 {
@@ -120,16 +119,16 @@ internal class YnacConsole(
 			
 				subTable.AddRow(
 					categoryCell,
-					new Markup($"[green]{currencyFormatter.Format(budgetedDollars)}[/]"),
-					new Markup($"[red]{currencyFormatter.Format(activityDollars)}[/]"),
-					new Markup($"[green]{currencyFormatter.Format(availableDollars)}[/]")
+					new Markup($"[green]{valueFormatter.Format(budgetedDollars)}[/]"),
+					new Markup($"[red]{valueFormatter.Format(activityDollars)}[/]"),
+					new Markup($"[green]{valueFormatter.Format(availableDollars)}[/]")
 				);
 			}
 			subTable.ShowFooters().AddRow(
 				"", 
-				$"[green]{currencyFormatter.Format(totalBudgeted)}[/]",
-				$"[red]{currencyFormatter.Format(totalActivity)}[/]",
-				$"[green]{currencyFormatter.Format(totalAvailable)}[/]"
+				$"[green]{valueFormatter.Format(totalBudgeted)}[/]",
+				$"[red]{valueFormatter.Format(totalActivity)}[/]",
+				$"[green]{valueFormatter.Format(totalAvailable)}[/]"
 			).ShowRowSeparators().MinimalBorder();
 
 			table.AddRow(subTable);
@@ -146,9 +145,9 @@ internal class YnacConsole(
 		
 		var columnText = $"[bold white][[[/] [yellow]{budgetName}[/] [bold white]]][/]" +
 		                 $"                 " +
-		                 $"[white]Age of money:[/] [aqua]{selectedBudget.AgeOfMoney ?? 0}[/]\n" +
+		                 $"[white]Age of money:[/] [aqua]{valueFormatter.Format(selectedBudget.AgeOfMoney ?? 0)}[/]\n" +
 		                 $"                            " +
-		                 $"To Be Budgeted: [green]{currencyFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]";
+		                 $"To Be Budgeted: [green]{valueFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]";
 		
 		table.AddColumn(columnText);
 
