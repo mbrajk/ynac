@@ -41,15 +41,16 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 :warning: The following instructions are only needed if you would like to develop or debug the application or otherwise prefer to run it through .NET
 
 ### Requirements
-- [Microsoft Dotnet](https://dotnet.microsoft.com/en-us/)
+- [Microsoft Dotnet 10](https://dotnet.microsoft.com/en-us/)
 - YNAB account w/ a Developer Personal Access Token.
   - Instructions: [https://api.ynab.com/](https://api.ynab.com/)
 
 ### Usage
 - Create a YNAB Developer Personal Access Token ( instructions above )
 - Copy the token you created. You cannot access it again and must generate a new one if you do not save it.
-- Install the [dotnet 9 SDK](https://dotnet.microsoft.com/en-us/download)
-- Download the git repo
+- Install either the dotnet 10 SDK or Runtime depending on if you want to develop or simply run the application
+  - Both can be found here: [Dotnet 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+- Download this git repo
 - Navigate to the download folder
 - Paste the Personal Access Token from YNAB into the `config.ini` file in the `Token` field under `YnabApi`
 - Type `dotnet run` on the command line in the root folder or run in VS/VSCode/Rider/etc.
