@@ -5,17 +5,14 @@ namespace ynac;
 
 internal class ValueFormatter : IValueFormatter
 {
-    private readonly ICurrencyFormatter _defaultCurrencyFormatter;
-    private readonly ICurrencyFormatter _hiddenCurrencyFormatter;
+    private readonly ICurrencyFormatterResolver _resolver;
     private bool _masked;
 
     public ValueFormatter(
-        ICurrencyFormatter defaultCurrencyFormatter, 
-        ICurrencyFormatter hiddenCurrencyFormatter,
+        ICurrencyFormatterResolver currencyFormatterResolver,
         bool initiallyMasked = false)
     {
-        _defaultCurrencyFormatter = defaultCurrencyFormatter;
-        _hiddenCurrencyFormatter = hiddenCurrencyFormatter;
+        _resolver = currencyFormatterResolver;
         _masked = initiallyMasked;
     }
 
@@ -26,12 +23,7 @@ internal class ValueFormatter : IValueFormatter
 
     public string Format(decimal amount)
     {
-        if (_masked)
-        {
-            return _hiddenCurrencyFormatter.Format(amount);
-        }
-		
-        return _defaultCurrencyFormatter.Format(amount);
+        return _resolver.Resolve(_masked).Format(amount);
     }
 
     public string Format(int value)

@@ -17,14 +17,10 @@ public static class YnacConsoleProvider
         
         services.AddYnabApi(settings.Token);
 
-        if (settings.HideAmounts)
-        {
-            services.AddSingleton<ICurrencyFormatter>(new HiddenCurrencyFormatter());
-        }
-        else
-        {
-            services.AddSingleton<ICurrencyFormatter>(new DefaultCurrencyFormatter());
-        }
+        services.AddSingleton<ICurrencyFormatterResolver, CurrencyFormatterResolver>();
+        services.AddSingleton<MaskedCurrencyFormatter>();
+        services.AddSingleton<DefaultCurrencyFormatter>();
+        services.AddSingleton<IValueFormatter, ValueFormatter>();
 
         // other required dependencies
         services.AddSingleton<IYnacConsole, YnacConsole>();
