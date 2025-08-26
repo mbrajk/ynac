@@ -21,6 +21,11 @@ internal class ValueFormatter : IValueFormatter
         _masked = masked;
     }
 
+    public bool GetMasked()
+    {
+        return _masked;
+    }
+
     public string Format(decimal amount)
     {
         return _resolver.Resolve(_masked).Format(amount);
