@@ -1,6 +1,6 @@
 namespace ynac.CurrencyFormatting;
 
-public class HiddenCurrencyFormatter : ICurrencyFormatter
+public class MaskedCurrencyFormatter : ICurrencyFormatter
 {
     public string Format(decimal amount)
     {
