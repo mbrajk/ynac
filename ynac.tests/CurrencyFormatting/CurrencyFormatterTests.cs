@@ -58,7 +58,7 @@ public class CurrencyFormatterTests
     public void HiddenCurrencyFormatter_AlwaysReturnsHiddenString(double amountInput)
     {
         // Arrange
-        var formatter = new HiddenCurrencyFormatter();
+        var formatter = new MaskedCurrencyFormatter();
         var amount = (decimal)amountInput;
         var expectedOutput = "***.**"; // matches current HiddenCurrencyFormatter implementation
 

@@ -10,13 +10,13 @@ This folder defines how monetary amounts are formatted for display in the consol
 ## Components
 - ICurrencyFormatter: single method `string Format(decimal amount)`.
 - DefaultCurrencyFormatter: uses `amount.ToString("C")` (current culture) to format currency.
-- HiddenCurrencyFormatter: masks amounts and returns a placeholder string (currently `***.**`).
+- MaskedCurrencyFormatter: masks amounts and returns a placeholder string (`***.**`).
+- CurrencyFormatterResolver: resolves the active formatter at runtime based on the HideAmounts setting.
 
 ## Selection (DI)
-- YnacConsoleProvider registers the implementation based on settings:
-  - When HideAmounts is true: `ICurrencyFormatter = HiddenCurrencyFormatter`.
-  - Otherwise: `ICurrencyFormatter = DefaultCurrencyFormatter`.
-- HideAmounts can be set via:
+- YnacConsoleProvider registers DefaultCurrencyFormatter, MaskedCurrencyFormatter, and CurrencyFormatterResolver.
+- Code that needs a formatter obtains one via `ICurrencyFormatterResolver.Resolve(isMasked)`
+- Masking can be set via:
   - CLI flag: `-h|--hide-amounts`.
   - Config file: `[Ynac] HideAmounts = True|False`.
 
@@ -41,8 +41,8 @@ This folder defines how monetary amounts are formatted for display in the consol
 ## Testing
 - MSTest tests verify:
   - Default formatting matches en-US examples and is culture-sensitive.
-  - Hidden formatting returns the placeholder string for any input.
+  - Masked formatting returns the placeholder string for any input.
 
 ## Notes
 - Keep the formatter selection isolated to DI so UI code stays simple.
-- If you change the HiddenCurrencyFormatter placeholder string, update tests accordingly.
+- If you change the MaskedCurrencyFormatter placeholder string, update tests accordingly.
