@@ -3,7 +3,7 @@ namespace ynac.BudgetActions;
 public class ExitBudgetAction : IBudgetAction
 {
     public string DisplayName  => "Exit"; 
-    public int Order  => 1; 
+    public int Order  => int.MaxValue; 
 
     public void Execute()
     {
