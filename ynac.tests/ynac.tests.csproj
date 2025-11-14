@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>ynac.Tests</RootNamespace>
         <LangVersion>13</LangVersion>
+        <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
     <ItemGroup>
