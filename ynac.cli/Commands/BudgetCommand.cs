@@ -23,9 +23,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             .AddEnvironmentVariables()
             .Build();
         
-        TokenHandler.MaybeSaveToken(settings.ApiToken);
-        var token = settings.ApiToken ?? configurationRoot[Constants.YnabApiTokenConfigPath];
-        token = TokenHandler.HandleMissingToken(token);
+        var token = TokenHandler.EnsureTokenPersisted(settings.ApiToken, configurationRoot);
 
         var hideAmountsConfig = configurationRoot.GetValue<bool>(Constants.YnacHideAmountsConfigPath);
         var hideAmounts = settings.HideAmounts || hideAmountsConfig;

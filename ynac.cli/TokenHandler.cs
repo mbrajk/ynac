@@ -1,10 +1,11 @@
+using Microsoft.Extensions.Configuration;
 using Spectre.Console;
 
 namespace ynac;
 
 internal static class TokenHandler
 {
-    public static void MaybeSaveToken(string? tokenFromCommandLine)
+    internal static void MaybeSaveToken(string? tokenFromCommandLine)
     {
         if (string.IsNullOrWhiteSpace(tokenFromCommandLine) || tokenFromCommandLine == Constants.DefaultTokenString)
         {
@@ -51,16 +52,34 @@ internal static class TokenHandler
         AnsiConsole.WriteLine($"[YNAC] Token peristed to {Constants.ConfigFileName}.");
     }
 
-    public static string HandleMissingToken(string? token)
+    private static string HandleMissingToken(string? token)
     {
-        if (string.IsNullOrWhiteSpace(token) || token == Constants.DefaultTokenString)
+        if (!string.IsNullOrWhiteSpace(token) && token != Constants.DefaultTokenString)
         {
-            AnsiConsole.Markup("[yellow]:warning: YNAB Api token not found in[/] [white underline]config.ini[/]\n");
+            return token;
+        }
+        
+        AnsiConsole.Markup("[yellow]:warning: YNAB Api token not found in[/] [white underline]config.ini[/]\n");
 
-            var prompt = new TextPrompt<string>("[white]Please enter your YNAB Api token: [/]")
-                .PromptStyle("grey");
+        var prompt = new TextPrompt<string>("[white]Please enter your YNAB Api token: [/]")
+            .PromptStyle("grey");
 
-            token = AnsiConsole.Prompt(prompt);
+        token = AnsiConsole.Prompt(prompt);
+
+        return token;
+    }
+
+    //TODO: add token validity check before persisting
+    public static string EnsureTokenPersisted(string? settingsApiToken, IConfigurationRoot configurationRoot)
+    {
+        var token = settingsApiToken ?? configurationRoot[Constants.YnabApiTokenConfigPath];
+        var tokenBeforePrompt = token;
+
+        token = HandleMissingToken(token);
+
+        if ((!string.IsNullOrWhiteSpace(settingsApiToken) && settingsApiToken != Constants.DefaultTokenString) || token != tokenBeforePrompt)
+        {
+            MaybeSaveToken(token);
         }
 
         return token;
