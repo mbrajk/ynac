@@ -7,6 +7,7 @@
     <LangVersion>13</LangVersion>
     <AssemblyName>ynab</AssemblyName>
     <RootNamespace>ynab</RootNamespace>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -15,9 +16,9 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="10.0.0-preview.6.25358.103" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.7.0" />
-    <PackageReference Include="Polly" Version="8.6.2" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Polly" />
   </ItemGroup>
 
 </Project>

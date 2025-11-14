@@ -40,8 +40,8 @@ public class ValueFormatterTests
         var result = sut.Format(10m);
 
         Assert.AreEqual("U:10", result);
-        Assert.AreEqual(false, resolver.LastMaskFlag);
-        Assert.AreEqual(false, sut.GetMasked());
+        Assert.IsFalse(resolver.LastMaskFlag);
+        Assert.IsFalse(sut.GetMasked());
     }
 
     [TestMethod]
@@ -53,8 +53,8 @@ public class ValueFormatterTests
         var result = sut.Format(5m);
 
         Assert.AreEqual("M:5", result);
-        Assert.AreEqual(true, resolver.LastMaskFlag);
-        Assert.AreEqual(true, sut.GetMasked());
+        Assert.IsTrue(resolver.LastMaskFlag);
+        Assert.IsTrue(sut.GetMasked());
     }
 
     [TestMethod]
