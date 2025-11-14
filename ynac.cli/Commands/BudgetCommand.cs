@@ -10,7 +10,7 @@ namespace ynac.Commands;
 public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
 {
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "GetValue<bool> binds a primitive and does not rely on reflection-based member access; safe under trimming. Will ultimately migrate to source-generated binding later.")]
-    public override async Task<int> ExecuteAsync(CommandContext context, BudgetCommandSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, BudgetCommandSettings settings, CancellationToken cancellationToken)
     {
         if (settings.Open && settings.PullLastUsed)
         {
