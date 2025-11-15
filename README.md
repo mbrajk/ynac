@@ -56,6 +56,20 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 - You will be presented with the budget selection options
 - Select a budget and it will be displayed on the console 🥳
 
+### Developer Features
+
+#### Skip Config File Creation
+When developing or testing, you may want to prevent the automatic creation of `config.ini`. This is useful when testing with environment variables or when you want to avoid conflicts.
+
+Use the `--debug-skip-config` flag:
+```bash
+dotnet run --project ynac.cli -- --debug-skip-config
+```
+
+This flag will prevent `config.ini` from being created automatically. You can still provide configuration through:
+- Environment variables (e.g., `YnabApi__Token`)
+- The `--api-token` command line option
+
 ### Spectre.Console
 - [Spectre.Console](https://spectreconsole.net/)
   - The library driving the console styling
