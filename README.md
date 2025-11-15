@@ -48,7 +48,7 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 ### Usage
 - Create a YNAB Developer Personal Access Token ( instructions above )
 - Copy the token you created. You cannot access it again and must generate a new one if you do not save it.
-- Install the [dotnet 9 SDK](https://dotnet.microsoft.com/en-us/download)
+- Install the [dotnet 10 SDK](https://dotnet.microsoft.com/en-us/download)
 - Download the git repo
 - Navigate to the download folder
 - Paste the Personal Access Token from YNAB into the `config.ini` file in the `Token` field under `YnabApi`
@@ -59,16 +59,16 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 ### Developer Features
 
 #### Skip Config File Creation
-When developing or testing, you may want to prevent the automatic creation of `config.ini`. This is useful when testing with environment variables or when you want to avoid conflicts.
+When developing or testing, you may want to prevent the automatic creation of `config.ini`. This is useful when testing with environment variables.
 
 Use the `--debug-skip-config` flag:
 ```bash
 dotnet run --project ynac.cli -- --debug-skip-config
 ```
 
-This flag will prevent `config.ini` from being created automatically. You can still provide configuration through:
-- Environment variables (e.g., `YnabApi__Token`)
-- The `--api-token` command line option
+This flag will prevent `config.ini` from being created automatically.
+
+You can still provide config values through environment variables (e.g., `YnabApi__Token`) or command line options (e.g., `--api-token`).
 
 ### Spectre.Console
 - [Spectre.Console](https://spectreconsole.net/)
@@ -76,7 +76,6 @@ This flag will prevent `config.ini` from being created automatically. You can st
 
 ### Potential Improvements
 - Include additional features from the YNAB API
-- Further details about the existing commands
 - Provide write commands (e.g. approving or categorizing a transaction)
 - Further improvements detailed on the [issue tracker](https://github.com/mbrajk/ynac/issues)
 

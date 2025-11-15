@@ -81,8 +81,8 @@ public sealed class BudgetCommandSettings : CommandSettings
     [DefaultValue(false)]
     public bool HideAmounts { get; init; }
     
-    [Description("Developer only: Skip config.ini file creation. Useful for testing with environment variables.")]
-    [CommandOption("--debug-skip-config")]
+    [Description("Developer only: Skip config.ini file creation. Useful for testing environment variables.")]
+    [CommandOption("--debug-skip-config", IsHidden = true)]
     [DefaultValue(false)]
     public bool DebugSkipConfig { get; init; }
 }
