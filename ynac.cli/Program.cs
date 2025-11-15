@@ -15,7 +15,15 @@ internal class Program
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.XmlDocCommand", "Spectre.Console.Cli")]
     public static async Task Main(string[] args)
     {
-        await InitConfigFile();
+        // Check for debug flag to skip config file creation
+        var skipConfigCreation = args.Any(arg => 
+            arg.Equals("--debug-skip-config", StringComparison.OrdinalIgnoreCase) ||
+            arg.StartsWith("--debug-skip-config=", StringComparison.OrdinalIgnoreCase));
+        
+        if (!skipConfigCreation)
+        {
+            await InitConfigFile();
+        }
 
         var app = new CommandApp<BudgetCommand>();
         await app.RunAsync(args);
