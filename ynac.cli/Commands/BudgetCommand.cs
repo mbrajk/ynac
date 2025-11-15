@@ -17,9 +17,9 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n"); 
             settings.Open = false;
         }
-               
-        var configurationRoot =  new ConfigurationBuilder()
-            .AddIniFile(Constants.ConfigFilePath) 
+
+        var configurationRoot = new ConfigurationBuilder()
+            .AddIniFile(Constants.ConfigFileName, settings.DebugSkipConfig)
             .AddEnvironmentVariables()
             .Build();
         
