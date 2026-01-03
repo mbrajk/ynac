@@ -16,6 +16,7 @@ public static class YnacConsoleProvider
         var services = new ServiceCollection();
         
         services.AddYnabApi(settings.Token);
+        services.AddSingleton(settings);
 
         services.AddSingleton<ICurrencyFormatterResolver, CurrencyFormatterResolver>();
         services.AddSingleton<MaskedCurrencyFormatter>();

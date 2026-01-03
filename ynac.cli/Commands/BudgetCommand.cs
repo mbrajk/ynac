@@ -27,8 +27,9 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
 
         var hideAmountsConfig = configurationRoot.GetValue<bool>(Constants.YnacHideAmountsConfigPath);
         var hideAmounts = settings.HideAmounts || hideAmountsConfig;
+        var defaultBudget = configurationRoot.GetValue<string>(Constants.YnacDefaultBudgetConfigPath);
 
-        var ynacConsoleSettings = new YnacConsoleSettings(token, hideAmounts);
+        var ynacConsoleSettings = new YnacConsoleSettings(token, hideAmounts, defaultBudget);
                 
         var ynacProvider = YnacConsoleProvider.BuildYnacServices(ynacConsoleSettings);
                 
@@ -38,7 +39,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
     }
 }
 
-public record struct YnacConsoleSettings(string Token, bool HideAmounts);
+public record class YnacConsoleSettings(string Token, bool HideAmounts, string? DefaultBudget);
 
 public sealed class BudgetCommandSettings : CommandSettings
 {

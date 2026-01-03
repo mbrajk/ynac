@@ -15,7 +15,8 @@ internal class YnacConsole(
     IBudgetSelector budgetSelector,
     IEnumerable<IBudgetAction> budgetActions,
     IValueFormatter valueFormatter,
-	IAnsiConsoleService ansiConsoleService
+	IAnsiConsoleService ansiConsoleService,
+    YnacConsoleSettings ynacSettings
 ) : IYnacConsole
 {
     public async Task RunAsync(BudgetCommandSettings settings)
@@ -23,7 +24,14 @@ internal class YnacConsole(
         ansiConsoleService.WriteHeaderRule("[bold]You Need A Console[/]");
 
 		var pullLastUsedBudget = settings.PullLastUsed;
-		var filter = settings.BudgetFilter ?? "";
+		var filter = settings.BudgetFilter;
+
+        if (string.IsNullOrWhiteSpace(filter) && !pullLastUsedBudget && !string.IsNullOrWhiteSpace(ynacSettings.DefaultBudget))
+        {
+            filter = ynacSettings.DefaultBudget;
+        }
+
+        filter ??= "";
 	
 		var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
 		

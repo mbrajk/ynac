@@ -14,6 +14,8 @@ public static class Constants
     internal static string YnacSectionHeader => $"[{YnacString}]";
     internal static string HideAmountsString => "HideAmounts";
     internal static string YnacHideAmountsConfigPath => $"{YnacString}:{HideAmountsString}";
+    internal static string DefaultBudgetString => "DefaultBudget";
+    internal static string YnacDefaultBudgetConfigPath => $"{YnacString}:{DefaultBudgetString}";
     
     internal static string YnabRootUrl => "https://app.ynab.com/";
     internal static string BudgetRouteAffix => "/budget";
