@@ -92,14 +92,19 @@ Last reviewed: 2026-01-06
   - Caption shows budget name; metadata shows Age of Money and To Be Budgeted (converted to currency by dividing by 1000).
   - For each `CategoryGroup` (not hidden/deleted): builds a sub-table with columns Category, Budgeted, Activity, Available.
   - With `--show-goals`, category cell becomes a breakdown chart for `GoalPercentageComplete`.
-- After render, the app loops, prompting user to pick an `IBudgetAction` (sorted by `Order`). Sample action: `ListTransactionsBudgetAction` (placeholder).
+- After render, the app loops, prompting user to pick an `IBudgetAction` (sorted by `Order`). 
+- Actions are re-evaluated each loop, allowing dynamic DisplayName values.
+- After executing an action, YnacConsole re-renders the budget table to reflect any state changes.
+- Sample actions: `ToggleHideAmountsBudgetAction`, `ExitBudgetAction`.
 
 CurrencyFormatting
-- All displayed amounts pass through `ICurrencyFormatter` (see `ynac.cli/CurrencyFormatting`).
-- DI chooses between `DefaultCurrencyFormatter` (uses `ToString("C")` with current culture) and `HiddenCurrencyFormatter` (masks values) based on settings.
-- The `HideAmounts` setting comes from CLI or `[Ynac] HideAmounts` in `config.ini` (path: `Constants.YnacHideAmountsConfigPath`).
+- All displayed amounts pass through `IValueFormatter` which internally uses `ICurrencyFormatter` (see `ynac.cli/CurrencyFormatting`).
+- DI provides `ICurrencyVisibilityState` (singleton) initialized from settings.HideAmounts.
+- ValueFormatter queries this state at runtime via ICurrencyFormatterResolver to choose between `DefaultCurrencyFormatter` (uses `ToString("C")` with current culture) and `MaskedCurrencyFormatter` (masks values).
+- The `HideAmounts` setting comes from CLI (`-h|--hide-amounts`) or `[Ynac] HideAmounts` in `config.ini` (path: `Constants.YnacHideAmountsConfigPath`).
+- Runtime toggling: `ToggleHideAmountsBudgetAction` flips the visibility state during the session. This toggle is session-only and does not persist to config; CLI/config flags only set the initial state.
 - See detailed guide: `ynac.cli/CurrencyFormatting/INSTRUCTIONS.md`.
- - Future approvals/write actions: When implementing transaction approvals or other write operations, re-evaluate how `--hide-amounts` should behave. It may be unsafe to approve transactions without seeing amounts. Options include: temporarily disallowing approvals while hidden, prompting to disable `--hide-amounts` for that action, or a specialized confirmation flow that reveals only the affected amount with explicit consent.
+- Future approvals/write actions: When implementing transaction approvals or other write operations, re-evaluate how `--hide-amounts` should behave. It may be unsafe to approve transactions without seeing amounts. Options include: temporarily disallowing approvals while hidden, prompting to disable `--hide-amounts` for that action, or a specialized confirmation flow that reveals only the affected amount with explicit consent.
 
 
 ## OS features
@@ -139,6 +144,8 @@ CurrencyFormatting
 
 - Add a new user action:
   - Implement `IBudgetAction` with `DisplayName`, `Order`, and `Execute()`; register in DI; it will auto-appear in the action picker.
+  - DisplayName can be dynamic (re-evaluated each menu loop) to reflect current state (e.g., ToggleHideAmountsBudgetAction).
+  - After Execute() completes, YnacConsole re-renders the budget table, allowing actions to trigger immediate visual updates.
 - Add a new command:
   - Create a Spectre `Command` + `CommandSettings` and register in the `CommandApp`.
 - Add new API endpoints:
