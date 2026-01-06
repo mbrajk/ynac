@@ -13,7 +13,7 @@ internal class BudgetApi : IBudgetApi
         _httpClient = httpClientFactory.CreateClient(nameof(BudgetApi));
     }
     
-    private async Task<TResponse> ExecuteApiRequestAsync<TResponse>(string path, Func<Task<TResponse?>> apiCall, TResponse defaultResponse) where TResponse : new()
+    private async Task<TResponse> ExecuteApiRequestAsync<TResponse>(Func<Task<TResponse?>> apiCall, TResponse defaultResponse) where TResponse : new()
     {
         try
         {
@@ -35,7 +35,6 @@ internal class BudgetApi : IBudgetApi
     {
         var path = "budgets";
         return await ExecuteApiRequestAsync(
-            path,
             () => _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetResponse),
             new QueryResponse<BudgetResponse>()
         );
@@ -45,7 +44,6 @@ internal class BudgetApi : IBudgetApi
     {
         var path = $"budgets/{id}/months/{month}";
         return await ExecuteApiRequestAsync(
-            path,
             () => _httpClient.GetFromJsonAsync<QueryResponse<BudgetMonthResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetMonthResponse),
             new QueryResponse<BudgetMonthResponse>()
         );
@@ -55,7 +53,6 @@ internal class BudgetApi : IBudgetApi
     {
         var path = $"budgets/{id}/categories";
         return await ExecuteApiRequestAsync(
-            path,
             () => _httpClient.GetFromJsonAsync<QueryResponse<CategoryResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseCategoryResponse),
             new QueryResponse<CategoryResponse>()
         );
@@ -65,7 +62,6 @@ internal class BudgetApi : IBudgetApi
     {
         var path = $"budgets/{id}/accounts";
         return await ExecuteApiRequestAsync(
-            path,
             () => _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseAccountResponse),
             new QueryResponse<AccountResponse>()
         );
