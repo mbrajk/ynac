@@ -21,6 +21,10 @@ internal class BudgetApi : IBudgetApi
         {
             budgets = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetResponse) ?? budgets;
         }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
@@ -36,6 +40,10 @@ internal class BudgetApi : IBudgetApi
         try
         {
             budget = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetMonthResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetMonthResponse) ?? budget;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
         }
         catch (Exception ex)
         {
@@ -54,6 +62,10 @@ internal class BudgetApi : IBudgetApi
         {
             categories = await _httpClient.GetFromJsonAsync<QueryResponse<CategoryResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseCategoryResponse) ?? categories;
         }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
@@ -70,6 +82,10 @@ internal class BudgetApi : IBudgetApi
         try
         {
             accounts = await _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseAccountResponse) ?? accounts;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
         }
         catch (Exception ex)
         {
