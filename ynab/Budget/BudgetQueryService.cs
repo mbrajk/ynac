@@ -86,9 +86,10 @@ namespace ynab.Budget
             return response.Data?.Budget ?? new BudgetMonth();
         } 
         
-        public Task<BudgetMonth> GetCurrentMonthBudget(Budget budget)
+        public async Task<BudgetMonth> GetCurrentMonthBudget(Budget budget)
         {
-            return GetBudgetMonth(budget, DateOnly.FromDateTime(DateTime.UtcNow));
+            var response = await budgetApi.GetBudgetMonthAsync(budget.BudgetId, "current");
+            return response.Data?.Budget ?? new BudgetMonth();
         }
     }
 }
