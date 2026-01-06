@@ -47,11 +47,14 @@ internal class YnacConsole(
 			options.CategoryFilter = categoryFilter;
 		});
 		
-		var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
+		void RenderBudget()
+		{
+			var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
+			GenerateCategoryTable(categoryGroups, settings, table);
+			ansiConsoleService.Write(table);
+		}
 		
-		GenerateCategoryTable(categoryGroups, settings, table);
-
-		ansiConsoleService.Write(table);
+		RenderBudget();
 
 		while (true)
 		{
@@ -64,6 +67,7 @@ internal class YnacConsole(
 					.Title("Select an action:"));
 			
 			action.Execute();
+			RenderBudget();
 		}
 	}
 
