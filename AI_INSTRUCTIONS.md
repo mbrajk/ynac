@@ -2,7 +2,7 @@
 
 This document orients AI tooling and contributors to the ynac codebase. Treat keeping this document accurate as high-priority technical debt. When you change public behavior, add features, or refactor structure, update this guide in the same PR.
 
-Last reviewed: 2025-08-07
+Last reviewed: 2026-01-06
 
 
 ## Purpose and scope
@@ -65,12 +65,13 @@ Last reviewed: 2025-08-07
 - `BudgetQueryService`:
   - `GetBudgets()` fetches budgets and falls back to `[Budget.NoBudget]` if empty.
   - `GetBudgetMonth(budget, date)` clamps future year to current year; formats as `yyyy-MM-01`.
-  - `GetCurrentMonthBudget(budget)` convenience for current UTC month.
+  - `GetCurrentMonthBudget(budget)` uses the YNAB API's "current" keyword to fetch the current month's budget data without creating a date object.
   - Category retrieval can be configured via `BudgetCategorySearchOptions`:
     - `SelectedBudget` (required), `CategoryFilter` (contains match), `ShowHiddenCategories`, `ShowDeletedCategories` (currently hidden/deleted are always filtered out in default path).
     - First category group is skipped (YNAB internal master category).
 - `CategoryQueryService.GetBudgetCategoriesAsync(budget)` returns full groups collection from API.
 - `AccountQueryService.GetBudgetAccounts(budget)` returns accounts or default `[new Account()]`.
+
 
 
 ## CLI command and settings
