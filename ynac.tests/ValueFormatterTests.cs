@@ -35,7 +35,8 @@ public class ValueFormatterTests
     public void Constructor_Defaults_To_Unmasked()
     {
         var resolver = new CapturingResolver(new FakeCurrencyFormatter("U"), new FakeCurrencyFormatter("M"));
-        var sut = new ValueFormatter(resolver); 
+        var visibilityState = new CurrencyVisibilityState { Hidden = false };
+        var sut = new ValueFormatter(resolver, visibilityState); 
 
         var result = sut.Format(10m);
 
@@ -48,7 +49,8 @@ public class ValueFormatterTests
     public void Constructor_Can_Start_Masked()
     {
         var resolver = new CapturingResolver(new FakeCurrencyFormatter("U"), new FakeCurrencyFormatter("M"));
-        var sut = new ValueFormatter(resolver, initiallyMasked: true);
+        var visibilityState = new CurrencyVisibilityState { Hidden = true };
+        var sut = new ValueFormatter(resolver, visibilityState);
 
         var result = sut.Format(5m);
 
@@ -61,7 +63,8 @@ public class ValueFormatterTests
     public void SetMasked_Toggles_State_And_Affects_Decimal_Format()
     {
         var resolver = new CapturingResolver(new FakeCurrencyFormatter("U"), new FakeCurrencyFormatter("M"));
-        var sut = new ValueFormatter(resolver);
+        var visibilityState = new CurrencyVisibilityState { Hidden = false };
+        var sut = new ValueFormatter(resolver, visibilityState);
 
         sut.SetMasked(true);
         var maskedResult = sut.Format(3.5m);
@@ -77,7 +80,8 @@ public class ValueFormatterTests
     public void Format_Int_Masked_Returns_Asterisks()
     {
         var resolver = new CapturingResolver(new FakeCurrencyFormatter("U"), new FakeCurrencyFormatter("M"));
-        var sut = new ValueFormatter(resolver, initiallyMasked: true);
+        var visibilityState = new CurrencyVisibilityState { Hidden = true };
+        var sut = new ValueFormatter(resolver, visibilityState);
 
         var result = sut.Format(999);
 

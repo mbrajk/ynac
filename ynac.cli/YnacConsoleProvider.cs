@@ -17,11 +17,13 @@ public static class YnacConsoleProvider
         
         services.AddYnabApi(settings.Token);
 
+        // Register currency visibility state initialized from settings
+        services.AddSingleton<ICurrencyVisibilityState>(new CurrencyVisibilityState { Hidden = settings.HideAmounts });
+        
         services.AddSingleton<ICurrencyFormatterResolver, CurrencyFormatterResolver>();
         services.AddSingleton<MaskedCurrencyFormatter>();
         services.AddSingleton<DefaultCurrencyFormatter>();
-        services.AddSingleton<IValueFormatter>(sp => 
-            new ValueFormatter(sp.GetRequiredService<ICurrencyFormatterResolver>(), settings.HideAmounts));
+        services.AddSingleton<IValueFormatter, ValueFormatter>();
 
         // other required dependencies
         services.AddSingleton<IYnacConsole, YnacConsole>();
@@ -49,6 +51,7 @@ public static class YnacConsoleProvider
         services.AddSingleton<IAnsiConsoleService, AnsiConsoleService>();
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
         
+        services.AddSingleton<IBudgetAction, ToggleHideAmountsBudgetAction>();
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();
         //services.AddSingleton<IBudgetAction, MaskValuesAction>();
         // add back when implemented

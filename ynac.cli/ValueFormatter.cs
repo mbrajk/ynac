@@ -6,34 +6,34 @@ namespace ynac;
 internal class ValueFormatter : IValueFormatter
 {
     private readonly ICurrencyFormatterResolver _resolver;
-    private bool _masked;
+    private readonly ICurrencyVisibilityState _visibilityState;
 
     public ValueFormatter(
         ICurrencyFormatterResolver currencyFormatterResolver,
-        bool initiallyMasked = false)
+        ICurrencyVisibilityState visibilityState)
     {
         _resolver = currencyFormatterResolver;
-        _masked = initiallyMasked;
+        _visibilityState = visibilityState;
     }
 
     public void SetMasked(bool masked)
     {
-        _masked = masked;
+        _visibilityState.Hidden = masked;
     }
 
     public bool GetMasked()
     {
-        return _masked;
+        return _visibilityState.Hidden;
     }
 
     public string Format(decimal amount)
     {
-        return _resolver.Resolve(_masked).Format(amount);
+        return _resolver.Resolve(_visibilityState.Hidden).Format(amount);
     }
 
     public string Format(int value)
     {
-        if (_masked)
+        if (_visibilityState.Hidden)
         {
             return "***";
         }
