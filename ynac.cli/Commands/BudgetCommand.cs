@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using ynab;
 
 namespace ynac.Commands;
 
@@ -33,7 +34,22 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         var ynacProvider = YnacConsoleProvider.BuildYnacServices(ynacConsoleSettings);
                 
         var ynacConsole = ynacProvider.GetRequiredService<IYnacConsole>();
-        await ynacConsole.RunAsync(settings);
+        
+        try
+        {
+            await ynacConsole.RunAsync(settings);
+        }
+        catch (YnabAuthenticationException ex)
+        {
+            AnsiConsole.MarkupLine("\n[red bold]Authentication Error:[/]");
+            AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
+            AnsiConsole.MarkupLine("[yellow]To fix this issue:[/]");
+            AnsiConsole.MarkupLine($"  1. Get a valid API token from https://app.ynab.com/settings/developer");
+            AnsiConsole.MarkupLine($"  2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]");
+            AnsiConsole.MarkupLine($"  3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]\n");
+            return 1;
+        }
+        
         return 0; 
     }
 }
