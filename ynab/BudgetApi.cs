@@ -12,14 +12,12 @@ internal class BudgetApi : IBudgetApi
     {
         _httpClient = httpClientFactory.CreateClient(nameof(BudgetApi));
     }
-        
-    public async Task<QueryResponse<BudgetResponse>> GetBudgetsAsync()
+    
+    private async Task<TResponse> ExecuteApiRequestAsync<TResponse>(string path, Func<Task<TResponse?>> apiCall, TResponse defaultResponse) where TResponse : new()
     {
-        var path = "budgets";
-        var budgets = new QueryResponse<BudgetResponse>();
         try
         {
-            budgets = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetResponse) ?? budgets;
+            return await apiCall() ?? defaultResponse;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
@@ -30,67 +28,46 @@ internal class BudgetApi : IBudgetApi
             Console.WriteLine(ex.ToString());
         }
 
-        return budgets;
+        return defaultResponse;
+    }
+        
+    public async Task<QueryResponse<BudgetResponse>> GetBudgetsAsync()
+    {
+        var path = "budgets";
+        return await ExecuteApiRequestAsync(
+            path,
+            () => _httpClient.GetFromJsonAsync<QueryResponse<BudgetResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetResponse),
+            new QueryResponse<BudgetResponse>()
+        );
     }
 
     public async Task<QueryResponse<BudgetMonthResponse>> GetBudgetMonthAsync(string id, string month)
     {
         var path = $"budgets/{id}/months/{month}";
-        var budget = new QueryResponse<BudgetMonthResponse>();
-        try
-        {
-            budget = await _httpClient.GetFromJsonAsync<QueryResponse<BudgetMonthResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetMonthResponse) ?? budget;
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-            
-        return budget;
+        return await ExecuteApiRequestAsync(
+            path,
+            () => _httpClient.GetFromJsonAsync<QueryResponse<BudgetMonthResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseBudgetMonthResponse),
+            new QueryResponse<BudgetMonthResponse>()
+        );
     }
 
     public async Task<QueryResponse<CategoryResponse>> GetBudgetCategoriesAsync(string id)
     {
-
         var path = $"budgets/{id}/categories";
-        var categories = new QueryResponse<CategoryResponse>();
-        try
-        {
-            categories = await _httpClient.GetFromJsonAsync<QueryResponse<CategoryResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseCategoryResponse) ?? categories;
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-
-        return categories;
+        return await ExecuteApiRequestAsync(
+            path,
+            () => _httpClient.GetFromJsonAsync<QueryResponse<CategoryResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseCategoryResponse),
+            new QueryResponse<CategoryResponse>()
+        );
     }
 
     public async Task<QueryResponse<AccountResponse>> GetBudgetAccountsAsync(string id)
     {
-
         var path = $"budgets/{id}/accounts";
-        var accounts = new QueryResponse<AccountResponse>();
-        try
-        {
-            accounts = await _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseAccountResponse) ?? accounts;
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-        return accounts;
+        return await ExecuteApiRequestAsync(
+            path,
+            () => _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseAccountResponse),
+            new QueryResponse<AccountResponse>()
+        );
     }
 }
