@@ -12,13 +12,27 @@ This folder defines how monetary amounts are formatted for display in the consol
 - DefaultCurrencyFormatter: uses `amount.ToString("C")` (current culture) to format currency.
 - MaskedCurrencyFormatter: masks amounts and returns a placeholder string (`***.**`).
 - CurrencyFormatterResolver: resolves the active formatter at runtime based on the HideAmounts setting.
+- ICurrencyVisibilityState: interface for runtime state that controls whether amounts are hidden or shown.
+- CurrencyVisibilityState: implementation of ICurrencyVisibilityState that holds a simple boolean flag.
+- ToggleableCurrencyFormatter: alternative formatter implementation that dynamically switches between default and masked formatters based on visibility state (not currently used but demonstrates the pattern).
 
 ## Selection (DI)
 - YnacConsoleProvider registers DefaultCurrencyFormatter, MaskedCurrencyFormatter, and CurrencyFormatterResolver.
+- YnacConsoleProvider also registers ICurrencyVisibilityState as a singleton, initialized from settings.HideAmounts.
+- ValueFormatter internally uses ICurrencyVisibilityState to determine which formatter to use at call time.
 - Code that needs a formatter obtains one via `ICurrencyFormatterResolver.Resolve(isMasked)`
-- Masking can be set via:
+- Initial masking state can be set via:
   - CLI flag: `-h|--hide-amounts`.
   - Config file: `[Ynac] HideAmounts = True|False`.
+- The state can be toggled at runtime via the ToggleHideAmountsBudgetAction (see below).
+
+## Runtime Toggling
+- ToggleHideAmountsBudgetAction: a budget action that appears in the action menu.
+  - DisplayName dynamically changes: "Hide amounts" when shown, "Show amounts" when hidden.
+  - Order = 0 (appears at the top of the action menu).
+  - Execute() flips the ICurrencyVisibilityState.Hidden boolean and displays a confirmation message.
+- After toggling, YnacConsole re-renders the budget table, immediately reflecting the visibility change.
+- The toggle persists only for the current session; CLI/config settings determine the initial state on the next run.
 
 ## Usage
 - YnacConsole receives `ICurrencyFormatter` via DI and calls `Format(...)` for:
