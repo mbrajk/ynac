@@ -2,7 +2,7 @@ using ynab.Budget;
 
 namespace ynab.Transaction;
 
-internal class TransactionQueryService(IBudgetApi budgetApi) : ITransactionQueryService
+public class TransactionQueryService(IBudgetApi budgetApi) : ITransactionQueryService
 {
     public async Task<IReadOnlyCollection<Transaction>> GetUnapprovedTransactions(Budget.Budget budget)
     {
