@@ -67,46 +67,14 @@ Once you have `ynac` running, you can use various options to customize your expe
   - Example: `ynac --api-token=YOUR_TOKEN_HERE`
   - Token will be saved to `config.ini` for future use
 
-#### Common Use Cases
+#### Category Filtering
 
-**Quick budget view:**
-```bash
-ynac mybudget
-```
+You can filter to specific categories by providing a search term as the second argument. This will show only categories containing the filter text in their name.
 
-**Open budget in browser:**
-```bash
-ynac mybudget --open
-```
-
-**View with goals visible:**
-```bash
-ynac mybudget --show-goals
-```
-
-**Open last used budget:**
-```bash
-ynac --last-used
-```
-
-**Share a screenshot (hide amounts):**
-```bash
-ynac mybudget --hide-amounts
-```
-
-**Filter to specific categories:**
-Shows only categories containing the filter text in their name.
+**Example:**
 ```bash
 ynac mybudget groceries
 ```
-
-#### Interactive Actions
-
-After displaying your budget, you can select from the following actions:
-- **Toggle Hide/Show amounts** - Toggle visibility of monetary amounts on the fly
-- **List Transactions** - View transaction details
-  - Note: This feature is currently in development
-- **Exit** - Close the application
 
 ## Development
 :warning: The following instructions are only needed if you would like to develop or debug the application or otherwise prefer to run it through .NET
