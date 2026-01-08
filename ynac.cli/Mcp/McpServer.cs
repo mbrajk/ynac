@@ -11,7 +11,7 @@ public class McpServer
     private readonly IServiceProvider _serviceProvider;
     private readonly McpJsonSerializerContext _jsonContext;
     private bool _initialized;
-    private string? _budgetId;
+    private ynab.Budget.Budget? _selectedBudget;
 
     public McpServer(IServiceProvider serviceProvider)
     {
@@ -23,9 +23,9 @@ public class McpServer
         });
     }
 
-    public async Task RunAsync(string budgetId, CancellationToken cancellationToken = default)
+    public async Task RunAsync(ynab.Budget.Budget selectedBudget, CancellationToken cancellationToken = default)
     {
-        _budgetId = budgetId;
+        _selectedBudget = selectedBudget;
         
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -243,25 +243,15 @@ public class McpServer
 
     private async Task<decimal> GetNetWorthAsync(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_budgetId))
+        if (_selectedBudget == null)
         {
-            throw new InvalidOperationException("Budget ID not set");
+            throw new InvalidOperationException("Budget not selected");
         }
 
         var accountQueryService = _serviceProvider.GetRequiredService<IAccountQueryService>();
-        var budgetQueryService = _serviceProvider.GetRequiredService<IBudgetQueryService>();
         
-        // Get the budget
-        var budgets = await budgetQueryService.GetBudgets();
-        var budget = budgets.FirstOrDefault(b => b.BudgetId == _budgetId);
-        
-        if (budget == null)
-        {
-            throw new InvalidOperationException($"Budget not found: {_budgetId}");
-        }
-
-        // Get all accounts
-        var accounts = await accountQueryService.GetBudgetAccounts(budget);
+        // Get all accounts for the selected budget
+        var accounts = await accountQueryService.GetBudgetAccounts(_selectedBudget);
         
         // Sum all account balances and convert from milliunits to currency
         var totalBalance = accounts.Sum(a => a.Balance);

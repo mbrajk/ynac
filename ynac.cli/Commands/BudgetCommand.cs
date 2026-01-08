@@ -60,7 +60,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
                 AnsiConsole.MarkupLine("[dim]Server is ready to accept JSON-RPC requests on stdin/stdout[/]\n");
                 
                 var mcpServer = new McpServer(ynacProvider);
-                await mcpServer.RunAsync(selectedBudget.BudgetId, cancellationToken);
+                await mcpServer.RunAsync(selectedBudget, cancellationToken);
                 
                 return 0;
             }
