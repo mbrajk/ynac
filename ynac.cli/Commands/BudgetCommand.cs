@@ -44,12 +44,9 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.MarkupLine("\n[red bold]Authentication Error:[/]");
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
             AnsiConsole.MarkupLine("[yellow]To fix this issue:[/]");
-            AnsiConsole.Write(new Padder(new Markup($"1. Get a valid API token from https://app.ynab.com/settings/developer"), new Padding(2, 0, 0, 0)));
-            AnsiConsole.WriteLine();
-            AnsiConsole.Write(new Padder(new Markup($"2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]"), new Padding(2, 0, 0, 0)));
-            AnsiConsole.WriteLine();
-            AnsiConsole.Write(new Padder(new Markup($"3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]"), new Padding(2, 0, 0, 0)));
-            AnsiConsole.WriteLine();
+            WriteIndentedListItem($"1. Get a valid API token from https://app.ynab.com/settings/developer");
+            WriteIndentedListItem($"2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]");
+            WriteIndentedListItem($"3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]");
             AnsiConsole.WriteLine();
             return 1;
         }
@@ -58,17 +55,20 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.MarkupLine("\n[red bold]API Error:[/]");
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
             AnsiConsole.MarkupLine("[yellow]Troubleshooting steps:[/]");
-            AnsiConsole.Write(new Padder(new Markup($"1. Check your internet connection"), new Padding(2, 0, 0, 0)));
-            AnsiConsole.WriteLine();
-            AnsiConsole.Write(new Padder(new Markup($"2. Verify the YNAB API is accessible at https://api.ynab.com"), new Padding(2, 0, 0, 0)));
-            AnsiConsole.WriteLine();
-            AnsiConsole.Write(new Padder(new Markup($"3. Try again in a few moments"), new Padding(2, 0, 0, 0)));
-            AnsiConsole.WriteLine();
+            WriteIndentedListItem($"1. Check your internet connection");
+            WriteIndentedListItem($"2. Verify the YNAB API is accessible at https://api.ynab.com");
+            WriteIndentedListItem($"3. Try again in a few moments");
             AnsiConsole.WriteLine();
             return 1;
         }
         
         return 0; 
+    }
+
+    private static void WriteIndentedListItem(string markup)
+    {
+        AnsiConsole.Write(new Padder(new Markup(markup), new Padding(2, 0, 0, 0)));
+        AnsiConsole.WriteLine();
     }
 }
 
