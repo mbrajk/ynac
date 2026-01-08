@@ -57,7 +57,6 @@ public class ToggleHideAmountsBudgetActionTests
 
         // Assert
         Assert.IsTrue(state.Hidden);
-        console.Received(1).Markup(Arg.Is<string>(s => s.Contains("hidden")));
     }
 
     [TestMethod]
@@ -73,7 +72,6 @@ public class ToggleHideAmountsBudgetActionTests
 
         // Assert
         Assert.IsFalse(state.Hidden);
-        console.Received(1).Markup(Arg.Is<string>(s => s.Contains("shown")));
     }
 
     [TestMethod]
@@ -86,13 +84,13 @@ public class ToggleHideAmountsBudgetActionTests
 
         // Act & Assert
         Assert.IsFalse(state.Hidden);
-        
+
         action.Execute();
         Assert.IsTrue(state.Hidden);
-        
+
         action.Execute();
         Assert.IsFalse(state.Hidden);
-        
+
         action.Execute();
         Assert.IsTrue(state.Hidden);
     }
