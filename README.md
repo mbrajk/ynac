@@ -37,6 +37,76 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 
 ![Budget Selection](https://raw.githubusercontent.com/mbrajk/ynac/main/res/ynac-budget-select.png "budget selection")
 
+### Command-Line Options
+
+Once you have `ynac` running, you can use various options to customize your experience:
+
+#### Available Options
+
+- **`-o, --open`** - Open the budget in your web browser
+  - Example: `ynac mybudget --open`
+  - Opens the selected budget directly in YNAB's web interface
+  - Note: Cannot be used with `--last-used` flag
+
+- **`-g, --show-goals`** - Show goal progress indicators
+  - Example: `ynac mybudget --show-goals`
+  - Displays visual progress bars for categories with goals
+  - Note: This is a work in progress feature - some goals may not display accurately
+
+- **`-u, --last-used`** - Open your last used budget automatically
+  - Example: `ynac --last-used`
+  - Skips the budget selection and opens the last budget you accessed
+  - Note: Cannot be used with `--open` flag
+
+- **`-h, --hide-amounts`** - Hide all monetary amounts
+  - Example: `ynac mybudget --hide-amounts`
+  - Useful for sharing screenshots or when privacy is a concern
+  - All dollar amounts will be masked
+
+- **`--api-token`** - Provide your API token via command line
+  - Example: `ynac --api-token=YOUR_TOKEN_HERE`
+  - Token will be saved to `config.ini` for future use
+
+#### Common Use Cases
+
+**Quick budget view:**
+```bash
+ynac mybudget
+```
+
+**Open budget in browser:**
+```bash
+ynac mybudget --open
+```
+
+**View with goals visible:**
+```bash
+ynac mybudget --show-goals
+```
+
+**Open last used budget:**
+```bash
+ynac --last-used
+```
+
+**Share a screenshot (hide amounts):**
+```bash
+ynac mybudget --hide-amounts
+```
+
+**Filter to specific categories:**
+```bash
+ynac mybudget groceries
+```
+This will show only categories containing "groceries" in their name.
+
+#### Interactive Actions
+
+After displaying your budget, you can select from the following actions:
+- **Toggle Hide/Show amounts** - Toggle visibility of monetary amounts on the fly
+- **List Transactions** - View transaction details (feature in development)
+- **Exit** - Close the application
+
 ## Development
 :warning: The following instructions are only needed if you would like to develop or debug the application or otherwise prefer to run it through .NET
 
