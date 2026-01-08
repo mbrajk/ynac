@@ -2,24 +2,25 @@
 
 This document orients AI tooling and contributors to the ynac codebase. Treat keeping this document accurate as high-priority technical debt. When you change public behavior, add features, or refactor structure, update this guide in the same PR.
 
-Last reviewed: 2026-01-06
+Last reviewed: 2026-01-08
 
 
 ## Purpose and scope
 
-- Goal: Console app (Spectre.Console) that displays YNAB budget information via the YNAB REST API.
+- Goal: Console app (Spectre.Console) that displays YNAB budget information via the YNAB REST API. Also provides an MCP (Model Context Protocol) server for exposing budget data to AI tooling.
 - Projects:
-  - ynac.cli: CLI and UI (Spectre.Console), orchestration, config, OS helpers, commands, actions.
+  - ynac.cli: CLI and UI (Spectre.Console), orchestration, config, OS helpers, commands, actions, MCP server.
   - ynab: API client + query services + models + System.Text.Json source-gen context.
   - ynab.api: placeholder/auxiliary (currently minimal; not primary entry point).
-  - ynac.tests: MSTest tests (currently focused on token/config handling).
+  - ynac.tests: MSTest tests (currently focused on token/config handling, MCP protocol).
 
 
 ## High-level architecture
 
 - CLI entry: `ynac.cli/Program.cs` initializes config file then runs `BudgetCommand`.
-- Command: `BudgetCommand` parses settings, resolves API token, builds DI container via `YnacConsoleProvider` (see `ynac.cli`), and dispatches to `IYnacConsole.RunAsync`.
+- Command: `BudgetCommand` parses settings, resolves API token, builds DI container via `YnacConsoleProvider` (see `ynac.cli`), and dispatches to either `IYnacConsole.RunAsync` (normal mode) or `McpServer.RunAsync` (MCP mode).
 - Console flow: `YnacConsole` shows header, selects budget (via `IBudgetSelector`), optional open-in-browser, loads current-month budget + categories, renders table, then prompts for actions (`IBudgetAction`).
+- MCP flow: `McpServer` selects budget (via `IBudgetSelector`), then listens on stdin for JSON-RPC 2.0 requests, responding on stdout. Provides tools for querying budget data.
 - API layer: `ynab` project provides `IBudgetApi` implementation (`BudgetApi`) backed by `HttpClient` configured by `AddYnabApi(token)` extension.
 - Query services: `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService` encapsulate higher-level use-cases on top of API.
 - Models: `Budget`, `BudgetMonth`, `CategoryGroup`, `Category`, `Account` (see `ynab/*`) mirror YNAB API shapes (System.Text.Json).
@@ -79,11 +80,38 @@ Last reviewed: 2026-01-06
 - `BudgetCommand` (Spectre.Console.Cli):
   - Arguments: `[budgetFilter]` (0), `[categoryFilter]` (1).
   - Options:
-    - `-o|--open`: open budget in browser (cannot be combined with `--last-used`).
+    - `-o|--open`: open budget in browser (cannot be combined with `--last-used` or `--start-mcp`).
     - `-g|--show-goals`: render category progress charts (experimental formatting).
     - `-u|--last-used`: force "last-used" budget (ignores filter; cannot combine with `--open`).
     - `--api-token <token>`: YNAB API token; persisted to `config.ini` if provided.
-  - `--hide-amounts`: hide all monetary amounts in output (see CurrencyFormatting).
+    - `-h|--hide-amounts`: hide all monetary amounts in output (see CurrencyFormatting).
+    - `--start-mcp`: start MCP (Model Context Protocol) server mode (see MCP Server section below).
+
+
+## MCP (Model Context Protocol) Server
+
+- Activated with `--start-mcp` flag: `ynac [budgetFilter] --start-mcp`
+- Protocol: JSON-RPC 2.0 over stdin/stdout
+- Implementation: `ynac.cli/Mcp/McpServer.cs`
+- Flow:
+  1. Budget selection via `IBudgetSelector` (same as console mode)
+  2. Server listens on stdin for JSON-RPC requests, writes responses to stdout
+  3. Implements MCP protocol version 2024-11-05
+- Supported methods:
+  - `initialize`: Protocol handshake, returns server capabilities and info
+  - `initialized`: Notification that client initialization is complete
+  - `tools/list`: Returns list of available tools
+  - `tools/call`: Executes a specific tool
+- Available tools:
+  - `get_net_worth`: Sums all account balances to compute net worth
+    - Returns current net worth in currency format (converted from milliunits)
+    - Uses `IAccountQueryService.GetBudgetAccounts` and sums `Account.Balance` fields
+    - No input parameters required
+- Error handling:
+  - Returns JSON-RPC error codes for protocol violations (-32601: method not found, -32602: invalid params, -32603: internal error)
+  - Validates server is initialized before accepting tool requests
+- Testing: `ynac.tests/Mcp/McpServerTests.cs` covers JSON-RPC serialization and basic server instantiation
+- Usage example: AI clients can connect to the MCP server to query budget data through the JSON-RPC interface
 
 
 ## UI and rendering
@@ -125,14 +153,16 @@ CurrencyFormatting
 ## Testing
 
 - Framework: MSTest (`ynac.tests`).
-- Coverage: `TokenHandlerTests` validate config/token persistence behaviors across file states.
+- Coverage: 
+  - `TokenHandlerTests` validate config/token persistence behaviors across file states.
+  - `McpServerTests` validate JSON-RPC protocol serialization and MCP server instantiation.
 - Note: tests assume the working directory aligns with `AppContext.BaseDirectory` for `config.ini` placement.
 
 
 ## Error handling and resilience
 
 - HTTP: Standard resilience handler provides retries/circuit breaker; API methods swallow exceptions and return defaults. Higher layers must treat missing/empty `Data` as a failure state.
-- CLI validation: `BudgetCommand` prevents conflicting flags (`--open` with `--last-used`).
+- CLI validation: `BudgetCommand` prevents conflicting flags (`--open` with `--last-used`, `--open` with `--start-mcp`).
 
 
 ## Performance and caching
@@ -152,6 +182,12 @@ CurrencyFormatting
   - Extend `IBudgetApi` + `BudgetApi`, add models, and extend `YnabJsonSerializerContext` with `[JsonSerializable]` attributes for new types.
 - Modify rendering:
   - Update `YnacConsole` table generation; prefer Spectre components (Table, Panel, BreakdownChart) and keep amounts in currency units (divide by 1000) consistently.
+- Add new MCP tools:
+  - Extend `McpServer.HandleToolsListAsync` to include new tool metadata in the tools array.
+  - Add handler case in `McpServer.HandleToolsCallAsync` for the new tool name.
+  - Implement the tool logic using existing query services.
+  - Follow MCP protocol: return `content` array with `type` and `text` fields.
+  - Add tests in `ynac.tests/Mcp/` to validate JSON-RPC serialization and tool behavior.
 
 
 ## Coding conventions

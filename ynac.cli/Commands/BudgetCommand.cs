@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using ynab;
+using ynac.BudgetSelection;
+using ynac.Mcp;
 
 namespace ynac.Commands;
 
@@ -16,6 +18,12 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         if (settings.Open && settings.PullLastUsed)
         {
             AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n"); 
+            settings.Open = false;
+        }
+        
+        if (settings.StartMcp && settings.Open)
+        {
+            AnsiConsole.Markup("[red]Cannot use both --start-mcp and --open flags together. --open flag will be ignored[/]\n"); 
             settings.Open = false;
         }
 
@@ -32,6 +40,51 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         var ynacConsoleSettings = new YnacConsoleSettings(token, hideAmounts);
                 
         var ynacProvider = YnacConsoleProvider.BuildYnacServices(ynacConsoleSettings);
+        
+        // If starting MCP server, we need to select a budget first
+        if (settings.StartMcp)
+        {
+            try
+            {
+                var budgetSelector = ynacProvider.GetRequiredService<IBudgetSelector>();
+                var selectedBudget = await budgetSelector.SelectBudget(settings.BudgetFilter ?? "", settings.PullLastUsed);
+                
+                if (selectedBudget.Type == ynab.Budget.BudgetType.NotFound)
+                {
+                    AnsiConsole.MarkupLine("[red]No budget found. Cannot start MCP server.[/]");
+                    return 1;
+                }
+                
+                AnsiConsole.MarkupLine($"[green]Starting MCP server for budget: {selectedBudget.Name}[/]");
+                AnsiConsole.MarkupLine($"[dim]Budget ID: {selectedBudget.BudgetId}[/]");
+                AnsiConsole.MarkupLine("[dim]Server is ready to accept JSON-RPC requests on stdin/stdout[/]\n");
+                
+                var mcpServer = new McpServer(ynacProvider);
+                await mcpServer.RunAsync(selectedBudget, cancellationToken);
+                
+                return 0;
+            }
+            catch (YnabAuthenticationException ex)
+            {
+                AnsiConsole.MarkupLine("\n[red bold]Authentication Error:[/]");
+                AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
+                AnsiConsole.MarkupLine("[yellow]To fix this issue:[/]");
+                AnsiConsole.MarkupLine($"  1. Get a valid API token from https://app.ynab.com/settings/developer");
+                AnsiConsole.MarkupLine($"  2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]");
+                AnsiConsole.MarkupLine($"  3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]\n");
+                return 1;
+            }
+            catch (YnabApiException ex)
+            {
+                AnsiConsole.MarkupLine("\n[red bold]API Error:[/]");
+                AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
+                AnsiConsole.MarkupLine("[yellow]Troubleshooting steps:[/]");
+                AnsiConsole.MarkupLine($"  1. Check your internet connection");
+                AnsiConsole.MarkupLine($"  2. Verify the YNAB API is accessible at https://api.ynab.com");
+                AnsiConsole.MarkupLine($"  3. Try again in a few moments\n");
+                return 1;
+            }
+        }
                 
         var ynacConsole = ynacProvider.GetRequiredService<IYnacConsole>();
         
@@ -111,4 +164,9 @@ public sealed class BudgetCommandSettings : CommandSettings
     [CommandOption("--debug-skip-config", IsHidden = true)]
     [DefaultValue(false)]
     public bool DebugSkipConfig { get; init; }
+    
+    [Description("Start an MCP (Model Context Protocol) server for the specified budget. Provides budget data through MCP tools.")]
+    [CommandOption("--start-mcp")]
+    [DefaultValue(false)]
+    public bool StartMcp { get; init; }
 }
