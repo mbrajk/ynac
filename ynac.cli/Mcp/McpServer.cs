@@ -86,6 +86,10 @@ public class McpServer
 
     private JsonRpcResponse HandleInitialize(JsonRpcRequest request)
     {
+        // MCP protocol uses a two-step initialization:
+        // 1. Client sends "initialize" request -> server responds with capabilities
+        // 2. Client sends "initialized" notification -> server sets _initialized = true
+        // We don't set _initialized = true yet because we're waiting for the "initialized" notification
         _initialized = false;
         
         return new JsonRpcResponse
@@ -110,6 +114,8 @@ public class McpServer
 
     private JsonRpcResponse HandleInitialized(JsonRpcRequest request)
     {
+        // This is the second step of MCP initialization
+        // Client has finished processing our capabilities, we can now accept tool calls
         _initialized = true;
         return new JsonRpcResponse
         {
