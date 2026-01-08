@@ -49,6 +49,16 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.MarkupLine($"  3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]\n");
             return 1;
         }
+        catch (YnabApiException ex)
+        {
+            AnsiConsole.MarkupLine("\n[red bold]API Error:[/]");
+            AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
+            AnsiConsole.MarkupLine("[yellow]Troubleshooting steps:[/]");
+            AnsiConsole.MarkupLine($"  1. Check your internet connection");
+            AnsiConsole.MarkupLine($"  2. Verify the YNAB API is accessible at https://api.ynab.com");
+            AnsiConsole.MarkupLine($"  3. Try again in a few moments\n");
+            return 1;
+        }
         
         return 0; 
     }

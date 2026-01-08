@@ -23,12 +23,14 @@ internal class BudgetApi : IBudgetApi
         {
             throw new YnabAuthenticationException("Authentication failed. The provided API token is invalid or has expired.", ex);
         }
+        catch (HttpRequestException ex)
+        {
+            throw new YnabApiException($"Failed to communicate with the YNAB API: {ex.Message}", ex);
+        }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            throw new YnabApiException("An unexpected error occurred while communicating with the YNAB API. Please try again later.", ex);
         }
-
-        return defaultResponse;
     }
         
     public async Task<QueryResponse<BudgetResponse>> GetBudgetsAsync()
