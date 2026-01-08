@@ -107,6 +107,11 @@ public sealed class BudgetCommandSettings : CommandSettings
     [DefaultValue(false)]
     public bool HideAmounts { get; init; }
     
+    [Description("Show hidden categories in the budget view. By default, hidden categories are filtered out.")]
+    [CommandOption("--show-hidden-categories")]
+    [DefaultValue(false)]
+    public bool ShowHiddenCategories { get; init; }
+    
     [Description("Developer only: Skip config.ini file creation. Useful for testing environment variables.")]
     [CommandOption("--debug-skip-config", IsHidden = true)]
     [DefaultValue(false)]
