@@ -46,7 +46,7 @@ Once you have `ynac` running, you can use various options to customize your expe
 - **`-o, --open`** - Open the budget in your web browser
   - Example: `ynac mybudget --open`
   - Opens the selected budget directly in YNAB's web interface
-  - Note: Cannot be used with `--last-used` flag
+  - Note: Cannot be used with `--last-used` flag (mutually exclusive)
 
 - **`-g, --show-goals`** - Show goal progress indicators
   - Example: `ynac mybudget --show-goals`
@@ -56,7 +56,7 @@ Once you have `ynac` running, you can use various options to customize your expe
 - **`-u, --last-used`** - Open your last used budget automatically
   - Example: `ynac --last-used`
   - Skips the budget selection and opens the last budget you accessed
-  - Note: Cannot be used with `--open` flag
+  - Note: Cannot be used with `--open` flag (mutually exclusive)
 
 - **`-h, --hide-amounts`** - Hide all monetary amounts
   - Example: `ynac mybudget --hide-amounts`
@@ -95,16 +95,17 @@ ynac mybudget --hide-amounts
 ```
 
 **Filter to specific categories:**
+Shows only categories containing the filter text in their name.
 ```bash
 ynac mybudget groceries
 ```
-This will show only categories containing "groceries" in their name.
 
 #### Interactive Actions
 
 After displaying your budget, you can select from the following actions:
 - **Toggle Hide/Show amounts** - Toggle visibility of monetary amounts on the fly
-- **List Transactions** - View transaction details (feature in development)
+- **List Transactions** - View transaction details
+  - Note: This feature is currently in development
 - **Exit** - Close the application
 
 ## Development
