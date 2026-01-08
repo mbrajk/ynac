@@ -2,7 +2,7 @@
 
 This document orients AI tooling and contributors to the ynac codebase. Treat keeping this document accurate as high-priority technical debt. When you change public behavior, add features, or refactor structure, update this guide in the same PR.
 
-Last reviewed: 2026-01-06
+Last reviewed: 2026-01-08
 
 
 ## Purpose and scope
@@ -67,7 +67,7 @@ Last reviewed: 2026-01-06
   - `GetBudgetMonth(budget, date)` clamps future year to current year; formats as `yyyy-MM-01`.
   - `GetCurrentMonthBudget(budget)` uses the YNAB API's "current" keyword to fetch the current month's budget data without creating a date object.
   - Category retrieval can be configured via `BudgetCategorySearchOptions`:
-    - `SelectedBudget` (required), `CategoryFilter` (contains match), `ShowHiddenCategories`, `ShowDeletedCategories` (currently hidden/deleted are always filtered out in default path).
+    - `SelectedBudget` (required), `CategoryFilter` (contains match), `ShowHiddenCategories` (defaults to false, respects CLI flag), `ShowDeletedCategories` (deleted categories are always filtered out).
     - First category group is skipped (YNAB internal master category).
 - `CategoryQueryService.GetBudgetCategoriesAsync(budget)` returns full groups collection from API.
 - `AccountQueryService.GetBudgetAccounts(budget)` returns accounts or default `[new Account()]`.
@@ -83,7 +83,8 @@ Last reviewed: 2026-01-06
     - `-g|--show-goals`: render category progress charts (experimental formatting).
     - `-u|--last-used`: force "last-used" budget (ignores filter; cannot combine with `--open`).
     - `--api-token <token>`: YNAB API token; persisted to `config.ini` if provided.
-  - `--hide-amounts`: hide all monetary amounts in output (see CurrencyFormatting).
+    - `--hide-amounts`: hide all monetary amounts in output (see CurrencyFormatting).
+    - `--show-hidden-categories`: show hidden categories in budget view (by default they are filtered out).
 
 
 ## UI and rendering
