@@ -44,9 +44,13 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.MarkupLine("\n[red bold]Authentication Error:[/]");
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
             AnsiConsole.MarkupLine("[yellow]To fix this issue:[/]");
-            AnsiConsole.MarkupLine($"  1. Get a valid API token from https://app.ynab.com/settings/developer");
-            AnsiConsole.MarkupLine($"  2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]");
-            AnsiConsole.MarkupLine($"  3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]\n");
+            AnsiConsole.Write(new Padder(new Markup($"1. Get a valid API token from https://app.ynab.com/settings/developer"), new Padding(2, 0, 0, 0)));
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(new Padder(new Markup($"2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]"), new Padding(2, 0, 0, 0)));
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(new Padder(new Markup($"3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]"), new Padding(2, 0, 0, 0)));
+            AnsiConsole.WriteLine();
+            AnsiConsole.WriteLine();
             return 1;
         }
         catch (YnabApiException ex)
@@ -54,9 +58,13 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.MarkupLine("\n[red bold]API Error:[/]");
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
             AnsiConsole.MarkupLine("[yellow]Troubleshooting steps:[/]");
-            AnsiConsole.MarkupLine($"  1. Check your internet connection");
-            AnsiConsole.MarkupLine($"  2. Verify the YNAB API is accessible at https://api.ynab.com");
-            AnsiConsole.MarkupLine($"  3. Try again in a few moments\n");
+            AnsiConsole.Write(new Padder(new Markup($"1. Check your internet connection"), new Padding(2, 0, 0, 0)));
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(new Padder(new Markup($"2. Verify the YNAB API is accessible at https://api.ynab.com"), new Padding(2, 0, 0, 0)));
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(new Padder(new Markup($"3. Try again in a few moments"), new Padding(2, 0, 0, 0)));
+            AnsiConsole.WriteLine();
+            AnsiConsole.WriteLine();
             return 1;
         }
         

@@ -139,7 +139,6 @@ internal class YnacConsole(
 		}
 	}
 
-	//TODO: format column text using Spectre tools
 	internal Table CreateTable(string budgetName, BudgetMonth selectedBudget)
 	{
 		var table = new Table()
@@ -147,13 +146,26 @@ internal class YnacConsole(
 			.Border(TableBorder.Rounded)
 			.BorderColor(Color.Yellow);
 		
-		var columnText = $"[bold white][[[/] [yellow]{budgetName}[/] [bold white]]][/]" +
-		                 $"                 " +
-		                 $"[white]Age of money:[/] [aqua]{valueFormatter.Format(selectedBudget.AgeOfMoney ?? 0)}[/]\n" +
-		                 $"                            " +
-		                 $"To Be Budgeted: [green]{valueFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]";
+		// Create header with budget name
+		var budgetNameMarkup = new Markup($"[bold white][[[/] [yellow]{budgetName}[/] [bold white]]][/]");
 		
-		table.AddColumn(columnText);
+		// Create info items with proper justification
+		var ageOfMoneyMarkup = new Markup($"[white]Age of money:[/] [aqua]{valueFormatter.Format(selectedBudget.AgeOfMoney ?? 0)}[/]");
+		var toBeBudgetedMarkup = new Markup($"To Be Budgeted: [green]{valueFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]");
+		
+		// Use Grid to layout the header components
+		var headerGrid = new Grid();
+		headerGrid.AddColumn();
+		headerGrid.AddColumn();
+		headerGrid.AddColumn();
+		
+		headerGrid.AddRow(
+			budgetNameMarkup,
+			new Padder(ageOfMoneyMarkup, new Padding(2, 0, 0, 0)),
+			new Padder(toBeBudgetedMarkup, new Padding(2, 0, 0, 0))
+		);
+		
+		table.AddColumn(new TableColumn(headerGrid));
 
 		return table;
 	}
