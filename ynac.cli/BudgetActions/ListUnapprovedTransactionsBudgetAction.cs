@@ -34,7 +34,7 @@ internal class ListUnapprovedTransactionsBudgetAction : IBudgetAction
             return;
         }
 
-        var transactions = _transactionQueryService.GetUnapprovedTransactions(_budgetContext.CurrentBudget).GetAwaiter().GetResult();
+        var transactions = _transactionQueryService.GetUnapprovedTransactions(_budgetContext.CurrentBudget).ConfigureAwait(false).GetAwaiter().GetResult();
 
         if (transactions.Count == 0)
         {
@@ -112,14 +112,12 @@ internal class ListUnapprovedTransactionsBudgetAction : IBudgetAction
             {
                 try
                 {
-                    var result = _transactionQueryService.ApproveTransaction(_budgetContext.CurrentBudget, selectedTransaction.Id).GetAwaiter().GetResult();
+                    var result = _transactionQueryService.ApproveTransaction(_budgetContext.CurrentBudget, selectedTransaction.Id).ConfigureAwait(false).GetAwaiter().GetResult();
                     
                     if (result != null)
                     {
-                        _ansiConsoleService.Markup("[green]✓ Transaction approved successfully![/]\n");
-                        
                         // Refresh the list
-                        transactions = _transactionQueryService.GetUnapprovedTransactions(_budgetContext.CurrentBudget).GetAwaiter().GetResult();
+                        transactions = _transactionQueryService.GetUnapprovedTransactions(_budgetContext.CurrentBudget).ConfigureAwait(false).GetAwaiter().GetResult();
                         
                         if (transactions.Count == 0)
                         {
@@ -129,8 +127,7 @@ internal class ListUnapprovedTransactionsBudgetAction : IBudgetAction
                             break;
                         }
                         
-                        // Small delay to show success message
-                        Thread.Sleep(1000);
+                        // Loop will refresh and show updated list
                     }
                     else
                     {
