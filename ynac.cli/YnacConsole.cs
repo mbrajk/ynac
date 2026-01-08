@@ -40,7 +40,7 @@ internal class YnacConsole(
 		}
 			
 		var categoryFilter = settings.CategoryFilter;
-		var selectedBudgetFull = await budgetQueryService.GetCurrentMonthBudget(selectedBudget);
+		var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
 		var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
 		{
 			options.SelectedBudget = selectedBudget;
