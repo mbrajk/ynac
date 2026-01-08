@@ -9,19 +9,18 @@ namespace ynac.Mcp;
 public class McpServer
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly JsonSerializerOptions _jsonOptions;
+    private readonly McpJsonSerializerContext _jsonContext;
     private bool _initialized;
     private string? _budgetId;
 
     public McpServer(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        _jsonOptions = new JsonSerializerOptions
+        _jsonContext = new McpJsonSerializerContext(new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = false
-        };
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        });
     }
 
     public async Task RunAsync(string budgetId, CancellationToken cancellationToken = default)
@@ -37,11 +36,11 @@ public class McpServer
 
             try
             {
-                var request = JsonSerializer.Deserialize<JsonRpcRequest>(line, _jsonOptions);
+                var request = JsonSerializer.Deserialize(line, _jsonContext.JsonRpcRequest);
                 if (request == null) continue;
 
                 var response = await HandleRequestAsync(request, cancellationToken);
-                var responseJson = JsonSerializer.Serialize(response, _jsonOptions);
+                var responseJson = JsonSerializer.Serialize(response, _jsonContext.JsonRpcResponse);
                 await Console.Out.WriteLineAsync(responseJson);
                 await Console.Out.FlushAsync();
             }
@@ -57,7 +56,7 @@ public class McpServer
                         Message = $"Internal error: {ex.Message}"
                     }
                 };
-                var errorJson = JsonSerializer.Serialize(errorResponse, _jsonOptions);
+                var errorJson = JsonSerializer.Serialize(errorResponse, _jsonContext.JsonRpcResponse);
                 await Console.Out.WriteLineAsync(errorJson);
                 await Console.Out.FlushAsync();
             }
