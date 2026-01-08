@@ -1,6 +1,7 @@
 ﻿using ynab.Account;
 using ynab.Budget;
 using ynab.Category;
+using ynab.Transaction;
 
 namespace ynab
 {
@@ -11,5 +12,9 @@ namespace ynab
         internal Task<QueryResponse<CategoryResponse>> GetBudgetCategoriesAsync(string id);
 
         internal Task<QueryResponse<AccountResponse>> GetBudgetAccountsAsync(string id);
+
+        internal Task<QueryResponse<TransactionResponse>> GetTransactionsAsync(string budgetId);
+        
+        internal Task<QueryResponse<UpdateTransactionResponse>> UpdateTransactionAsync(string budgetId, string transactionId, UpdateTransactionRequest request);
     }
 }

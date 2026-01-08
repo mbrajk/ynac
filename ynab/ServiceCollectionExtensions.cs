@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ynab.Account;
 using ynab.Budget;
 using ynab.Category;
+using ynab.Transaction;
 
 namespace ynab;
 
@@ -40,6 +41,7 @@ public static class YnabApiServiceCollectionExtensions
         services.AddSingleton<IBudgetQueryService, BudgetQueryService>();
         services.AddSingleton<ICategoryQueryService, CategoryQueryService>();
         services.AddSingleton<IAccountQueryService, AccountQueryService>();
+        services.AddSingleton<ITransactionQueryService, TransactionQueryService>();
         
         return services;
     }
