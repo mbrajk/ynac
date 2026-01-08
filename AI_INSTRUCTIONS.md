@@ -2,7 +2,7 @@
 
 This document orients AI tooling and contributors to the ynac codebase. Treat keeping this document accurate as high-priority technical debt. When you change public behavior, add features, or refactor structure, update this guide in the same PR.
 
-Last reviewed: 2026-01-06
+Last reviewed: 2026-01-08
 
 
 ## Purpose and scope
@@ -19,10 +19,10 @@ Last reviewed: 2026-01-06
 
 - CLI entry: `ynac.cli/Program.cs` initializes config file then runs `BudgetCommand`.
 - Command: `BudgetCommand` parses settings, resolves API token, builds DI container via `YnacConsoleProvider` (see `ynac.cli`), and dispatches to `IYnacConsole.RunAsync`.
-- Console flow: `YnacConsole` shows header, selects budget (via `IBudgetSelector`), optional open-in-browser, loads current-month budget + categories, renders table, then prompts for actions (`IBudgetAction`).
+- Console flow: `YnacConsole` shows header, selects budget (via `IBudgetSelector`), stores selected budget in `IBudgetContext` for actions to access, optional open-in-browser, loads current-month budget + categories, renders table, then prompts for actions (`IBudgetAction`).
 - API layer: `ynab` project provides `IBudgetApi` implementation (`BudgetApi`) backed by `HttpClient` configured by `AddYnabApi(token)` extension.
-- Query services: `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService` encapsulate higher-level use-cases on top of API.
-- Models: `Budget`, `BudgetMonth`, `CategoryGroup`, `Category`, `Account` (see `ynab/*`) mirror YNAB API shapes (System.Text.Json).
+- Query services: `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService`, `ITransactionQueryService` encapsulate higher-level use-cases on top of API.
+- Models: `Budget`, `BudgetMonth`, `CategoryGroup`, `Category`, `Account`, `Transaction` (see `ynab/*`) mirror YNAB API shapes (System.Text.Json).
 
 
 ## Configuration and secrets
@@ -38,12 +38,14 @@ Last reviewed: 2026-01-06
 ## Data contracts and units
 
 - Currency values from YNAB are in milliunits. Code divides by 1000 to display dollars.
-  - Example fields: `Category.Budgeted`, `Category.Activity`, `Category.Balance`, `BudgetMonth.ToBeBudgeted`.
+  - Example fields: `Category.Budgeted`, `Category.Activity`, `Category.Balance`, `BudgetMonth.ToBeBudgeted`, `Transaction.Amount`.
 - `BudgetMonth.AgeOfMoney` is nullable `int?`.
 - QueryResponse wrapper: `QueryResponse<T> { T? Data }` matches YNAB API response envelope.
 - `Budget` special sentinels:
   - `Budget.LastUsedBudget` (Type = LastUsed, `BudgetId` resolves to "last-used").
   - `Budget.NoBudget` (Type = NotFound) used when no budgets are available.
+- `Transaction` model includes key fields: `Id`, `Date`, `Amount` (milliunits), `PayeeName`, `CategoryName`, `AccountName`, `Memo`, `Approved` (bool), `Deleted` (bool).
+- `IBudgetContext` provides access to the currently selected budget for budget actions that need it.
 
 
 ## HTTP/API client
@@ -53,6 +55,8 @@ Last reviewed: 2026-01-06
   - `GetBudgetMonthAsync(budgetId, month)` -> `QueryResponse<BudgetMonthResponse>`
   - `GetBudgetCategoriesAsync(budgetId)` -> `QueryResponse<CategoryResponse>`
   - `GetBudgetAccountsAsync(budgetId)` -> `QueryResponse<AccountResponse>`
+  - `GetTransactionsAsync(budgetId)` -> `QueryResponse<TransactionResponse>`
+  - `UpdateTransactionAsync(budgetId, transactionId, request)` -> `QueryResponse<UpdateTransactionResponse>`
 - `AddYnabApi(token)` configures named `HttpClient` (name: `BudgetApi`) with:
   - BaseAddress: `{YnabOptions.Endpoint}/{YnabOptions.Version}/` (currently `https://api.ynab.com/v1/`).
   - Header: `Authorization: Bearer {token}`.
@@ -71,6 +75,9 @@ Last reviewed: 2026-01-06
     - First category group is skipped (YNAB internal master category).
 - `CategoryQueryService.GetBudgetCategoriesAsync(budget)` returns full groups collection from API.
 - `AccountQueryService.GetBudgetAccounts(budget)` returns accounts or default `[new Account()]`.
+- `TransactionQueryService`:
+  - `GetUnapprovedTransactions(budget)` fetches all unapproved, non-deleted transactions for the budget, ordered by date descending.
+  - `ApproveTransaction(budget, transactionId)` approves a single transaction by ID, returning the updated transaction or null on error.
 
 
 
@@ -95,7 +102,8 @@ Last reviewed: 2026-01-06
 - After render, the app loops, prompting user to pick an `IBudgetAction` (sorted by `Order`). 
 - Actions are re-evaluated each loop, allowing dynamic DisplayName values.
 - After executing an action, YnacConsole re-renders the budget table to reflect any state changes.
-- Sample actions: `ToggleHideAmountsBudgetAction`, `ExitBudgetAction`.
+- Sample actions: `ToggleHideAmountsBudgetAction`, `ListUnapprovedTransactionsBudgetAction`, `ExitBudgetAction`.
+  - `ListUnapprovedTransactionsBudgetAction` (Order=1): displays unapproved transactions in an interactive table, allows user to approve transactions one by one with confirmation, dynamically refreshes the list after each approval.
 
 CurrencyFormatting
 - All displayed amounts pass through `IValueFormatter` which internally uses `ICurrencyFormatter` (see `ynac.cli/CurrencyFormatting`).
@@ -104,7 +112,7 @@ CurrencyFormatting
 - The `HideAmounts` setting comes from CLI (`-h|--hide-amounts`) or `[Ynac] HideAmounts` in `config.ini` (path: `Constants.YnacHideAmountsConfigPath`).
 - Runtime toggling: `ToggleHideAmountsBudgetAction` flips the visibility state during the session. This toggle is session-only and does not persist to config; CLI/config flags only set the initial state.
 - See detailed guide: `ynac.cli/CurrencyFormatting/INSTRUCTIONS.md`.
-- Future approvals/write actions: When implementing transaction approvals or other write operations, re-evaluate how `--hide-amounts` should behave. It may be unsafe to approve transactions without seeing amounts. Options include: temporarily disallowing approvals while hidden, prompting to disable `--hide-amounts` for that action, or a specialized confirmation flow that reveals only the affected amount with explicit consent.
+- Transaction approval: `ListUnapprovedTransactionsBudgetAction` shows amounts through `IValueFormatter`, respecting the current hide-amounts setting. Users can approve transactions even when amounts are hidden, but the confirmation prompt displays the (potentially masked) amount.
 
 
 ## OS features
@@ -118,14 +126,15 @@ CurrencyFormatting
 
 - `AddYnabApi(token)` registers:
   - Named `HttpClient` for API.
-  - `IBudgetApi` (singleton), `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService` (singletons).
+  - `IBudgetApi` (singleton), `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService`, `ITransactionQueryService` (singletons).
 - The `ynac.cli` project wires Spectre command and the console components in `YnacConsoleProvider` (see that file for service registrations).
+  - `IBudgetContext` is registered as a singleton to hold the currently selected budget for use by actions.
 
 
 ## Testing
 
 - Framework: MSTest (`ynac.tests`).
-- Coverage: `TokenHandlerTests` validate config/token persistence behaviors across file states.
+- Coverage: `TokenHandlerTests` validate config/token persistence behaviors across file states. `ListUnapprovedTransactionsBudgetActionTests` validates action properties and error handling.
 - Note: tests assume the working directory aligns with `AppContext.BaseDirectory` for `config.ini` placement.
 
 
@@ -146,6 +155,8 @@ CurrencyFormatting
   - Implement `IBudgetAction` with `DisplayName`, `Order`, and `Execute()`; register in DI; it will auto-appear in the action picker.
   - DisplayName can be dynamic (re-evaluated each menu loop) to reflect current state (e.g., ToggleHideAmountsBudgetAction).
   - After Execute() completes, YnacConsole re-renders the budget table, allowing actions to trigger immediate visual updates.
+  - Actions can access the currently selected budget via `IBudgetContext.CurrentBudget`.
+  - For interactive actions (like transaction approval), clear the screen with `AnsiConsole.Clear()`, render UI, handle user input, and clear again before returning.
 - Add a new command:
   - Create a Spectre `Command` + `CommandSettings` and register in the `CommandApp`.
 - Add new API endpoints:
