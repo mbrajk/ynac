@@ -27,6 +27,7 @@ public static class YnacConsoleProvider
 
         // other required dependencies
         services.AddSingleton<IYnacConsole, YnacConsole>();
+        services.AddSingleton<IBudgetContext, BudgetContext>();
         
         services.AddSingleton<IBudgetBrowserOpener, BudgetBrowserOpener>();
         
@@ -52,6 +53,7 @@ public static class YnacConsoleProvider
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
         
         services.AddSingleton<IBudgetAction, ToggleHideAmountsBudgetAction>();
+        services.AddSingleton<IBudgetAction, ListUnapprovedTransactionsBudgetAction>();
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();
         //services.AddSingleton<IBudgetAction, MaskValuesAction>();
         // add back when implemented

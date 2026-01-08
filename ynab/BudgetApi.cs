@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using ynab.Account;
 using ynab.Budget;
 using ynab.Category;
+using ynab.Transaction;
 
 namespace ynab;
 
@@ -66,6 +67,29 @@ internal class BudgetApi : IBudgetApi
         return await ExecuteApiRequestAsync(
             () => _httpClient.GetFromJsonAsync<QueryResponse<AccountResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseAccountResponse),
             new QueryResponse<AccountResponse>()
+        );
+    }
+
+    public async Task<QueryResponse<TransactionResponse>> GetTransactionsAsync(string budgetId)
+    {
+        var path = $"budgets/{budgetId}/transactions";
+        return await ExecuteApiRequestAsync(
+            () => _httpClient.GetFromJsonAsync<QueryResponse<TransactionResponse>>(path, YnabJsonSerializerContext.Default.QueryResponseTransactionResponse),
+            new QueryResponse<TransactionResponse>()
+        );
+    }
+
+    public async Task<QueryResponse<UpdateTransactionResponse>> UpdateTransactionAsync(string budgetId, string transactionId, UpdateTransactionRequest request)
+    {
+        var path = $"budgets/{budgetId}/transactions/{transactionId}";
+        return await ExecuteApiRequestAsync(
+            async () =>
+            {
+                var response = await _httpClient.PutAsJsonAsync(path, request, YnabJsonSerializerContext.Default.UpdateTransactionRequest);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<QueryResponse<UpdateTransactionResponse>>(YnabJsonSerializerContext.Default.QueryResponseUpdateTransactionResponse);
+            },
+            new QueryResponse<UpdateTransactionResponse>()
         );
     }
 }
