@@ -26,9 +26,5 @@ public class ToggleHideAmountsBudgetAction : IBudgetAction
     public void Execute()
     {
         _visibilityState.Hidden = !_visibilityState.Hidden;
-        var message = _visibilityState.Hidden 
-            ? "[yellow][YNAC] Amounts hidden[/]" 
-            : "[yellow][YNAC] Amounts shown[/]";
-        _console.Markup(message + "\n");
     }
 }
