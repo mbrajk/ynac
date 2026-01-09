@@ -25,7 +25,6 @@ public class JsonOutputServiceTests
         {
             Directory.Delete(_testOutputDirectory, true);
         }
-        GC.SuppressFinalize(this);
     }
 
     [TestMethod]
