@@ -107,8 +107,10 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             options.ShowHiddenCategories = settings.ShowHiddenCategories;
         });
         
-        // Determine output path: empty string means stdout, anything else is a file path
-        var outputPath = string.IsNullOrWhiteSpace(settings.OutputJson) ? null : settings.OutputJson;
+        // Determine output path: "-" or empty means stdout, anything else is a file path
+        var outputPath = string.IsNullOrWhiteSpace(settings.OutputJson) || settings.OutputJson == "-" 
+            ? null 
+            : settings.OutputJson;
         
         await jsonOutputService.OutputBudgetJsonAsync(selectedBudget, selectedBudgetFull, categoryGroups, outputPath);
     }
@@ -167,10 +169,11 @@ public sealed class BudgetCommandSettings : CommandSettings
     [DefaultValue(false)]
     public bool DebugSkipConfig { get; init; }
     
-    [Description("Output the budget data as JSON. If a file path is provided, the JSON will be written to that file. " +
-                 "Otherwise, it will be written to standard output. This allows piping to other tools like jq. " +
+    [Description("Output the budget data as JSON. Provide a file path to write to a file, or use '-' to write to " +
+                 "standard output (stdout) for piping to other tools like jq. " +
                  "When this flag is used, the interactive console display is skipped. " +
-                 "The --open flag will be ignored when outputting JSON.")]
+                 "The --open flag will be ignored when outputting JSON. " +
+                 "Example: ynac mybudget -j output.json or ynac mybudget -j - | jq")]
     [CommandOption("-j|--output-json")]
     public string? OutputJson { get; init; }
 }
