@@ -151,20 +151,17 @@ internal class YnacConsole(
 		var ageOfMoneyMarkup = new Markup($"[white]Age of money:[/] [aqua]{valueFormatter.Format(selectedBudget.AgeOfMoney ?? 0)}[/]");
 		var toBeBudgetedMarkup = new Markup($"To Be Budgeted: [green]{valueFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]");
 		
-		// Use Grid to layout the header components vertically in a single column
+		// Use Grid to layout the header components in a single column with vertical stacking
 		var headerGrid = new Grid();
 		headerGrid.AddColumn();
 		
-		// First row: budget name with age of money on the same line
-		var firstRow = new Grid();
-		firstRow.AddColumn();
-		firstRow.AddColumn();
-		firstRow.AddRow(
+		// First row: budget name and age of money side-by-side using Columns layout
+		var firstRowLayout = new Columns(
 			budgetNameMarkup,
 			new Padder(ageOfMoneyMarkup, new Padding(2, 0, 0, 0))
 		);
 		
-		headerGrid.AddRow(firstRow);
+		headerGrid.AddRow(firstRowLayout);
 		headerGrid.AddRow(new Padder(toBeBudgetedMarkup, new Padding(2, 0, 0, 0)));
 		
 		table.AddColumn(new TableColumn(headerGrid));
