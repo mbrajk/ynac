@@ -104,7 +104,7 @@ ynac is a cross-platform .NET 9 console application that displays YNAB (You Need
 
 ## Known Limitations
 
-- Browser opener for last-used budget uses `Guid.Empty` instead of `"last-used"` string
+- Browser opener for last-used budget: URL builder uses `selectedBudget.Id` (which is `Guid.Empty` for `LastUsedBudget`) instead of `Budget.BudgetId` (which yields `"last-used"` string) for proper URL construction
 - Goal display formatting is work-in-progress
 - `BudgetSelector` cache doesn't refresh during session
 - Token storage is plain text (not OS keychain)
