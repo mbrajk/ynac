@@ -45,6 +45,7 @@ internal class YnacConsole(
 		{
 			options.SelectedBudget = selectedBudget;
 			options.CategoryFilter = categoryFilter;
+			options.ShowHiddenCategories = settings.ShowHiddenCategories;
 		});
 		
 		void RenderBudget()
@@ -87,7 +88,7 @@ internal class YnacConsole(
 			var totalBudgeted = 0m;
 			var totalActivity = 0m;
 			var totalAvailable = 0m;
-			foreach (var category in categoryGroup.Categories.Where(c => !c.Hidden).Where(c => !c.Deleted))
+			foreach (var category in categoryGroup.Categories.Where(c => settings.ShowHiddenCategories || !c.Hidden).Where(c => !c.Deleted))
 			{
 				var activityDollars = category.Activity / 1000;
 				var budgetedDollars = category.Budgeted / 1000;

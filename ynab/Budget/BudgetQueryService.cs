@@ -42,7 +42,7 @@ namespace ynab.Budget
 
             // first group is the "Internal Master Category" used by YNAB, so we skip it
             var filteredGroups = response.Data?.Groups?
-                .Where(group => !group.Hidden)
+                .Where(group => _options.ShowHiddenCategories || !group.Hidden)
                 .Where(group => !group.Deleted)
                 .Where(group => group.Categories.Any())
                 .Skip(1);
