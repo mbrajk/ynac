@@ -146,24 +146,26 @@ internal class YnacConsole(
 			.Border(TableBorder.Rounded)
 			.BorderColor(Color.Yellow);
 		
-		// Create header with budget name
+		// Create header components
 		var budgetNameMarkup = new Markup($"[bold white][[[/] [yellow]{budgetName}[/] [bold white]]][/]");
-		
-		// Create info items with proper justification
 		var ageOfMoneyMarkup = new Markup($"[white]Age of money:[/] [aqua]{valueFormatter.Format(selectedBudget.AgeOfMoney ?? 0)}[/]");
 		var toBeBudgetedMarkup = new Markup($"To Be Budgeted: [green]{valueFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]");
 		
-		// Use Grid to layout the header components
+		// Use Grid to layout the header components vertically in a single column
 		var headerGrid = new Grid();
 		headerGrid.AddColumn();
-		headerGrid.AddColumn();
-		headerGrid.AddColumn();
 		
-		headerGrid.AddRow(
+		// First row: budget name with age of money on the same line
+		var firstRow = new Grid();
+		firstRow.AddColumn();
+		firstRow.AddColumn();
+		firstRow.AddRow(
 			budgetNameMarkup,
-			new Padder(ageOfMoneyMarkup, new Padding(2, 0, 0, 0)),
-			new Padder(toBeBudgetedMarkup, new Padding(2, 0, 0, 0))
+			new Padder(ageOfMoneyMarkup, new Padding(2, 0, 0, 0))
 		);
+		
+		headerGrid.AddRow(firstRow);
+		headerGrid.AddRow(new Padder(toBeBudgetedMarkup, new Padding(2, 0, 0, 0)));
 		
 		table.AddColumn(new TableColumn(headerGrid));
 
