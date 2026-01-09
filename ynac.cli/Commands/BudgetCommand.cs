@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using ynab;
+using ynab.Budget;
+using ynac.BudgetSelection;
+using ynac.JsonOutput;
 
 namespace ynac.Commands;
 
@@ -13,9 +16,18 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "GetValue<bool> binds a primitive and does not rely on reflection-based member access; safe under trimming. Will ultimately migrate to source-generated binding later.")]
     public override async Task<int> ExecuteAsync(CommandContext context, BudgetCommandSettings settings, CancellationToken cancellationToken)
     {
+        // Check for JSON output mode
+        var isJsonOutputMode = settings.OutputJson is not null;
+        
         if (settings.Open && settings.PullLastUsed)
         {
             AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n"); 
+            settings.Open = false;
+        }
+        
+        // Ignore --open flag when outputting JSON
+        if (isJsonOutputMode && settings.Open)
+        {
             settings.Open = false;
         }
 
@@ -32,12 +44,18 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         var ynacConsoleSettings = new YnacConsoleSettings(token, hideAmounts);
                 
         var ynacProvider = YnacConsoleProvider.BuildYnacServices(ynacConsoleSettings);
-                
-        var ynacConsole = ynacProvider.GetRequiredService<IYnacConsole>();
         
         try
         {
-            await ynacConsole.RunAsync(settings);
+            if (isJsonOutputMode)
+            {
+                await ExecuteJsonOutputAsync(ynacProvider, settings);
+            }
+            else
+            {
+                var ynacConsole = ynacProvider.GetRequiredService<IYnacConsole>();
+                await ynacConsole.RunAsync(settings);
+            }
         }
         catch (YnabAuthenticationException ex)
         {
@@ -61,6 +79,38 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         }
         
         return 0; 
+    }
+    
+    private static async Task ExecuteJsonOutputAsync(ServiceProvider ynacProvider, BudgetCommandSettings settings)
+    {
+        var budgetSelector = ynacProvider.GetRequiredService<IBudgetSelector>();
+        var budgetQueryService = ynacProvider.GetRequiredService<IBudgetQueryService>();
+        var jsonOutputService = ynacProvider.GetRequiredService<IJsonOutputService>();
+        
+        var pullLastUsedBudget = settings.PullLastUsed;
+        var filter = settings.BudgetFilter ?? "";
+        
+        var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
+        
+        if (selectedBudget.Type == BudgetType.NotFound)
+        {
+            Console.Error.WriteLine("Error: Budget(s) not found");
+            throw new InvalidOperationException("Budget not found");
+        }
+        
+        var categoryFilter = settings.CategoryFilter;
+        var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
+        var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
+        {
+            options.SelectedBudget = selectedBudget;
+            options.CategoryFilter = categoryFilter;
+            options.ShowHiddenCategories = settings.ShowHiddenCategories;
+        });
+        
+        // Determine output path: empty string means stdout, anything else is a file path
+        var outputPath = string.IsNullOrWhiteSpace(settings.OutputJson) ? null : settings.OutputJson;
+        
+        await jsonOutputService.OutputBudgetJsonAsync(selectedBudget, selectedBudgetFull, categoryGroups, outputPath);
     }
 }
 
@@ -116,4 +166,11 @@ public sealed class BudgetCommandSettings : CommandSettings
     [CommandOption("--debug-skip-config", IsHidden = true)]
     [DefaultValue(false)]
     public bool DebugSkipConfig { get; init; }
+    
+    [Description("Output the budget data as JSON. If a file path is provided, the JSON will be written to that file. " +
+                 "Otherwise, it will be written to standard output. This allows piping to other tools like jq. " +
+                 "When this flag is used, the interactive console display is skipped. " +
+                 "The --open flag will be ignored when outputting JSON.")]
+    [CommandOption("-j|--output-json")]
+    public string? OutputJson { get; init; }
 }
