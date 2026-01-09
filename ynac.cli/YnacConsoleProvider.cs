@@ -6,6 +6,7 @@ using ynac.BudgetSelection;
 using ynac.Commands;
 using ynac.OSFeatures;
 using ynac.CurrencyFormatting;
+using ynac.JsonOutput;
 
 namespace ynac;
 
@@ -50,6 +51,8 @@ public static class YnacConsoleProvider
         services.AddSingleton<IBudgetPrompter, BudgetPrompter>();
         services.AddSingleton<IAnsiConsoleService, AnsiConsoleService>();
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
+        
+        services.AddSingleton<IJsonOutputService, JsonOutputService>();
         
         services.AddSingleton<IBudgetAction, ToggleHideAmountsBudgetAction>();
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();
