@@ -15,19 +15,28 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
-    - name: publish
-      run: |
-          dotnet publish -c Release -r win-x64 --self-contained true
-          dotnet publish -c Release -r osx-x64 --self-contained true
-          dotnet publish -c Release -r linux-x64 --self-contained true
     - name: make artifact dir
       run: mkdir $GITHUB_WORKSPACE/artifacts
-    - name: tar macOS
-      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/osx-x64/publish ynac
-    - name: tar linux
-      run: tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/linux-x64/publish ynac
-    - name: move win exe
-      run: mv $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/win-x64/publish/ynac.exe $GITHUB_WORKSPACE/artifacts
+    - name: publish self-contained
+      run: |
+          dotnet publish ynac.cli -c Release -r win-x64 -p:SelfContained=true -o $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/win-x64/self-contained
+          dotnet publish ynac.cli -c Release -r osx-x64 -p:SelfContained=true -o $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/osx-x64/self-contained
+          dotnet publish ynac.cli -c Release -r linux-x64 -p:SelfContained=true -o $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/linux-x64/self-contained
+    - name: package self-contained
+      run: |
+          tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/osx-x64/self-contained ynac
+          tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/linux-x64/self-contained ynac
+          mv $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/win-x64/self-contained/ynac.exe $GITHUB_WORKSPACE/artifacts
+    - name: publish framework-dependent
+      run: |
+          dotnet publish ynac.cli -c Release -r win-x64 -p:SelfContained=false -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:PublishTrimmed=false -o $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/win-x64/framework-dependent
+          dotnet publish ynac.cli -c Release -r osx-x64 -p:SelfContained=false -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:PublishTrimmed=false -o $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/osx-x64/framework-dependent
+          dotnet publish ynac.cli -c Release -r linux-x64 -p:SelfContained=false -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:PublishTrimmed=false -o $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/linux-x64/framework-dependent
+    - name: package framework-dependent
+      run: |
+          tar -czf $GITHUB_WORKSPACE/artifacts/ynac_osx_framework_dependent.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/osx-x64/framework-dependent ynac
+          tar -czf $GITHUB_WORKSPACE/artifacts/ynac_linux_framework_dependent.tar.gz -C $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/linux-x64/framework-dependent ynac
+          cp $GITHUB_WORKSPACE/ynac.cli/bin/Release/net10.0/win-x64/framework-dependent/ynac.exe $GITHUB_WORKSPACE/artifacts/ynac_framework_dependent.exe
     - name: Create Release
       id: create_release
       env:
