@@ -44,9 +44,10 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.MarkupLine("\n[red bold]Authentication Error:[/]");
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
             AnsiConsole.MarkupLine("[yellow]To fix this issue:[/]");
-            AnsiConsole.MarkupLine($"  1. Get a valid API token from https://app.ynab.com/settings/developer");
-            AnsiConsole.MarkupLine($"  2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]");
-            AnsiConsole.MarkupLine($"  3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]\n");
+            WriteIndentedListItem($"1. Get a valid API token from https://app.ynab.com/settings/developer");
+            WriteIndentedListItem($"2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]");
+            WriteIndentedListItem($"3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]");
+            AnsiConsole.WriteLine();
             return 1;
         }
         catch (YnabApiException ex)
@@ -54,13 +55,20 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
             AnsiConsole.MarkupLine("\n[red bold]API Error:[/]");
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
             AnsiConsole.MarkupLine("[yellow]Troubleshooting steps:[/]");
-            AnsiConsole.MarkupLine($"  1. Check your internet connection");
-            AnsiConsole.MarkupLine($"  2. Verify the YNAB API is accessible at https://api.ynab.com");
-            AnsiConsole.MarkupLine($"  3. Try again in a few moments\n");
+            WriteIndentedListItem($"1. Check your internet connection");
+            WriteIndentedListItem($"2. Verify the YNAB API is accessible at https://api.ynab.com");
+            WriteIndentedListItem($"3. Try again in a few moments");
+            AnsiConsole.WriteLine();
             return 1;
         }
         
         return 0; 
+    }
+
+    private static void WriteIndentedListItem(string markup)
+    {
+        AnsiConsole.Write(new Padder(new Markup(markup), new Padding(2, 0, 0, 0)));
+        AnsiConsole.WriteLine();
     }
 }
 

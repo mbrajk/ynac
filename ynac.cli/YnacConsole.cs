@@ -140,7 +140,6 @@ internal class YnacConsole(
 		}
 	}
 
-	//TODO: format column text using Spectre tools
 	internal Table CreateTable(string budgetName, BudgetMonth selectedBudget)
 	{
 		var table = new Table()
@@ -148,13 +147,25 @@ internal class YnacConsole(
 			.Border(TableBorder.Rounded)
 			.BorderColor(Color.Yellow);
 		
-		var columnText = $"[bold white][[[/] [yellow]{budgetName}[/] [bold white]]][/]" +
-		                 $"                 " +
-		                 $"[white]Age of money:[/] [aqua]{valueFormatter.Format(selectedBudget.AgeOfMoney ?? 0)}[/]\n" +
-		                 $"                            " +
-		                 $"To Be Budgeted: [green]{valueFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]";
+		// Create header components
+		var budgetNameMarkup = new Markup($"[bold white][[[/] [yellow]{budgetName}[/] [bold white]]][/]");
+		var ageOfMoneyMarkup = new Markup($"[white]Age of money:[/] [aqua]{valueFormatter.Format(selectedBudget.AgeOfMoney ?? 0)}[/]");
+		var toBeBudgetedMarkup = new Markup($"To Be Budgeted: [green]{valueFormatter.Format(selectedBudget.ToBeBudgeted/1000)}[/]");
 		
-		table.AddColumn(columnText);
+		// Use Grid to layout the header components in a single column with vertical stacking
+		var headerGrid = new Grid();
+		headerGrid.AddColumn();
+		
+		// First row: budget name and age of money side-by-side using Columns layout
+		var firstRowLayout = new Columns(
+			budgetNameMarkup,
+			new Padder(ageOfMoneyMarkup, new Padding(2, 0, 0, 0))
+		);
+		
+		headerGrid.AddRow(firstRowLayout);
+		headerGrid.AddRow(new Padder(toBeBudgetedMarkup, new Padding(2, 0, 0, 0)));
+		
+		table.AddColumn(new TableColumn(headerGrid));
 
 		return table;
 	}
