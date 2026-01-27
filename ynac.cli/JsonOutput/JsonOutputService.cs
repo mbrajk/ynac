@@ -64,7 +64,5 @@ public class JsonOutputService : IJsonOutputService
 
         // Always output to stdout
         Console.WriteLine(json);
-        
-        await Task.CompletedTask;
     }
 }
