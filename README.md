@@ -66,6 +66,18 @@ There are a few command line options to customize `ynac`:
   - Example: `ynac --api-token=YOUR_TOKEN_HERE`
   - Token will be saved to `config.ini` for future use
 
+- **`-j, --output-json`** - Output budget data as JSON to stdout
+  - Example: `ynac mybudget -j` - Output JSON to stdout
+  - Example: `ynac mybudget -j | jq '.category_groups[0]'` - Pipe to jq for processing
+  - Example: `ynac mybudget -j > output.json` - Redirect to file
+  - Outputs the budget data in JSON format instead of the interactive console display
+  - The JSON is written to standard output (stdout), allowing you to pipe or redirect as needed
+  - The `--open` flag is ignored when outputting JSON
+  - Category filters and other options like `--show-hidden-categories` work with JSON output
+  - **Note:** Provide a specific budget name to avoid interactive prompts. If multiple budgets match the filter, you'll be prompted to select one
+  - Currency values are converted from YNAB's milliunit format to standard decimal values (e.g., 500000 → 500.00)
+  - Useful for automation, scripting, or integrating with other tools
+
 #### Category Filtering
 
 You can filter to specific categories by providing a search term as the second argument. This will show only categories containing the filter text in their name.
