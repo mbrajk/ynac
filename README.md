@@ -39,14 +39,14 @@ Feel free to suggest features, provide feedback, or report bugs on the [issue tr
 
 ### Command-Line Options
 
-Once you have `ynac` running, you can use various options to customize your experience:
+There are a few command line options to customize `ynac`:
 
 #### Available Options
 
 - **`-o, --open`** - Open the budget in your web browser
   - Example: `ynac mybudget --open`
   - Opens the selected budget directly in YNAB's web interface
-  - Note: Cannot be used with `--last-used` flag (mutually exclusive)
+  - Note: Cannot be used with `--last-used` flag due to limitations of YNAB's API
 
 - **`-g, --show-goals`** - Show goal progress indicators
   - Example: `ynac mybudget --show-goals`
@@ -56,12 +56,11 @@ Once you have `ynac` running, you can use various options to customize your expe
 - **`-u, --last-used`** - Open your last used budget automatically
   - Example: `ynac --last-used`
   - Skips the budget selection and opens the last budget you accessed
-  - Note: Cannot be used with `--open` flag (mutually exclusive)
+  - Note: Cannot be used with `--open` flag due to limitations of YNAB's API
 
-- **`-h, --hide-amounts`** - Hide all monetary amounts
+- **`-h, --hide-amounts`** - Masks all monetary/numerical values
   - Example: `ynac mybudget --hide-amounts`
   - Useful for sharing screenshots or when privacy is a concern
-  - All dollar amounts will be masked
 
 - **`--api-token`** - Provide your API token via command line
   - Example: `ynac --api-token=YOUR_TOKEN_HERE`
