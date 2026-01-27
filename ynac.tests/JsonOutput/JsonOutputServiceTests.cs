@@ -28,44 +28,69 @@ public class JsonOutputServiceTests
     }
 
     [TestMethod]
-    public async Task OutputBudgetJsonAsync_WritesToFile_WhenPathProvided()
+    public async Task OutputBudgetJsonAsync_WritesToStdout()
     {
         // Arrange
         var service = new JsonOutputService();
         var budget = CreateTestBudget();
         var budgetMonth = CreateTestBudgetMonth();
         var categoryGroups = CreateTestCategoryGroups();
-        var outputPath = Path.Combine(_testOutputDirectory, "test-output.json");
 
-        // Act
-        await service.OutputBudgetJsonAsync(budget, budgetMonth, categoryGroups, outputPath);
+        // Capture stdout
+        var originalOut = Console.Out;
+        using var writer = new StringWriter();
+        Console.SetOut(writer);
 
-        // Assert
-        Assert.IsTrue(File.Exists(outputPath), "JSON file should be created");
-        var jsonContent = await File.ReadAllTextAsync(outputPath);
-        Assert.IsFalse(string.IsNullOrWhiteSpace(jsonContent), "JSON content should not be empty");
-        
-        // Verify it's valid JSON
-        var doc = JsonDocument.Parse(jsonContent);
-        Assert.IsNotNull(doc.RootElement.GetProperty("budget_name"));
-        Assert.AreEqual("Test Budget", doc.RootElement.GetProperty("budget_name").GetString());
+        try
+        {
+            // Act
+            await service.OutputBudgetJsonAsync(budget, budgetMonth, categoryGroups, null);
+
+            // Assert
+            var jsonContent = writer.ToString();
+            Assert.IsFalse(string.IsNullOrWhiteSpace(jsonContent), "JSON content should not be empty");
+            
+            // Verify it's valid JSON
+            var doc = JsonDocument.Parse(jsonContent);
+            Assert.IsNotNull(doc.RootElement.GetProperty("budget_name"));
+            Assert.AreEqual("Test Budget", doc.RootElement.GetProperty("budget_name").GetString());
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 
     [TestMethod]
-    public async Task OutputBudgetJsonAsync_CreatesDirectory_WhenDirectoryDoesNotExist()
+    public async Task OutputBudgetJsonAsync_OutputsValidJson()
     {
         // Arrange
         var service = new JsonOutputService();
         var budget = CreateTestBudget();
         var budgetMonth = CreateTestBudgetMonth();
         var categoryGroups = CreateTestCategoryGroups();
-        var outputPath = Path.Combine(_testOutputDirectory, "subdir", "nested", "test-output.json");
 
-        // Act
-        await service.OutputBudgetJsonAsync(budget, budgetMonth, categoryGroups, outputPath);
+        // Capture stdout
+        var originalOut = Console.Out;
+        using var writer = new StringWriter();
+        Console.SetOut(writer);
 
-        // Assert
-        Assert.IsTrue(File.Exists(outputPath), "JSON file should be created in nested directories");
+        try
+        {
+            // Act
+            await service.OutputBudgetJsonAsync(budget, budgetMonth, categoryGroups, null);
+
+            // Assert - just verify it parses
+            var output = writer.ToString();
+            Assert.IsFalse(string.IsNullOrWhiteSpace(output), "Should output to stdout");
+            
+            var doc = JsonDocument.Parse(output);
+            Assert.AreEqual("Test Budget", doc.RootElement.GetProperty("budget_name").GetString());
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 
     [TestMethod]
@@ -76,25 +101,47 @@ public class JsonOutputServiceTests
         var budget = CreateTestBudget();
         var budgetMonth = CreateTestBudgetMonth();
         var categoryGroups = CreateTestCategoryGroups();
-        var outputPath = Path.Combine(_testOutputDirectory, "test-output.json");
-
-        // Act
-        await service.OutputBudgetJsonAsync(budget, budgetMonth, categoryGroups, outputPath);
-
-        // Assert
-        var jsonContent = await File.ReadAllTextAsync(outputPath);
-        var doc = JsonDocument.Parse(jsonContent);
         
-        Assert.AreEqual("Test Budget", doc.RootElement.GetProperty("budget_name").GetString());
-        Assert.AreEqual(30, doc.RootElement.GetProperty("age_of_money").GetInt32());
-        Assert.AreEqual(1000.50m, doc.RootElement.GetProperty("to_be_budgeted").GetDecimal());
-        
-        var categoryGroupsArray = doc.RootElement.GetProperty("category_groups");
-        Assert.AreEqual(1, categoryGroupsArray.GetArrayLength());
+        // Capture stdout
+        var originalOut = Console.Out;
+        using var writer = new StringWriter();
+        Console.SetOut(writer);
+
+        try
+        {
+            // Act
+            await service.OutputBudgetJsonAsync(budget, budgetMonth, categoryGroups, null);
+
+            // Assert
+            var jsonContent = writer.ToString();
+            var doc = JsonDocument.Parse(jsonContent);
+            
+            Assert.AreEqual("Test Budget", doc.RootElement.GetProperty("budget_name").GetString());
+            Assert.AreEqual(30, doc.RootElement.GetProperty("age_of_money").GetInt32());
+            Assert.AreEqual(1000.50m, doc.RootElement.GetProperty("to_be_budgeted").GetDecimal());
+            
+            var categoryGroupsArray = doc.RootElement.GetProperty("category_groups");
+            Assert.AreEqual(1, categoryGroupsArray.GetArrayLength());
+            
+            // Verify category currency values are converted from milliunits
+            var firstGroup = categoryGroupsArray[0];
+            var categories = firstGroup.GetProperty("categories");
+            Assert.AreEqual(1, categories.GetArrayLength());
+            
+            var firstCategory = categories[0];
+            Assert.AreEqual("Groceries", firstCategory.GetProperty("name").GetString());
+            Assert.AreEqual(500.00m, firstCategory.GetProperty("budgeted").GetDecimal());
+            Assert.AreEqual(-250.00m, firstCategory.GetProperty("activity").GetDecimal());
+            Assert.AreEqual(250.00m, firstCategory.GetProperty("balance").GetDecimal());
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 
     [TestMethod]
-    public async Task OutputBudgetJsonAsync_OutputsToStdout_WhenPathIsNull()
+    public async Task OutputBudgetJsonAsync_OutputsToStdout()
     {
         // Arrange
         var service = new JsonOutputService();
@@ -140,7 +187,7 @@ public class JsonOutputServiceTests
         return new BudgetMonth
         {
             AgeOfMoney = 30,
-            ToBeBudgeted = 1000.50m,
+            ToBeBudgeted = 1000500, // In milliunits: $1000.50
             Note = "Test note"
         };
     }

@@ -17,17 +17,16 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
     public override async Task<int> ExecuteAsync(CommandContext context, BudgetCommandSettings settings, CancellationToken cancellationToken)
     {
         // Check for JSON output mode
-        var isJsonOutputMode = settings.OutputJson is not null;
+        var isJsonOutputMode = settings.OutputJson;
         
-        if (settings.Open && settings.PullLastUsed)
+        // In JSON output mode, avoid Spectre.Console output and ignore --open
+        if (isJsonOutputMode)
         {
-            AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n"); 
             settings.Open = false;
         }
-        
-        // Ignore --open flag when outputting JSON
-        if (isJsonOutputMode && settings.Open)
+        else if (settings.Open && settings.PullLastUsed)
         {
+            AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n"); 
             settings.Open = false;
         }
 
@@ -49,7 +48,31 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         {
             if (isJsonOutputMode)
             {
-                await ExecuteJsonOutputAsync(ynacProvider, settings);
+                var budgetSelector = ynacProvider.GetRequiredService<IBudgetSelector>();
+                var budgetQueryService = ynacProvider.GetRequiredService<IBudgetQueryService>();
+                var jsonOutputService = ynacProvider.GetRequiredService<IJsonOutputService>();
+                
+                var pullLastUsedBudget = settings.PullLastUsed;
+                var filter = settings.BudgetFilter ?? "";
+                
+                var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
+                
+                if (selectedBudget.Type == BudgetType.NotFound)
+                {
+                    Console.Error.WriteLine("Error: Budget(s) not found");
+                    return 1;
+                }
+                
+                var categoryFilter = settings.CategoryFilter;
+                var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
+                var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
+                {
+                    options.SelectedBudget = selectedBudget;
+                    options.CategoryFilter = categoryFilter;
+                    options.ShowHiddenCategories = settings.ShowHiddenCategories;
+                });
+                
+                await jsonOutputService.OutputBudgetJsonAsync(selectedBudget, selectedBudgetFull, categoryGroups, null);
             }
             else
             {
@@ -79,40 +102,6 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         }
         
         return 0; 
-    }
-    
-    private static async Task ExecuteJsonOutputAsync(ServiceProvider ynacProvider, BudgetCommandSettings settings)
-    {
-        var budgetSelector = ynacProvider.GetRequiredService<IBudgetSelector>();
-        var budgetQueryService = ynacProvider.GetRequiredService<IBudgetQueryService>();
-        var jsonOutputService = ynacProvider.GetRequiredService<IJsonOutputService>();
-        
-        var pullLastUsedBudget = settings.PullLastUsed;
-        var filter = settings.BudgetFilter ?? "";
-        
-        var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
-        
-        if (selectedBudget.Type == BudgetType.NotFound)
-        {
-            Console.Error.WriteLine("Error: Budget(s) not found");
-            throw new InvalidOperationException("Budget not found");
-        }
-        
-        var categoryFilter = settings.CategoryFilter;
-        var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
-        var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
-        {
-            options.SelectedBudget = selectedBudget;
-            options.CategoryFilter = categoryFilter;
-            options.ShowHiddenCategories = settings.ShowHiddenCategories;
-        });
-        
-        // Determine output path: "-" or empty means stdout, anything else is a file path
-        var outputPath = string.IsNullOrWhiteSpace(settings.OutputJson) || settings.OutputJson == "-" 
-            ? null 
-            : settings.OutputJson;
-        
-        await jsonOutputService.OutputBudgetJsonAsync(selectedBudget, selectedBudgetFull, categoryGroups, outputPath);
     }
 }
 
@@ -169,11 +158,11 @@ public sealed class BudgetCommandSettings : CommandSettings
     [DefaultValue(false)]
     public bool DebugSkipConfig { get; init; }
     
-    [Description("Output the budget data as JSON. Provide a file path to write to a file, or use '-' to write to " +
-                 "standard output (stdout) for piping to other tools like jq. " +
+    [Description("Output the budget data as JSON to stdout for piping to other tools like jq. " +
                  "When this flag is used, the interactive console display is skipped. " +
                  "The --open flag will be ignored when outputting JSON. " +
-                 "Example: ynac mybudget -j output.json or ynac mybudget -j - | jq")]
+                 "Example: ynac mybudget -j | jq")]
     [CommandOption("-j|--output-json")]
-    public string? OutputJson { get; init; }
+    [DefaultValue(false)]
+    public bool OutputJson { get; init; }
 }
