@@ -5,6 +5,7 @@ using ynab.Category;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.Commands;
+using ynac.JsonOutput;
 using ynac.OSFeatures;
 
 namespace ynac;
@@ -15,62 +16,73 @@ internal class YnacConsole(
     IBudgetSelector budgetSelector,
     IEnumerable<IBudgetAction> budgetActions,
     IValueFormatter valueFormatter,
-	IAnsiConsoleService ansiConsoleService
+    IAnsiConsoleService ansiConsoleService,
+    IJsonOutputWriter jsonOutputWriter
 ) : IYnacConsole
 {
     public async Task RunAsync(BudgetCommandSettings settings)
     {
-        ansiConsoleService.WriteHeaderRule("[bold]You Need A Console[/]");
+        if (!settings.JsonOutput)
+        {
+            ansiConsoleService.WriteHeaderRule("[bold]You Need A Console[/]");
+        }
 
-		var pullLastUsedBudget = settings.PullLastUsed;
-		var filter = settings.BudgetFilter ?? "";
-	
-		var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
-		
-		if (selectedBudget.Type == BudgetType.NotFound)
-		{
-			ansiConsoleService.Markup("[red]Budget(s) not found[/]");
-			return;
-		}
+        var pullLastUsedBudget = settings.PullLastUsed;
+        var filter = settings.BudgetFilter ?? "";
+        var nonInteractive = settings.JsonOutput;
 
-		if (settings.Open)
-		{
-			budgetBrowserOpener.OpenBudget(selectedBudget);
-			return;
-		}
-			
-		var categoryFilter = settings.CategoryFilter;
-		var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
-		var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
-		{
-			options.SelectedBudget = selectedBudget;
-			options.CategoryFilter = categoryFilter;
-			options.ShowHiddenCategories = settings.ShowHiddenCategories;
-		});
-		
-		void RenderBudget()
-		{
-			var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
-			GenerateCategoryTable(categoryGroups, settings, table);
-			ansiConsoleService.Write(table);
-		}
-		
-		RenderBudget();
+        var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget, nonInteractive);
 
-		while (true)
-		{
-			var action = ansiConsoleService.Prompt(
-				new SelectionPrompt<IBudgetAction>()
-					.PageSize(10)
-					.MoreChoicesText("more..")
-					.AddChoices(budgetActions.OrderBy(b => b.Order))
-					.UseConverter(b => b.DisplayName)
-					.Title("Select an action:"));
-			
-			action.Execute();
-			RenderBudget();
-		}
-	}
+        if (selectedBudget.Type == BudgetType.NotFound)
+        {
+            ansiConsoleService.Markup("[red]Budget(s) not found[/]");
+            return;
+        }
+
+        if (settings.Open)
+        {
+            budgetBrowserOpener.OpenBudget(selectedBudget);
+            return;
+        }
+
+        var categoryFilter = settings.CategoryFilter;
+        var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
+        var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
+        {
+            options.SelectedBudget = selectedBudget;
+            options.CategoryFilter = categoryFilter;
+            options.ShowHiddenCategories = settings.ShowHiddenCategories;
+        });
+
+        if (settings.JsonOutput)
+        {
+            jsonOutputWriter.Write(selectedBudget, selectedBudgetFull, categoryGroups);
+            return;
+        }
+
+        void RenderBudget()
+        {
+            var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
+            GenerateCategoryTable(categoryGroups, settings, table);
+            ansiConsoleService.Write(table);
+        }
+
+        RenderBudget();
+
+        while (true)
+        {
+            var action = ansiConsoleService.Prompt(
+                new SelectionPrompt<IBudgetAction>()
+                    .PageSize(10)
+                    .MoreChoicesText("more..")
+                    .AddChoices(budgetActions.OrderBy(b => b.Order))
+                    .UseConverter(b => b.DisplayName)
+                    .Title("Select an action:"));
+
+            action.Execute();
+            RenderBudget();
+        }
+    }
 
 	internal void GenerateCategoryTable(IReadOnlyCollection<CategoryGroup> categoryGroups, BudgetCommandSettings settings, Table table)
 	{
