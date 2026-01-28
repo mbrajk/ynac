@@ -20,7 +20,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
 
         if (settings.Open && settings.PullLastUsed)
         {
-            AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n");
+            errorWriter.WriteError("Cannot use both --open and --last-used flags together. --open flag will be ignored");
             settings.Open = false;
         }
 
