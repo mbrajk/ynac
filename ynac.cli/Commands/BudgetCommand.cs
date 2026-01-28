@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using ynab;
+using ynac.ErrorHandling;
 
 namespace ynac.Commands;
 
@@ -13,6 +14,10 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "GetValue<bool> binds a primitive and does not rely on reflection-based member access; safe under trimming. Will ultimately migrate to source-generated binding later.")]
     public override async Task<int> ExecuteAsync(CommandContext context, BudgetCommandSettings settings, CancellationToken cancellationToken)
     {
+        IErrorWriter errorWriter = settings.JsonOutput
+            ? new PlainErrorWriter()
+            : new InteractiveErrorWriter();
+
         if (settings.Open && settings.PullLastUsed)
         {
             AnsiConsole.Markup("[red]Cannot use both --open and --last-used flags together. --open flag will be ignored[/]\n");
@@ -21,13 +26,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
 
         if (settings.JsonOutput && settings.Open)
         {
-            AnsiConsole.Markup("[red]Error: Cannot use --json-output with --open[/]\n");
-            return 1;
-        }
-
-        if (settings.JsonOutput && settings.HideAmounts)
-        {
-            AnsiConsole.Markup("[red]Error: Cannot use --json-output with --hide-amounts[/]\n");
+            errorWriter.WriteError("Cannot use --json-output with --open");
             return 1;
         }
 
@@ -41,7 +40,13 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         var hideAmountsConfig = configurationRoot.GetValue<bool>(Constants.YnacHideAmountsConfigPath);
         var hideAmounts = settings.HideAmounts || hideAmountsConfig;
 
-        var ynacConsoleSettings = new YnacConsoleSettings(token, hideAmounts);
+        if (settings.JsonOutput && hideAmounts)
+        {
+            errorWriter.WriteError("Cannot use --json-output with --hide-amounts");
+            return 1;
+        }
+
+        var ynacConsoleSettings = new YnacConsoleSettings(token, hideAmounts, errorWriter);
 
         var ynacProvider = YnacConsoleProvider.BuildYnacServices(ynacConsoleSettings);
 
@@ -53,22 +58,12 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
         }
         catch (YnabAuthenticationException ex)
         {
-            AnsiConsole.MarkupLine("\n[red bold]Authentication Error:[/]");
-            AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
-            AnsiConsole.MarkupLine("[yellow]To fix this issue:[/]");
-            AnsiConsole.MarkupLine($"  1. Get a valid API token from https://app.ynab.com/settings/developer");
-            AnsiConsole.MarkupLine($"  2. Run: [cyan]ynac --api-token=YOUR_TOKEN[/]");
-            AnsiConsole.MarkupLine($"  3. Or update the token in: [cyan]{Constants.ConfigFilePath}[/]\n");
+            errorWriter.WriteAuthError(ex.Message);
             return 1;
         }
         catch (YnabApiException ex)
         {
-            AnsiConsole.MarkupLine("\n[red bold]API Error:[/]");
-            AnsiConsole.MarkupLine($"[red]{ex.Message}[/]\n");
-            AnsiConsole.MarkupLine("[yellow]Troubleshooting steps:[/]");
-            AnsiConsole.MarkupLine($"  1. Check your internet connection");
-            AnsiConsole.MarkupLine($"  2. Verify the YNAB API is accessible at https://api.ynab.com");
-            AnsiConsole.MarkupLine($"  3. Try again in a few moments\n");
+            errorWriter.WriteApiError(ex.Message);
             return 1;
         }
 
@@ -76,7 +71,7 @@ public sealed class BudgetCommand : AsyncCommand<BudgetCommandSettings>
     }
 }
 
-public record struct YnacConsoleSettings(string Token, bool HideAmounts);
+public record struct YnacConsoleSettings(string Token, bool HideAmounts, IErrorWriter ErrorWriter);
 
 public sealed class BudgetCommandSettings : CommandSettings
 {

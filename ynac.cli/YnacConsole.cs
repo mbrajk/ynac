@@ -5,6 +5,7 @@ using ynab.Category;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.Commands;
+using ynac.ErrorHandling;
 using ynac.JsonOutput;
 using ynac.OSFeatures;
 
@@ -17,7 +18,8 @@ internal class YnacConsole(
     IEnumerable<IBudgetAction> budgetActions,
     IValueFormatter valueFormatter,
     IAnsiConsoleService ansiConsoleService,
-    IJsonOutputWriter jsonOutputWriter
+    IJsonOutputWriter jsonOutputWriter,
+    IErrorWriter errorWriter
 ) : IYnacConsole
 {
     public async Task RunAsync(BudgetCommandSettings settings)
@@ -35,7 +37,7 @@ internal class YnacConsole(
 
         if (selectedBudget.Type == BudgetType.NotFound)
         {
-            ansiConsoleService.Markup("[red]Budget(s) not found[/]");
+            errorWriter.WriteError("Budget(s) not found");
             return;
         }
 

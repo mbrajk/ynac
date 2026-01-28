@@ -5,6 +5,7 @@ using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.Commands;
 using ynac.CurrencyFormatting;
+using ynac.ErrorHandling;
 using ynac.JsonOutput;
 using ynac.OSFeatures;
 
@@ -20,6 +21,9 @@ public static class YnacConsoleProvider
 
         // Register currency visibility state initialized from settings
         services.AddSingleton<ICurrencyVisibilityState>(new CurrencyVisibilityState { Hidden = settings.HideAmounts });
+
+        // Register error writer for consistent error output
+        services.AddSingleton(settings.ErrorWriter);
         
         services.AddSingleton<ICurrencyFormatterResolver, CurrencyFormatterResolver>();
         services.AddSingleton<MaskedCurrencyFormatter>();
