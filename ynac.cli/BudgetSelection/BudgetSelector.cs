@@ -54,10 +54,10 @@ public class BudgetSelector : IBudgetSelector
                 .ToList();
         }
 
-        // In non-interactive mode (e.g., JSON output), use first match instead of prompting
-        if (nonInteractive && filteredBudgets.Any())
+        // In non-interactive mode (e.g., JSON output), use first match or return NoBudget if no matches
+        if (nonInteractive)
         {
-            return filteredBudgets.First();
+            return filteredBudgets.Any() ? filteredBudgets.First() : Budget.NoBudget;
         }
 
         var selectedBudget = _budgetPrompter.PromptBudgetSelection(filteredBudgets);
