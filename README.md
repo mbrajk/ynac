@@ -58,13 +58,19 @@ There are a few command line options to customize `ynac`:
   - Skips the budget selection and opens the last budget you accessed
   - Note: Cannot be used with `--open` flag due to limitations of YNAB's API
 
-- **`-h, --hide-amounts`** - Masks all monetary/numerical values
+- **`--hide-amounts`** - Masks all monetary/numerical values
   - Example: `ynac mybudget --hide-amounts`
   - Useful for sharing screenshots or when privacy is a concern
 
 - **`--api-token`** - Provide your API token via command line
   - Example: `ynac --api-token=YOUR_TOKEN_HERE`
   - Token will be saved to `config.ini` for future use
+
+- **`-j, --json-output`** - Output budget data as JSON to stdout
+  - Example: `ynac mybudget --json-output`
+  - Outputs structured JSON data instead of the interactive console interface
+  - Cannot be combined with `--open` or `--hide-amounts` flags
+  - Useful for scripting, automation, or piping data to other tools
 
 #### Category Filtering
 
