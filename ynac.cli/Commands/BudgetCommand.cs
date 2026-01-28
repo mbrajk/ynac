@@ -79,7 +79,7 @@ public sealed class BudgetCommandSettings : CommandSettings
     [CommandArgument(0, "[budgetFilter]")]
     public string? BudgetFilter { get; init; }
 
-    [Description("The category name to filter to. Will all first categorites containing this string")]
+    [Description("The category name to filter to. Will filter all categories containing this string.")]
     [CommandArgument(1, "[categoryFilter]")]
     public string? CategoryFilter { get; init; }
 
