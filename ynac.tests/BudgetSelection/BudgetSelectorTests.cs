@@ -76,7 +76,7 @@ public class BudgetSelectorTests
     }
 
     [TestMethod]
-    public async Task SelectBudget_NonInteractiveWithEmptyFilter_ReturnsFirstBudget()
+    public async Task SelectBudget_NonInteractiveWithEmptyFilter_ReturnsLastUsedBudget()
     {
         // Arrange
         var budget1 = new Budget { Id = Guid.NewGuid(), Name = "Budget 1" };
