@@ -124,7 +124,7 @@ public sealed class BudgetCommandSettings : CommandSettings
     [DefaultValue(false)]
     public bool ShowHiddenCategories { get; init; }
 
-    [Description("Output budget data as JSON to stdout instead of interactive mode")]
+    [Description("Output budget data as JSON to stdout instead of interactive mode. Cannot be combined with --open or --hide-amounts.")]
     [CommandOption("-j|--json-output")]
     [DefaultValue(false)]
     public bool JsonOutput { get; init; }
