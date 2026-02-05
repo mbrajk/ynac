@@ -15,7 +15,8 @@ internal class YnacConsole(
     IBudgetSelector budgetSelector,
     IEnumerable<IBudgetAction> budgetActions,
     IValueFormatter valueFormatter,
-	IAnsiConsoleService ansiConsoleService
+	IAnsiConsoleService ansiConsoleService,
+	IBudgetContext budgetContext
 ) : IYnacConsole
 {
     public async Task RunAsync(BudgetCommandSettings settings)
@@ -26,6 +27,9 @@ internal class YnacConsole(
 		var filter = settings.BudgetFilter ?? "";
 	
 		var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
+		
+		// Store selected budget in context for actions
+		budgetContext.CurrentBudget = selectedBudget;
 		
 		if (selectedBudget.Type == BudgetType.NotFound)
 		{
