@@ -75,6 +75,22 @@ You can filter to specific categories by providing a search term as the second a
 ynac mybudget groceries
 ```
 
+### Interactive Actions
+
+After the budget is displayed, `ynac` prompts for an action. The following actions are available:
+
+- **List transactions** - shows transactions from the last 7, 30 or 90 days with cleared and approved status
+- **Approve transactions** - lists all unapproved transactions and approves the ones you select
+- **Categorize transactions** - lists all uncategorized transactions and lets you assign a category to each
+- **Add transaction** - creates a new transaction (account, payee, category, amount, date, memo, cleared status)
+- **Edit budgeted amount** - changes how much is assigned to a category for the current month
+- **View accounts** - balances for all open accounts, split into on-budget and tracking sections
+- **View scheduled transactions** - upcoming scheduled transactions ordered by next occurrence
+- **Hide/Show amounts** - toggles masking of all monetary values for the current session
+- **Exit**
+
+Actions that change data always ask for confirmation before anything is written to YNAB, and the budget view refreshes automatically afterwards. If amounts are hidden (`--hide-amounts`), actions that write data offer to temporarily reveal amounts so you can see what you are changing.
+
 ## Development
 :warning: The following instructions are only needed if you would like to develop or debug the application or otherwise prefer to run it through .NET
 
@@ -113,8 +129,8 @@ You can still provide config values through environment variables (e.g., `YnabAp
   - The library driving the console styling
 
 ### Potential Improvements
-- Include additional features from the YNAB API
-- Provide write commands (e.g. approving or categorizing a transaction)
+- Surface remaining API wrapper features in the UI (payee rename, scheduled transaction create/edit/delete, transaction import)
+- Migrate to a fully interactive terminal UI (see [TUI_PLAN.md](./TUI_PLAN.md))
 - Further improvements detailed on the [issue tracker](https://github.com/mbrajk/ynac/issues)
 
 For AI tooling, refer to the current AI instructions: [AI_INSTRUCTIONS.md](./AI_INSTRUCTIONS.md).

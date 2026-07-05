@@ -13,6 +13,7 @@ internal class YnacConsole(
     IBudgetQueryService budgetQueryService,
     IBudgetBrowserOpener budgetBrowserOpener,
     IBudgetSelector budgetSelector,
+    IBudgetContext budgetContext,
     IEnumerable<IBudgetAction> budgetActions,
     IValueFormatter valueFormatter,
 	IAnsiConsoleService ansiConsoleService
@@ -24,21 +25,23 @@ internal class YnacConsole(
 
 		var pullLastUsedBudget = settings.PullLastUsed;
 		var filter = settings.BudgetFilter ?? "";
-	
+
 		var selectedBudget = await budgetSelector.SelectBudget(filter, pullLastUsedBudget);
-		
+
 		if (selectedBudget.Type == BudgetType.NotFound)
 		{
 			ansiConsoleService.Markup("[red]Budget(s) not found[/]");
 			return;
 		}
 
+		budgetContext.SelectedBudget = selectedBudget;
+
 		if (settings.Open)
 		{
 			budgetBrowserOpener.OpenBudget(selectedBudget);
 			return;
 		}
-			
+
 		var categoryFilter = settings.CategoryFilter;
 		var selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
 		var categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
@@ -47,14 +50,14 @@ internal class YnacConsole(
 			options.CategoryFilter = categoryFilter;
 			options.ShowHiddenCategories = settings.ShowHiddenCategories;
 		});
-		
+
 		void RenderBudget()
 		{
 			var table = CreateTable(selectedBudget.Name, selectedBudgetFull);
 			GenerateCategoryTable(categoryGroups, settings, table);
 			ansiConsoleService.Write(table);
 		}
-		
+
 		RenderBudget();
 
 		while (true)
@@ -66,8 +69,22 @@ internal class YnacConsole(
 					.AddChoices(budgetActions.OrderBy(b => b.Order))
 					.UseConverter(b => b.DisplayName)
 					.Title("Select an action:"));
-			
-			action.Execute();
+
+			await action.ExecuteAsync();
+
+			// an action changed data on the server, re-fetch before rendering again
+			if (budgetContext.DataStale)
+			{
+				selectedBudgetFull = await budgetQueryService.GetBudgetMonth(selectedBudget);
+				categoryGroups = await budgetQueryService.GetBudgetCategories(options =>
+				{
+					options.SelectedBudget = selectedBudget;
+					options.CategoryFilter = categoryFilter;
+					options.ShowHiddenCategories = settings.ShowHiddenCategories;
+				});
+				budgetContext.DataStale = false;
+			}
+
 			RenderBudget();
 		}
 	}

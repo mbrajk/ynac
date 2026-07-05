@@ -23,8 +23,9 @@ public class ToggleHideAmountsBudgetAction : IBudgetAction
 
     public int Order => 0;
 
-    public void Execute()
+    public Task ExecuteAsync()
     {
         _visibilityState.Hidden = !_visibilityState.Hidden;
+        return Task.CompletedTask;
     }
 }

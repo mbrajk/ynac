@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-ynac is a cross-platform .NET 9 console application that displays YNAB (You Need A Budget) information using Spectre.Console for rich CLI output. It connects to the YNAB REST API to fetch and display budget data.
+ynac is a cross-platform .NET 10 console application that displays and edits YNAB (You Need A Budget) information using Spectre.Console for rich CLI output. It connects to the YNAB REST API to fetch and display budget data, and supports write operations (approving/categorizing/creating transactions, editing budgeted amounts).
 
 ### Key Projects
 - **ynac.cli**: CLI entry point, UI rendering (Spectre.Console), commands, and actions
@@ -18,21 +18,23 @@ ynac is a cross-platform .NET 9 console application that displays YNAB (You Need
 ### API Layer
 - `IBudgetApi` implementation (`BudgetApi`) backed by HttpClient
 - Base URL: `https://api.ynab.com/v1/`
-- Query services: `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService`
+- Query services (reads): `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService`, `IPayeeQueryService`, `ITransactionQueryService`, `IScheduledTransactionQueryService`, `IUserQueryService`
+- Command services (writes): `ITransactionCommandService`, `ICategoryCommandService`, `IPayeeCommandService`, `IScheduledTransactionCommandService`
 - All HTTP calls use `.AddStandardResilienceHandler()` for retries/circuit breaking
+- YNAB rate limit is 200 requests/hour per token — fetch with intent (use `since_date`/`type` filters)
 
 ### Configuration
 - Config file: `config.ini` created from `ynac._res.config.template.ini`
 - API token stored in `[YnabApi]` section with `Token` key
-- Token resolution: CLI option `--api-token` → config.ini → console prompt
+- Token resolution: CLI option `--api-token` → config.ini → env var `YnabApi__Token` → console prompt
 - **Security**: Token stored in plain text; never log or commit it
 
 ## Important Data Contracts
 
 ### Currency Values
 - **CRITICAL**: All currency values from YNAB API are in **milliunits** (thousandths)
-- Always divide by 1000 before displaying to users
-- Affected fields: `Category.Budgeted`, `Category.Activity`, `Category.Balance`, `BudgetMonth.ToBeBudgeted`
+- Always divide by 1000 before displaying to users; multiply dollars by 1000 when building write payloads
+- Affected fields: `Category.Budgeted/Activity/Balance`, `BudgetMonth.ToBeBudgeted`, `Account.Balance`, `Transaction.Amount`, `ScheduledTransaction.Amount`
 
 ### Response Envelope
 - API responses use `QueryResponse<T> { T? Data }` wrapper
@@ -59,7 +61,7 @@ ynac is a cross-platform .NET 9 console application that displays YNAB (You Need
 ## Coding Conventions
 
 ### C# Style
-- C# 12 / .NET 9 patterns: primary constructors, file-scoped namespaces, records where appropriate
+- C# 13 / .NET 10 patterns: primary constructors, file-scoped namespaces, records where appropriate
 - Use `async/await` with `Task` consistently
 - Models use `init;` for immutability
 - Prefer defaults over null to avoid NRE in rendering
@@ -92,10 +94,11 @@ ynac is a cross-platform .NET 9 console application that displays YNAB (You Need
 ## Extensibility
 
 ### Adding a New User Action
-1. Implement `IBudgetAction` with `DisplayName`, `Order`, and `Execute()`
-2. Register in DI container
+1. Implement `IBudgetAction` with `DisplayName`, `Order`, and `ExecuteAsync()`
+2. Register in DI container (`YnacConsoleProvider`)
 3. Appears automatically in action picker
-4. After `Execute()`, table re-renders automatically
+4. After `ExecuteAsync()`, table re-renders automatically; set `IBudgetContext.DataStale = true` if the action changed server data so the console re-fetches first
+5. Confirm before writes, and wrap write flows in `BudgetActionHelpers.RunWithAmountsRevealOffer` so hidden amounts are handled safely
 
 ### Adding API Endpoints
 1. Extend `IBudgetApi` + `BudgetApi`

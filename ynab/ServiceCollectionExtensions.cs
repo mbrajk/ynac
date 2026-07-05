@@ -3,6 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using ynab.Account;
 using ynab.Budget;
 using ynab.Category;
+using ynab.Payee;
+using ynab.ScheduledTransaction;
+using ynab.Transaction;
+using ynab.User;
 
 namespace ynab;
 
@@ -39,8 +43,16 @@ public static class YnabApiServiceCollectionExtensions
         services.AddSingleton<IBudgetApi, BudgetApi>();
         services.AddSingleton<IBudgetQueryService, BudgetQueryService>();
         services.AddSingleton<ICategoryQueryService, CategoryQueryService>();
+        services.AddSingleton<ICategoryCommandService, CategoryCommandService>();
         services.AddSingleton<IAccountQueryService, AccountQueryService>();
-        
+        services.AddSingleton<IPayeeQueryService, PayeeQueryService>();
+        services.AddSingleton<IPayeeCommandService, PayeeCommandService>();
+        services.AddSingleton<ITransactionQueryService, TransactionQueryService>();
+        services.AddSingleton<ITransactionCommandService, TransactionCommandService>();
+        services.AddSingleton<IScheduledTransactionQueryService, ScheduledTransactionQueryService>();
+        services.AddSingleton<IScheduledTransactionCommandService, ScheduledTransactionCommandService>();
+        services.AddSingleton<IUserQueryService, UserQueryService>();
+
         return services;
     }
 }

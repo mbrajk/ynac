@@ -2,27 +2,27 @@
 
 This document orients AI tooling and contributors to the ynac codebase. Treat keeping this document accurate as high-priority technical debt. When you change public behavior, add features, or refactor structure, update this guide in the same PR.
 
-Last reviewed: 2026-01-08
+Last reviewed: 2026-07-04
 
 
 ## Purpose and scope
 
-- Goal: Console app (Spectre.Console) that displays YNAB budget information via the YNAB REST API.
+- Goal: Console app (Spectre.Console) that displays and edits YNAB budget information via the YNAB REST API.
 - Projects:
   - ynac.cli: CLI and UI (Spectre.Console), orchestration, config, OS helpers, commands, actions.
-  - ynab: API client + query services + models + System.Text.Json source-gen context.
-  - ynab.api: placeholder/auxiliary (currently minimal; not primary entry point).
-  - ynac.tests: MSTest tests (currently focused on token/config handling).
+  - ynab: API client + query/command services + models + System.Text.Json source-gen context.
+  - ynac.tests: MSTest tests (token/config handling, currency formatting, budget actions, ynab services and serialization).
 
 
 ## High-level architecture
 
 - CLI entry: `ynac.cli/Program.cs` initializes config file then runs `BudgetCommand`.
 - Command: `BudgetCommand` parses settings, resolves API token, builds DI container via `YnacConsoleProvider` (see `ynac.cli`), and dispatches to `IYnacConsole.RunAsync`.
-- Console flow: `YnacConsole` shows header, selects budget (via `IBudgetSelector`), optional open-in-browser, loads current-month budget + categories, renders table, then prompts for actions (`IBudgetAction`).
-- API layer: `ynab` project provides `IBudgetApi` implementation (`BudgetApi`) backed by `HttpClient` configured by `AddYnabApi(token)` extension.
-- Query services: `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService` encapsulate higher-level use-cases on top of API.
-- Models: `Budget`, `BudgetMonth`, `CategoryGroup`, `Category`, `Account` (see `ynab/*`) mirror YNAB API shapes (System.Text.Json).
+- Console flow: `YnacConsole` shows header, selects budget (via `IBudgetSelector`), stores it in `IBudgetContext`, optional open-in-browser, loads current-month budget + categories, renders table, then prompts for actions (`IBudgetAction`). When an action sets `IBudgetContext.DataStale`, the console re-fetches month + categories before re-rendering.
+- API layer: `ynab` project provides `IBudgetApi` implementation (`BudgetApi`) backed by `HttpClient` configured by `AddYnabApi(token)` extension. Covers user, budgets, months, categories (read + write), accounts, payees (read + write), transactions (full CRUD + bulk update + import) and scheduled transactions (full CRUD).
+- Query services (reads): `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService`, `IPayeeQueryService`, `ITransactionQueryService`, `IScheduledTransactionQueryService`, `IUserQueryService`.
+- Command services (writes): `ITransactionCommandService`, `ICategoryCommandService`, `IPayeeCommandService`, `IScheduledTransactionCommandService`.
+- Models: `Budget`, `BudgetMonth`, `CategoryGroup`, `Category`, `Account`, `Payee`, `Transaction`, `ScheduledTransaction`, `User` plus `Save*` request payloads (see `ynab/*`) mirror YNAB API shapes (System.Text.Json).
 
 
 ## Configuration and secrets
@@ -48,16 +48,16 @@ Last reviewed: 2026-01-08
 
 ## HTTP/API client
 
-- `BudgetApi` methods:
-  - `GetBudgetsAsync()` -> `QueryResponse<BudgetResponse>`
-  - `GetBudgetMonthAsync(budgetId, month)` -> `QueryResponse<BudgetMonthResponse>`
-  - `GetBudgetCategoriesAsync(budgetId)` -> `QueryResponse<CategoryResponse>`
-  - `GetBudgetAccountsAsync(budgetId)` -> `QueryResponse<AccountResponse>`
+- `BudgetApi` endpoints (all return `QueryResponse<T>`; members are `internal` — consume through query/command services):
+  - Reads: `GetUserAsync`, `GetBudgetsAsync`, `GetBudgetMonthAsync(budgetId, month)`, `GetBudgetMonthsAsync`, `GetBudgetCategoriesAsync`, `GetBudgetAccountsAsync`, `GetBudgetPayeesAsync`, `GetTransactionsAsync(budgetId, sinceDate?, type?)`, `GetAccountTransactionsAsync`, `GetCategoryTransactionsAsync`, `GetPayeeTransactionsAsync`, `GetTransactionAsync`, `GetScheduledTransactionsAsync`.
+  - Writes: `CreateTransactionAsync` (POST), `UpdateTransactionAsync` (PUT), `UpdateTransactionsAsync` (PATCH bulk), `DeleteTransactionAsync`, `ImportTransactionsAsync` (POST, pulls from linked accounts), `UpdateMonthCategoryAsync` (PATCH budgeted), `UpdateCategoryAsync` (PATCH name/note), `UpdatePayeeAsync` (PATCH name), `CreateScheduledTransactionAsync`, `UpdateScheduledTransactionAsync`, `DeleteScheduledTransactionAsync`.
+  - `sinceDate` is `yyyy-MM-dd`; transaction `type` filter is `unapproved` or `uncategorized` (see `TransactionsFilter`).
 - `AddYnabApi(token)` configures named `HttpClient` (name: `BudgetApi`) with:
   - BaseAddress: `{YnabOptions.Endpoint}/{YnabOptions.Version}/` (currently `https://api.ynab.com/v1/`).
   - Header: `Authorization: Bearer {token}`.
   - Resilience: `.AddStandardResilienceHandler()` (Microsoft.Extensions.Http.Resilience).
-- Error handling: `BudgetApi` catches exceptions and writes `ex.ToString()` to console, returning default/empty response. Callers should handle empty/missing Data.
+- Error handling: 401 → `YnabAuthenticationException`; other HTTP failures → `YnabApiException`. Write helpers call `EnsureSuccessStatusCode()` so failed writes surface as `YnabApiException` rather than silent defaults. Callers should still handle empty/missing `Data`.
+- Rate limiting: YNAB allows 200 requests/hour per token. Fetch with intent — list endpoints accept `since_date`/`type` filters to keep payloads and request counts small. List responses expose `ServerKnowledge` for future delta-request support.
 
 
 ## Query services (business logic)
@@ -69,8 +69,21 @@ Last reviewed: 2026-01-08
   - Category retrieval can be configured via `BudgetCategorySearchOptions`:
     - `SelectedBudget` (required), `CategoryFilter` (contains match), `ShowHiddenCategories` (defaults to false, respects CLI flag), `ShowDeletedCategories` (deleted categories are always filtered out).
     - First category group is skipped (YNAB internal master category).
+- `BudgetQueryService.GetBudgetMonths(budget)` returns non-deleted month summaries, newest first.
 - `CategoryQueryService.GetBudgetCategoriesAsync(budget)` returns full groups collection from API.
 - `AccountQueryService.GetBudgetAccounts(budget)` returns accounts or default `[new Account()]`.
+- `PayeeQueryService.GetBudgetPayees(budget)` returns non-deleted payees.
+- `TransactionQueryService` returns non-deleted transactions, newest first; overloads for budget-wide, per-account, per-category and per-payee, each accepting an optional `sinceDate` and (budget-wide) a `TransactionsFilter`.
+- `ScheduledTransactionQueryService.GetScheduledTransactions(budget)` returns non-deleted scheduled transactions ordered by `DateNext`.
+- `UserQueryService.GetAuthenticatedUserId()` returns the token owner's user id.
+
+Command services (writes)
+
+- `TransactionCommandService`: `CreateTransaction`, `UpdateTransaction`, `UpdateTransactions` (bulk PATCH; empty input short-circuits without an API call), `ApproveTransactions(ids)`, `CategorizeTransactions(id→category pairs)`, `DeleteTransaction`, `ImportLinkedAccountTransactions`.
+- `CategoryCommandService`: `SetMonthCategoryBudgeted(budget, month, categoryId, budgetedMilliunits)` (`CategoryCommandService.CurrentMonth` = "current"), `UpdateCategory(name/note)`.
+- `PayeeCommandService.RenamePayee`.
+- `ScheduledTransactionCommandService`: `CreateScheduledTransaction`, `UpdateScheduledTransaction`, `DeleteScheduledTransaction`.
+- Write payloads (`SaveTransaction`, `SaveScheduledTransaction`, `SaveCategory`, ...) use nullable properties; nulls are omitted from JSON (`WhenWritingNull`), which leaves those fields unchanged on update. Amounts in payloads are milliunits.
 
 
 
@@ -95,8 +108,10 @@ Last reviewed: 2026-01-08
   - With `--show-goals`, category cell becomes a breakdown chart for `GoalPercentageComplete`.
 - After render, the app loops, prompting user to pick an `IBudgetAction` (sorted by `Order`). 
 - Actions are re-evaluated each loop, allowing dynamic DisplayName values.
-- After executing an action, YnacConsole re-renders the budget table to reflect any state changes.
-- Sample actions: `ToggleHideAmountsBudgetAction`, `ExitBudgetAction`.
+- After executing an action, YnacConsole re-renders the budget table. If the action set `IBudgetContext.DataStale`, the month and categories are re-fetched first.
+- Registered actions: `ToggleHideAmountsBudgetAction` (0), `ListTransactionsBudgetAction` (1), `ApproveTransactionsBudgetAction` (2), `CategorizeTransactionsBudgetAction` (3), `AddTransactionBudgetAction` (4), `EditCategoryBudgetedBudgetAction` (5), `ViewAccountsBudgetAction` (6), `ViewScheduledTransactionsBudgetAction` (7), `ExitBudgetAction` (last).
+- View-style actions render their own tables and block on "press enter to continue" (`BudgetActionHelpers.WaitForEnter`) so output can be read before the budget re-renders.
+- Write-style actions always confirm before calling the API (`ConfirmationPrompt`).
 
 CurrencyFormatting
 - All displayed amounts pass through `IValueFormatter` which internally uses `ICurrencyFormatter` (see `ynac.cli/CurrencyFormatting`).
@@ -105,7 +120,7 @@ CurrencyFormatting
 - The `HideAmounts` setting comes from CLI (`-h|--hide-amounts`) or `[Ynac] HideAmounts` in `config.ini` (path: `Constants.YnacHideAmountsConfigPath`).
 - Runtime toggling: `ToggleHideAmountsBudgetAction` flips the visibility state during the session. This toggle is session-only and does not persist to config; CLI/config flags only set the initial state.
 - See detailed guide: `ynac.cli/CurrencyFormatting/INSTRUCTIONS.md`.
-- Future approvals/write actions: When implementing transaction approvals or other write operations, re-evaluate how `--hide-amounts` should behave. It may be unsafe to approve transactions without seeing amounts. Options include: temporarily disallowing approvals while hidden, prompting to disable `--hide-amounts` for that action, or a specialized confirmation flow that reveals only the affected amount with explicit consent.
+- Write actions and hidden amounts: acting on amounts the user cannot see is risky, so write actions run through `BudgetActionHelpers.RunWithAmountsRevealOffer`, which offers to reveal amounts for the duration of the action and restores the hidden state afterwards.
 
 
 ## OS features
@@ -119,14 +134,15 @@ CurrencyFormatting
 
 - `AddYnabApi(token)` registers:
   - Named `HttpClient` for API.
-  - `IBudgetApi` (singleton), `IBudgetQueryService`, `ICategoryQueryService`, `IAccountQueryService` (singletons).
-- The `ynac.cli` project wires Spectre command and the console components in `YnacConsoleProvider` (see that file for service registrations).
+  - `IBudgetApi` plus all query and command services listed above (all singletons).
+- The `ynac.cli` project wires Spectre command and the console components in `YnacConsoleProvider` (see that file for service registrations), including `IBudgetContext` (shared session state) and every `IBudgetAction`.
 
 
 ## Testing
 
-- Framework: MSTest (`ynac.tests`).
-- Coverage: `TokenHandlerTests` validate config/token persistence behaviors across file states.
+- Framework: MSTest (`ynac.tests`) with FluentAssertions and NSubstitute.
+- Coverage: `TokenHandlerTests` (config/token persistence), currency formatting, budget actions, and `Ynab/*` tests for query/command services and serializer behavior (null-omission on writes, API-shape deserialization).
+- The `ynab` project exposes internals to `ynac.tests` and to `DynamicProxyGenAssembly2` so `IBudgetApi` (internal members) can be substituted in service tests.
 - Note: tests assume the working directory aligns with `AppContext.BaseDirectory` for `config.ini` placement.
 
 
@@ -144,9 +160,11 @@ CurrencyFormatting
 ## Extensibility points
 
 - Add a new user action:
-  - Implement `IBudgetAction` with `DisplayName`, `Order`, and `Execute()`; register in DI; it will auto-appear in the action picker.
+  - Implement `IBudgetAction` with `DisplayName`, `Order`, and `ExecuteAsync()`; register in DI; it will auto-appear in the action picker.
+  - Inject `IBudgetContext` to access the selected budget; set `DataStale = true` if the action changed data on the server so the console re-fetches before re-rendering.
   - DisplayName can be dynamic (re-evaluated each menu loop) to reflect current state (e.g., ToggleHideAmountsBudgetAction).
-  - After Execute() completes, YnacConsole re-renders the budget table, allowing actions to trigger immediate visual updates.
+  - After ExecuteAsync() completes, YnacConsole re-renders the budget table, allowing actions to trigger immediate visual updates.
+  - Wrap write flows in `BudgetActionHelpers.RunWithAmountsRevealOffer` and confirm before calling the API.
 - Add a new command:
   - Create a Spectre `Command` + `CommandSettings` and register in the `CommandApp`.
 - Add new API endpoints:
@@ -157,7 +175,7 @@ CurrencyFormatting
 
 ## Coding conventions
 
-- C# 12/NET 9 patterns: primary constructors, file-scoped namespaces, records where sensible, `async/await` with `Task`.
+- C# 13/.NET 10 patterns: primary constructors, file-scoped namespaces, records where sensible, `async/await` with `Task`.
 - Models are immutable via `init;` where possible.
 - Null-handling: prefer defaults to avoid NRE in rendering; validate required options.
 - Serialization: System.Text.Json with source generation (`YnabJsonSerializerContext`). Keep it updated when adding new models.
@@ -169,7 +187,10 @@ CurrencyFormatting
 - `YnacConsole` goal display is WIP and formatting may not match non-goal view.
 - `BudgetSelector` cache prevents refresh; add explicit refresh or time-based cache in future.
 - Error logging is basic (Console.WriteLine). Consider structured logging.
- - Currency: current default formatter is culture-sensitive; future multi-currency/localization can add a localized formatter or a masking decorator while preserving symbols/patterns.
+- Currency: current default formatter is culture-sensitive; future multi-currency/localization can add a localized formatter or a masking decorator while preserving symbols/patterns.
+- Wrapper features not yet surfaced in the UI: payee rename, scheduled transaction create/update/delete, transaction import, single-transaction get/update/delete, per-account/category/payee transaction views, month list.
+- Split (sub)transactions render as their parent only; creating splits is not supported.
+- Trimming: `Spectre.Console.Cli` produces IL2104 (third-party trim warnings); required Spectre.Cli internals are preserved via `[DynamicDependency]` in `Program.cs`. Full Native AOT (`PublishAot`) is not supported upstream by Spectre.Console.Cli; the supported shape is trimmed self-contained publish, and the `ynab` project is fully AOT-safe (source-generated JSON only).
 
 
 ## How to safely change behavior (AI checklist)
@@ -200,11 +221,11 @@ When implementing changes, follow this checklist:
 
 ## Questions to resolve before larger changes
 
-- Do we need write operations (approving/categorizing transactions)? If so, design auth/error strategy and add tests.
 - Should token storage be more secure (keychain/OS store) instead of plain-text `ini`?
 - What’s the desired refresh semantics for budgets/categories (cache TTL, manual refresh command)?
 - Standardize currency/formatting helpers to remove repeated `/1000` conversions and formatting.
-- Should we utilize the last knowledge id from the YNAB Api
+- Should we utilize `server_knowledge` for delta requests? The wrapper already surfaces it on list responses; the query services do not yet accept a `last_knowledge_of_server` parameter.
+- Which wrapper features should be surfaced in the UI next: payee rename, scheduled transaction create/edit/delete, transaction import, per-account/category/payee transaction views?
 
 
 ## Glossary

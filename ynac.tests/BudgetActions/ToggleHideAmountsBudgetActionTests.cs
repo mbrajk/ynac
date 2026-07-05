@@ -1,4 +1,4 @@
-using NSubstitute;
+﻿using NSubstitute;
 using ynac.BudgetActions;
 using ynac.BudgetSelection;
 using ynac.CurrencyFormatting;
@@ -45,7 +45,7 @@ public class ToggleHideAmountsBudgetActionTests
     }
 
     [TestMethod]
-    public void Execute_TogglesStateFromShownToHidden()
+    public async Task Execute_TogglesStateFromShownToHidden()
     {
         // Arrange
         var state = new CurrencyVisibilityState { Hidden = false };
@@ -53,14 +53,14 @@ public class ToggleHideAmountsBudgetActionTests
         var action = new ToggleHideAmountsBudgetAction(state, console);
 
         // Act
-        action.Execute();
+        await action.ExecuteAsync();
 
         // Assert
         Assert.IsTrue(state.Hidden);
     }
 
     [TestMethod]
-    public void Execute_TogglesStateFromHiddenToShown()
+    public async Task Execute_TogglesStateFromHiddenToShown()
     {
         // Arrange
         var state = new CurrencyVisibilityState { Hidden = true };
@@ -68,14 +68,14 @@ public class ToggleHideAmountsBudgetActionTests
         var action = new ToggleHideAmountsBudgetAction(state, console);
 
         // Act
-        action.Execute();
+        await action.ExecuteAsync();
 
         // Assert
         Assert.IsFalse(state.Hidden);
     }
 
     [TestMethod]
-    public void Execute_TogglesStateMultipleTimes()
+    public async Task Execute_TogglesStateMultipleTimes()
     {
         // Arrange
         var state = new CurrencyVisibilityState { Hidden = false };
@@ -85,13 +85,13 @@ public class ToggleHideAmountsBudgetActionTests
         // Act & Assert
         Assert.IsFalse(state.Hidden);
 
-        action.Execute();
+        await action.ExecuteAsync();
         Assert.IsTrue(state.Hidden);
 
-        action.Execute();
+        await action.ExecuteAsync();
         Assert.IsFalse(state.Hidden);
 
-        action.Execute();
+        await action.ExecuteAsync();
         Assert.IsTrue(state.Hidden);
     }
 }

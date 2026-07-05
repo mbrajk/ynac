@@ -4,5 +4,5 @@ public interface IBudgetAction
 {
    public string DisplayName { get; }
    public int Order { get; }
-   public void Execute(); 
+   public Task ExecuteAsync();
 }

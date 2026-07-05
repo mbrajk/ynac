@@ -13,6 +13,8 @@ internal class Program
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.ExplainCommand", "Spectre.Console.Cli")]
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.VersionCommand", "Spectre.Console.Cli")]
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.XmlDocCommand", "Spectre.Console.Cli")]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.OpenCliGeneratorCommand", "Spectre.Console.Cli")]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(EmptyCommandSettings))]
     public static async Task Main(string[] args)
     {
         var skipConfigCreation = args.Any(arg => arg.Equals("--debug-skip-config", StringComparison.OrdinalIgnoreCase));

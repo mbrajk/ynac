@@ -50,13 +50,18 @@ public static class YnacConsoleProvider
         services.AddSingleton<IBudgetPrompter, BudgetPrompter>();
         services.AddSingleton<IAnsiConsoleService, AnsiConsoleService>();
         services.AddSingleton<IBudgetSelector, BudgetSelector>();
-        
+        services.AddSingleton<IBudgetContext, BudgetContext>();
+
         services.AddSingleton<IBudgetAction, ToggleHideAmountsBudgetAction>();
+        services.AddSingleton<IBudgetAction, ListTransactionsBudgetAction>();
+        services.AddSingleton<IBudgetAction, ApproveTransactionsBudgetAction>();
+        services.AddSingleton<IBudgetAction, CategorizeTransactionsBudgetAction>();
+        services.AddSingleton<IBudgetAction, AddTransactionBudgetAction>();
+        services.AddSingleton<IBudgetAction, EditCategoryBudgetedBudgetAction>();
+        services.AddSingleton<IBudgetAction, ViewAccountsBudgetAction>();
+        services.AddSingleton<IBudgetAction, ViewScheduledTransactionsBudgetAction>();
         services.AddSingleton<IBudgetAction, ExitBudgetAction>();
-        //services.AddSingleton<IBudgetAction, MaskValuesAction>();
-        // add back when implemented
-        //services.AddSingleton<IBudgetAction, ListTransactionsBudgetAction>(); 
-        
+
         return services.BuildServiceProvider();
     }
 }

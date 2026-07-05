@@ -20,6 +20,13 @@ namespace ynab.Budget
         /// <param name="date">The date within the month to retrieve. If null, retrieves the current month.</param>
         /// <returns>Budget month data including categories and amounts.</returns>
         Task<BudgetMonth> GetBudgetMonth(Budget budget, DateOnly? date = null);
+
+        /// <summary>
+        /// Retrieves summaries for all months in the budget, newest first. Deleted months are filtered out.
+        /// </summary>
+        /// <param name="budget">The budget to retrieve months for.</param>
+        /// <returns>A read-only collection of budget months.</returns>
+        Task<IReadOnlyCollection<BudgetMonth>> GetBudgetMonths(Budget budget);
         
         /// <summary>
         /// Retrieves budget categories with search options configured via a callback.

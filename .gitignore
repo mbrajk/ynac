@@ -399,3 +399,6 @@ FodyWeavers.xsd
 .idea/
 .DS_Store
 .claude/
+
+# local YNAB API pulls (contain real financial data)
+.tmp_ynab_*.json

@@ -5,8 +5,9 @@ public class ExitBudgetAction : IBudgetAction
     public string DisplayName  => "Exit"; 
     public int Order  => int.MaxValue; 
 
-    public void Execute()
+    public Task ExecuteAsync()
     {
         Environment.Exit(0);
+        return Task.CompletedTask;
     }
 }
